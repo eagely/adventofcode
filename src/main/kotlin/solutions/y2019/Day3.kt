@@ -1,6 +1,7 @@
 package solutions.y2019
 
 import Solution
+import utils.Utils.abs
 import utils.Utils.extractNumbers
 import utils.point.Point
 import java.io.File
@@ -12,8 +13,8 @@ class Day3 : Solution(2019) {
         val line2 = getPathSet(input.readLines().filterNot { it.isBlank() }.last().split(","))
         val matches = line1.intersect(line2).toHashSet()
         matches.remove(Point(0, 0))
-        var dist: BigDecimal
-        var smallest = BigDecimal(Long.MAX_VALUE)
+        var dist: Int
+        var smallest = Int.MAX_VALUE
         for(i in matches) {
             dist = i.x.abs() + i.y.abs()
             if(dist < smallest)

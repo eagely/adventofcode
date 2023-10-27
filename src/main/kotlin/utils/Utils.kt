@@ -4,6 +4,7 @@ import utils.grid.Grid
 import utils.point.Point
 import java.math.BigDecimal
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.random.Random
 
 object Utils {
@@ -22,6 +23,10 @@ object Utils {
     fun String.removeTrailingNumbers(): String = this.replace(Regex("\\d+$"), "")
     fun Double.format(scale: Int) = "%.${scale}f".format(this)
     fun Float.format(scale: Int) = "%.${scale}f".format(this)
+    fun Int.abs() = Math.abs(this)
+    fun Long.abs() = Math.abs(this)
+    fun Int.pow(power: Int): Int = this.pow(power)
+    fun Long.pow(power: Int): Long = this.toDouble().pow(power).toLong()
     fun <T> List<T>.isAllEqual(): Boolean {
         for (i in 1 ..< this.size) if (this[i] != this[i - 1]) return false
         return true
