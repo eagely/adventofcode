@@ -1,29 +1,27 @@
 package utils.point
 
-import java.math.BigDecimal
+data class Point(var x: Int, var y: Int) {
+    constructor(x: Number, y: Number) : this(x.toInt(), y.toInt())
 
-data class Point(var x: BigDecimal, var y: BigDecimal) {
-    constructor(x: Number, y: Number) : this(BigDecimal(x.toString()), BigDecimal(y.toString()))
+    operator fun plus(other: Point) = Point(x + other.x, y + other.y)
 
-    operator fun plus(other: Point) = Point(x.add(other.x), y.add(other.y))
+    operator fun unaryPlus() = Point(+x, +y)
 
-    operator fun unaryPlus() = Point(x.plus(), y.plus())
+    operator fun minus(other: Point) = Point(x - other.x, y - other.y)
 
-    operator fun minus(other: Point) = Point(x.subtract(other.x), y.subtract(other.y))
+    operator fun unaryMinus() = Point(-x, -y)
 
-    operator fun unaryMinus() = Point(x.negate(), y.negate())
+    operator fun times(other: Point) = Point(x * other.x, y * other.y)
 
-    operator fun times(other: Point) = Point(x.multiply(other.x), y.multiply(other.y))
+    operator fun div(other: Point) = Point(x / other.x, y / other.y)
 
-    operator fun div(other: Point) = Point(x.divide(other.x), y.divide(other.y))
+    operator fun rem(other: Point) = Point(x % other.x, y % other.y)
 
-    operator fun rem(other: Point) = Point(x.remainder(other.x), y.remainder(other.y))
+    operator fun inc() = Point(x + 1, y + 1)
 
-    operator fun inc() = Point(x.add(BigDecimal.ONE), y.add(BigDecimal.ONE))
+    operator fun dec() = Point(x - 1, y - 1)
 
-    operator fun dec() = Point(x.subtract(BigDecimal.ONE), y.subtract(BigDecimal.ONE))
-
-    operator fun compareTo(other: Point) = (x.add(y)).compareTo(other.x.add(other.y))
+    operator fun compareTo(other: Point) = (x + y).compareTo(other.x + other.y)
 
     override fun toString() = "$x-$y"
 }

@@ -2,6 +2,7 @@ package solutions.y2016
 
 import java.io.File
 import Solution
+import utils.Utils.abs
 import utils.point.Point
 
 class Day1 : Solution(2016) {

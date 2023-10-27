@@ -3,7 +3,7 @@ package utils.grid
 import utils.point.Point
 
 data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
-    private val grid: MutableMap<Point, T> = mutableMapOf()
+    val grid: MutableMap<Point, T> = mutableMapOf()
 
     fun set(row: Int, column: Int, value: T) {
         grid[Point(row.toLong(), column.toLong())] = value
