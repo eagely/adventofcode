@@ -1,4 +1,4 @@
-package solutions
+package solutions.y2019
 
 import Solution
 import java.io.File
@@ -18,9 +18,7 @@ class Day6 : Solution(2019) {
 
 
     override fun solvePart2(input: File): String {
-        val orbitMap = input.readLines()
-            .map { it.substringAfter(")") to it.substringBefore(")") }
-            .toMap()
+        val orbitMap = input.readLines().map { it.substringAfter(")") to it.substringBefore(")") }.toMap()
 
         fun pathToCenter(planet: String): List<String> {
             return orbitMap[planet]?.let { listOf(it) + pathToCenter(it) } ?: emptyList()

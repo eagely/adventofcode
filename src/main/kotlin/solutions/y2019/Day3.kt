@@ -1,4 +1,4 @@
-package solutions
+package solutions.y2019
 
 import Solution
 import utils.Utils.extractNumbers
