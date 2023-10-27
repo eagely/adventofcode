@@ -40,3 +40,4 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+/src/main/kotlin/solutions/y2016/
