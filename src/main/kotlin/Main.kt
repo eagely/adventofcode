@@ -28,7 +28,7 @@ fun main() = runBlocking {
 
         if (!part1Output.exists()) {
             val start = System.currentTimeMillis()
-            val output = instance.solvePart1(input)
+            val output = instance.solvePart1(input).toString()
             val end = System.currentTimeMillis()
             println("Solution of ${instance.year}/${instance.day}, Part 1: $output")
             println("${instance.year}/${instance.day} Part 1 took ${end - start}ms\n")
@@ -43,7 +43,7 @@ fun main() = runBlocking {
 
         if (!part2Output.exists()) {
             val start = System.currentTimeMillis()
-            val output = instance.solvePart2(input)
+            val output = instance.solvePart2(input).toString()
             val end = System.currentTimeMillis()
             println("Solution of ${instance.year}/${instance.day}, Part 2: $output")
             println("${instance.year}/${instance.day} Part 2 took ${end - start}ms\n")

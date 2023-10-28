@@ -21,12 +21,12 @@ abstract class Solution(open val year: Int = Calendar.getInstance().get(Calendar
      * @param input The puzzle input.
      * @return The solution to the first part.
      */
-    abstract fun solvePart1(input: File): String
+    abstract fun solvePart1(input: File): Any
 
     /**
      * Solves the second part of the puzzle.
      * @param input The puzzle input.
      * @return The solution to the second part.
      */
-    abstract fun solvePart2(input: File): String
+    abstract fun solvePart2(input: File): Any
 }

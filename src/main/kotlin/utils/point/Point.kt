@@ -1,7 +1,24 @@
 package utils.point
 
+import kotlin.math.abs
+
 data class Point(var x: Int, var y: Int) {
     constructor(x: Number, y: Number) : this(x.toInt(), y.toInt())
+
+    fun isInside(maxX: Int, maxY: Int): Boolean {
+        return x in 0..<maxX && y in 0..<maxY
+    }
+
+    fun getCardinalNeighbors(): List<Point> {
+        return listOf(
+            Point(x, y - 1),  // North
+            Point(x + 1, y),  // East
+            Point(x, y + 1),  // South
+            Point(x - 1, y)   // West
+        )
+    }
+
+    fun manhattanDistance(other: Point) = abs(x - other.x) + abs(y - other.y)
 
     operator fun plus(other: Point) = Point(x + other.x, y + other.y)
 
