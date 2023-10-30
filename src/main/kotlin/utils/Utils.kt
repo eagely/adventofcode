@@ -19,6 +19,10 @@ object Utils {
     }
 
     fun String.extractNumbers(): String = this.filter { it.isDigit() }
+    fun String.extractNegatives(): String {
+        return Regex("-?\\d+").findAll(this)
+            .joinToString(separator = ",") { it.value }
+    }
     fun String.extractLetters(): String = this.filter { it.isLetter() }
     fun String.removeTrailingNumbers(): String = this.replace(Regex("\\d+$"), "")
     fun Double.format(scale: Int) = "%.${scale}f".format(this)
