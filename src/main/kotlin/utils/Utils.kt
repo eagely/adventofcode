@@ -71,7 +71,7 @@ object Utils {
             closedSet.add(currentNode)
 
             for (neighbor in grid.getNeighborPositions(currentNode.point.x.toInt(), currentNode.point.y.toInt())) {
-                if (grid.getValue(neighbor.x.toInt(), neighbor.y.toInt()) == true || closedSet.any { it.point == neighbor }) {
+                if (grid.get(neighbor.x.toInt(), neighbor.y.toInt()) == true || closedSet.any { it.point == neighbor }) {
                     continue
                 }
 
