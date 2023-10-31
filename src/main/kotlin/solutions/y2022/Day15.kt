@@ -1,4 +1,4 @@
-package solutions
+package solutions.y2022
 
 import Solution
 import utils.Utils.extractNegatives
@@ -6,7 +6,6 @@ import utils.grid.Grid
 import utils.point.Point
 import java.io.File
 
-data class SensorData(val loc: Point, val nearestBeacon: Point, val dist: Int)
 
 class Day15 : Solution(2022) {
     override fun solvePart1(input: File): String {
@@ -50,8 +49,7 @@ class Day15 : Solution(2022) {
             sensorSet.add(SensorData(locPoint, beaconPoint, distToBeacon))
         }
 
-        val caveLimit = 4000000
-        val validCaveRange = 0..caveLimit
+        val validCaveRange = 0..4000000
 
         for (sensor in sensorSet) {
             val borderPts = sensor.loc.calculateBorderPoints(sensor.dist)
@@ -74,4 +72,5 @@ class Day15 : Solution(2022) {
         val right = Point(x + distance + 1, y)
         return up.lineTo(right) + right.lineTo(down) + down.lineTo(left) + left.lineTo(up)
     }
+    data class SensorData(val loc: Point, val nearestBeacon: Point, val dist: Int)
 }
