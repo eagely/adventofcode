@@ -38,7 +38,6 @@ class Day14 : Solution(2022) {
             cave[currentPos] = 'o'
             sandCount++
         }
-
         return sandCount
     }
 
