@@ -1,28 +1,54 @@
 package utils.point
 
-import java.math.BigDecimal
+import kotlin.math.abs
 
-data class Point3D(var x: BigDecimal, var y: BigDecimal, var z: BigDecimal) {
-    constructor(x: Number, y: Number, z: Number) : this(BigDecimal(x.toString()), BigDecimal(y.toString()), BigDecimal(z.toString()))
-    operator fun plus(point: Point3D) = Point3D(x + point.x, y + point.y, z + point.z)
+data class Point3D(var x: Int, var y: Int, var z: Int) {
+    constructor(x: Number, y: Number, z: Number) : this(x.toInt(), y.toInt(), z.toInt())
 
-    operator fun unaryPlus() = this.copy()
+    val up: Point3D get() = Point3D(x, y + 1, z)
+    val down: Point3D get() = Point3D(x, y - 1, z)
+    val left: Point3D get() = Point3D(x - 1, y, z)
+    val right: Point3D get() = Point3D(x + 1, y, z)
+    val forward: Point3D get() = Point3D(x, y, z + 1)
+    val backward: Point3D get() = Point3D(x, y, z - 1)
 
-    operator fun minus(point: Point3D) = Point3D(x - point.x, y - point.y, z - point.z)
+    fun isInside(maxX: Int, maxY: Int, maxZ: Int): Boolean {
+        return x in 0 until maxX && y in 0 until maxY && z in 0 until maxZ
+    }
 
-    operator fun unaryMinus() = Point3D(-x, -y, -z)
+    fun getCardinalNeighbors(): Set<Point3D> {
+        return setOf(up, down, left, right, forward, backward)
+    }
 
-    operator fun times(point: Point3D) = Point3D(x * point.x, y * point.y, z * point.z)
+    fun getNeighbors(): List<Point3D> {
+        val neighbors = mutableListOf<Point3D>()
+        for (dx in -1..1) {
+            for (dy in -1..1) {
+                for (dz in -1..1) {
+                    if (dx != 0 || dy != 0 || dz != 0) {
+                        neighbors.add(Point3D(x + dx, y + dy, z + dz))
+                    }
+                }
+            }
+        }
+        return neighbors
+    }
 
-    operator fun div(point: Point3D) = Point3D(x / point.x, y / point.y, z / point.z)
 
-    operator fun rem(point: Point3D) = Point3D(x % point.x, y % point.y, z % point.z)
+    fun manhattanDistance(other: Point3D) = abs(x - other.x) + abs(y - other.y) + abs(z - other.z)
 
-    operator fun inc() = Point3D(x + BigDecimal.ONE, y + BigDecimal.ONE, z + BigDecimal.ONE)
-
-    operator fun dec() = Point3D(x - BigDecimal.ONE, y - BigDecimal.ONE, z - BigDecimal.ONE)
-
-    fun isSimilar(point: Point3D) = x == point.x || y == point.y || z == point.z
+    operator fun plus(other: Point3D) = Point3D(x + other.x, y + other.y, z + other.z)
+    operator fun minus(other: Point3D) = Point3D(x - other.x, y - other.y, z - other.z)
+    operator fun times(other: Point3D) = Point3D(x * other.x, y * other.y, z * other.z)
+    operator fun div(other: Point3D) = Point3D(x / other.x, y / other.y, z / other.z)
+    operator fun rem(other: Point3D) = Point3D(x % other.x, y % other.y, z % other.z)
 
     override fun toString() = "$x-$y-$z"
+
+    companion object {
+        fun of(input: String): Point3D {
+            val (x, y, z) = input.split(',').map { it.trim().toInt() }
+            return Point3D(x, y, z)
+        }
+    }
 }
