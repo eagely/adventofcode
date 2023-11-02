@@ -173,13 +173,14 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
         return newGrid
     }
     
-    fun fillWith(value: T) {
+    fun fillWith(value: T): Grid<T> {
         for (row in 0..<rows) {
             for (column in 0..<columns) {
                 if (get(row, column) != null) continue
                 set(row, column, value)
             }
         }
+        return this
     }
 
     fun addPoints(xRange: IntRange, yRange: IntRange, value: T) {

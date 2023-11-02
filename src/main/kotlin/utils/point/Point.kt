@@ -24,8 +24,8 @@ data class Point(var x: Int, var y: Int) {
         return listOf(up, right, down, left)
     }
 
-    fun getNeighbors(): List<Point> {
-        return listOf(up, upRight, right, downRight, down, downLeft, left, upLeft)
+    fun getNeighbors(): Set<Point> {
+        return setOf(up, upRight, right, downRight, down, downLeft, left, upLeft)
     }
 
     fun getCloserOrEqualPoints(target: Point): Set<Point> =
