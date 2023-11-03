@@ -1,4 +1,6 @@
 import kotlinx.coroutines.runBlocking
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.io.File
 import java.time.DateTimeException
 import java.time.LocalDate
@@ -10,8 +12,11 @@ fun main() = runBlocking {
     val solutions = getSolutions()
 
     solutions.forEach { instance ->
-        val cacheDir = "src/main/resources/cache/${instance.year}"
+        val cacheDir = "src/main/resources/cache/main/${instance.year}"
+        val testDir = "src/main/resources/cache/test/${instance.year}"
         val cachedInput = File(cacheDir, "${instance.year}-${instance.day}.in")
+        val testInput = File(testDir, "${instance.year}-${instance.day}.in")
+        testInput.createNewFile()
         val part1Output = File(cacheDir, "output_part1.txt")
         val part2Output = File(cacheDir, "output_part2.txt")
 
@@ -22,16 +27,18 @@ fun main() = runBlocking {
                 throw DateTimeException("Requested date is in the future, puzzle not yet unlocked.")
             val fetchedInput = client.getPuzzleInput(instance.year, instance.day)
             File(cacheDir).mkdirs()
+            File(testDir).mkdirs()
             cachedInput.writeText(fetchedInput)
             cachedInput
         }
 
         if (!part1Output.exists()) {
-            val start = System.currentTimeMillis()
             val output = instance.solvePart1(input).toString()
-            val end = System.currentTimeMillis()
-            println("Solution of ${instance.year}/${instance.day}, Part 1: $output")
-            println("${instance.year}/${instance.day} Part 1 took ${end - start}ms\n")
+            val testOutput = if(testInput.exists() && testInput.readLines().isNotEmpty()) instance.solvePart1(testInput).toString() else ""
+            if(testInput.exists() && testInput.readLines().isNotEmpty()) println("Test Part 1: $testOutput")
+            println("Real Part 1: $output")
+            Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(output), null)
+
 
 //            if (showPopup("Part 1 solution: $output. Submit?")) {
 //                val result = client.submitSolution(instance.year, instance.day, 1, output)
@@ -42,12 +49,12 @@ fun main() = runBlocking {
         }
 
         if (!part2Output.exists()) {
-            val start = System.currentTimeMillis()
             val output = instance.solvePart2(input).toString()
-            val end = System.currentTimeMillis()
-            println("Solution of ${instance.year}/${instance.day}, Part 2: $output")
-            println("${instance.year}/${instance.day} Part 2 took ${end - start}ms\n")
-
+            val testOutput = if(testInput.exists() && testInput.readLines().isNotEmpty()) instance.solvePart2(testInput).toString() else ""
+            if(testInput.exists() && testInput.readLines().isNotEmpty()) println("Test Part 2: $testOutput")
+            println("Real Part 2: $output")
+            if(output != "0" && output != "")
+                Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(output), null)
 //            if (showPopup("Part 2 solution: $output. Submit?")) {
 //                val result = client.submitAnswer(instance.year, instance.day, 2, output)
 //                println(result)

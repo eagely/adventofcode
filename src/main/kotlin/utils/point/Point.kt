@@ -1,31 +1,47 @@
 package utils.point
 
-import kotlin.math.abs
-import kotlin.math.absoluteValue
-import kotlin.math.sign
+import kotlin.math.*
 
 data class Point(var x: Int, var y: Int) {
     constructor(x: Number, y: Number) : this(x.toInt(), y.toInt())
 
-    val up: Point get() = Point(x, y + 1)
-    val upRight: Point get() = Point(x + 1, y + 1)
-    val right: Point get() = Point(x + 1, y)
-    val downRight: Point get() = Point(x + 1, y - 1)
-    val down: Point get() = Point(x, y - 1)
-    val downLeft: Point get() = Point(x - 1, y - 1)
-    val left: Point get() = Point(x - 1, y)
-    val upLeft: Point get() = Point(x - 1, y + 1)
+    val u: Point get() = Point(x, y + 1)
+    val ur: Point get() = Point(x + 1, y + 1)
+    val r: Point get() = Point(x + 1, y)
+    val dr: Point get() = Point(x + 1, y - 1)
+    val d: Point get() = Point(x, y - 1)
+    val dl: Point get() = Point(x - 1, y - 1)
+    val l: Point get() = Point(x - 1, y)
+    val ul: Point get() = Point(x - 1, y + 1)
 
     fun isInside(maxX: Int, maxY: Int): Boolean {
         return x in 0..<maxX && y in 0..<maxY
     }
 
     fun getCardinalNeighbors(): List<Point> {
-        return listOf(up, right, down, left)
+        return listOf(u, r, d, l)
     }
 
     fun getNeighbors(): Set<Point> {
-        return setOf(up, upRight, right, downRight, down, downLeft, left, upLeft)
+        return setOf(u, ur, r, dr, d, dl, l, ul)
+    }
+
+    fun lineTo(other: Point): List<Point> {
+        val xDelta = (other.x - x).sign
+        val yDelta = (other.y - y).sign
+        return generateSequence(this) { last ->
+            Point(last.x + xDelta, last.y + yDelta).takeIf { it != other }
+        }.toList()
+    }
+
+    fun rotate(degrees: Int = 180): Point {
+        return when (degrees.absoluteValue % 360) {
+            0 -> Point(x, y)
+            90 -> Point(-y, x)
+            180 -> Point(-x, -y)
+            270 -> Point(y, -x)
+            else -> throw IllegalArgumentException("Rotation must be a multiple of 90 degrees")
+        }
     }
 
     fun getCloserOrEqualPoints(target: Point): Set<Point> =
@@ -34,18 +50,6 @@ data class Point(var x: Int, var y: Int) {
                 Point(dx, dy).takeIf { it.manhattanDistance(this) <= this.manhattanDistance(target) }
             }
         }.toSet()
-
-
-    fun lineTo(other: Point): List<Point> {
-        val xDelta = (other.x - x).sign
-        val yDelta = (other.y - y).sign
-        val steps = maxOf((x - other.x).absoluteValue, (y - other.y).absoluteValue)
-        return generateSequence(this) { last ->
-            Point(last.x + xDelta, last.y + yDelta).takeIf { it != other }
-        }.toList()
-    }
-
-
 
     fun getCloserPoints(target: Point): Set<Point> =
         (x - this.manhattanDistance(target) .. x + this.manhattanDistance(target)).flatMap { dx ->

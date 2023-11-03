@@ -1,4 +1,5 @@
 package solutions.y2022
+
 import Solution
 import java.io.File
 
@@ -57,10 +58,11 @@ class Day5 : Solution(2022) {
                 stack[from].pop()
             }
         }
-        for(i in stack.indices)
+        for (i in stack.indices)
             topItems += stack[i].peek()
         return topItems
     }
+
     private fun getTopItemsUsingCrateMover9001(input: List<String>): String {
         val stack = parseInput(input)
         val stackSize = getStackSize(input)
@@ -73,16 +75,16 @@ class Day5 : Solution(2022) {
             move = Integer.parseInt(input[i].substring(input[i].indexOf("move ") + 5, input[i].indexOf(" from ")))
             from = Integer.parseInt(input[i].substring(input[i].indexOf("from ") + 5, input[i].indexOf(" to "))) - 1
             to = Integer.parseInt(input[i].substringAfter(" to ")) - 1
-            for(j in 0 ..< move) {
+            for (j in 0 ..< move) {
                 temporaryDeposit.push(stack[from].peek())
                 stack[from].pop()
             }
-            for(j in 0 ..< move) {
+            for (j in 0 ..< move) {
                 stack[to].push(temporaryDeposit.peek())
                 temporaryDeposit.pop()
             }
         }
-        for(i in stack.indices)
+        for (i in stack.indices)
             topItems += stack[i].peek()
         return topItems
     }
