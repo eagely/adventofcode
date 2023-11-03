@@ -8,16 +8,6 @@ import kotlin.math.pow
 import kotlin.random.Random
 
 object Utils {
-    fun <T> gridOf(rows: List<List<T?>>): Grid<T?> {
-        val grid = Grid<T?>()
-        for (i in rows.indices) {
-            for (j in rows[i].indices) {
-                grid.set(i, j, rows[i][j])
-            }
-        }
-        return grid
-    }
-
     fun String.extractNumbers(): String = this.filter { it.isDigit() }
     fun String.extractNegatives(): String {
         return Regex("-?\\d+").findAll(this)
@@ -103,4 +93,6 @@ object Utils {
     fun toCelsius(fahrenheit: Double) = (fahrenheit - 32) * 5 / 9
     fun Any?.print() = print(this)
     fun Any?.println() = println(this)
+    val String.l: Int get() = this.length
+    val Collection<*>.s: Int get() = this.size
 }

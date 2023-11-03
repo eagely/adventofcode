@@ -18,20 +18,20 @@ class Day14 : Solution(2022) {
 
         outer@ while (true) {
             currentPos = origin.copy()
-            nextPos = currentPos.up
+            nextPos = currentPos.u
 
             inner@ while (true) {
                 if (nextPos.y > cave.maxY) break@outer
 
                 if (cave.getOrDefault(nextPos, '.') == '.') {
                     currentPos = nextPos
-                    nextPos = currentPos.up
-                } else if (cave.getOrDefault(currentPos.upLeft, '.') == '.') {
-                    currentPos = currentPos.upLeft
-                    nextPos = currentPos.up
-                } else if (cave.getOrDefault(currentPos.upRight, '.') == '.') {
-                    currentPos = currentPos.upRight
-                    nextPos = currentPos.up
+                    nextPos = currentPos.u
+                } else if (cave.getOrDefault(currentPos.ul, '.') == '.') {
+                    currentPos = currentPos.ul
+                    nextPos = currentPos.u
+                } else if (cave.getOrDefault(currentPos.ur, '.') == '.') {
+                    currentPos = currentPos.ur
+                    nextPos = currentPos.u
                 } else break@inner
             }
 
@@ -51,7 +51,7 @@ class Day14 : Solution(2022) {
 
         outer@ while (true) {
             currentPos = origin.copy()
-            nextPos = currentPos.up
+            nextPos = currentPos.u
 
             inner@ while (true) {
                 if (cave[origin] == 'o') break@outer
@@ -61,13 +61,13 @@ class Day14 : Solution(2022) {
                 }
                 if (cave.getOrDefault(nextPos, '.') == '.') {
                     currentPos = nextPos
-                    nextPos = currentPos.up
-                } else if (cave.getOrDefault(currentPos.upLeft, '.') == '.') {
-                    currentPos = currentPos.upLeft
-                    nextPos = currentPos.up
-                } else if (cave.getOrDefault(currentPos.upRight, '.') == '.') {
-                    currentPos = currentPos.upRight
-                    nextPos = currentPos.up
+                    nextPos = currentPos.u
+                } else if (cave.getOrDefault(currentPos.ul, '.') == '.') {
+                    currentPos = currentPos.ul
+                    nextPos = currentPos.u
+                } else if (cave.getOrDefault(currentPos.ur, '.') == '.') {
+                    currentPos = currentPos.ur
+                    nextPos = currentPos.u
                 } else break@inner
             }
 

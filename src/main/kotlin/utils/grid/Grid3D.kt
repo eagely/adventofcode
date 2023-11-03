@@ -2,6 +2,7 @@ package utils.grid
 
 import utils.point.Point3D
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 data class Grid3D<T>(var depth: Int = 0, var rows: Int = 0, var columns: Int = 0) : Collection<T> {
     val grid: MutableMap<Point3D, T> = mutableMapOf()
 
@@ -45,14 +46,7 @@ data class Grid3D<T>(var depth: Int = 0, var rows: Int = 0, var columns: Int = 0
 
     fun getCardinalNeighborPositions(z: Int, x: Int, y: Int): Set<Point3D> {
         val neighbors = mutableSetOf<Point3D>()
-        val relativePositions = listOf(
-            Point3D(0, -1, 0),
-            Point3D(0, 0, -1),
-            Point3D(0, 0, 1),
-            Point3D(0, 1, 0),
-            Point3D(-1, 0, 0),
-            Point3D(1, 0, 0)
-        )
+        val relativePositions = getCardinalRelativePosition()
         for (position in relativePositions) {
             val potentialNeighbor = Point3D(z + position.z, x + position.x, y + position.y)
             if (grid.containsKey(potentialNeighbor)) {
@@ -66,17 +60,11 @@ data class Grid3D<T>(var depth: Int = 0, var rows: Int = 0, var columns: Int = 0
     fun getCardinalNeighbors(z: Int, x: Int, y: Int): Set<T?> =
         getCardinalNeighborPositions(z, x, y).map { get(it) }.toSet()
 
+    fun getCardinalRelativePosition(): List<Point3D> = listOf(Point3D(0, -1, 0), Point3D(0, 0, -1), Point3D(0, 0, 1), Point3D(0, 1, 0), Point3D(-1, 0, 0), Point3D(1, 0, 0))
+
     fun getRelativePositions(): List<Point3D> {
         val relativePositions = mutableListOf<Point3D>()
-        for (dz in -1..1) {
-            for (dx in -1..1) {
-                for (dy in -1..1) {
-                    if (dz != 0 || dx != 0 || dy != 0) {
-                        relativePositions.add(Point3D(dz, dx, dy))
-                    }
-                }
-            }
-        }
+        for (dz in -1 .. 1) for (dx in -1 .. 1) for (dy in -1 .. 1) if (dz != 0 || dx != 0 || dy != 0) relativePositions.add(Point3D(dz, dx, dy))
         return relativePositions
     }
 
@@ -109,6 +97,8 @@ data class Grid3D<T>(var depth: Int = 0, var rows: Int = 0, var columns: Int = 0
     fun getLowestOfValue(value: T): Point3D? = grid.filterValues { it == value }.keys.minByOrNull { it.y }
     fun getRightmostOfValue(value: T): Point3D? = grid.filterValues { it == value }.keys.maxByOrNull { it.x }
     fun getLeftmostOfValue(value: T): Point3D? = grid.filterValues { it == value }.keys.minByOrNull { it.x }
+    fun getFrontmostOfValue(value: T): Point3D? = grid.filterValues { it == value }.keys.maxByOrNull { it.z }
+    fun getBackmostOfValue(value: T): Point3D? = grid.filterValues { it == value }.keys.minByOrNull { it.z }
 
     fun fillWith(value: T): Grid3D<T> {
         for (z in 0 ..< depth) {
@@ -181,7 +171,6 @@ data class Grid3D<T>(var depth: Int = 0, var rows: Int = 0, var columns: Int = 0
 
         return true
     }
-
 
     override fun hashCode(): Int {
         var result = depth
