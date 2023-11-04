@@ -91,8 +91,14 @@ object Utils {
 
     fun toFahrenheit(celsius: Double) = celsius * 9 / 5 + 32
     fun toCelsius(fahrenheit: Double) = (fahrenheit - 32) * 5 / 9
-    fun Any?.print() = print(this)
-    fun Any?.println() = println(this)
+    fun Any?.print(): Any? {
+        print(this)
+        return this
+    }
+    fun Any?.println(): Any? {
+        println(this)
+        return this
+    }
     val String.l: Int get() = this.length
     val Collection<*>.s: Int get() = this.size
 }
