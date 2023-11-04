@@ -1,3 +1,4 @@
+
 import kotlinx.coroutines.runBlocking
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
@@ -33,11 +34,16 @@ fun main() = runBlocking {
         }
 
         if (!part1Output.exists()) {
-            val output = instance.solvePart1(input).toString()
+            var start = System.currentTimeMillis()
             val testOutput = if(testInput.exists() && testInput.readLines().isNotEmpty()) instance.solvePart1(testInput).toString() else ""
-            if(testInput.exists() && testInput.readLines().isNotEmpty()) println("Test Part 1: $testOutput")
-            println("Real Part 1: $output")
-            Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(output), null)
+            val time = System.currentTimeMillis() - start
+            if(testInput.exists() && testInput.readLines().isNotEmpty()) println("Test Part 1: $testOutput ($time ms)")
+            start = System.currentTimeMillis()
+            val output = instance.solvePart1(input).toString()
+
+            println("Real Part 1: $output (${System.currentTimeMillis() - start} ms)")
+            if(output != "0" && output != "")
+                Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(output), null)
 
 
 //            if (showPopup("Part 1 solution: $output. Submit?")) {
@@ -49,10 +55,13 @@ fun main() = runBlocking {
         }
 
         if (!part2Output.exists()) {
-            val output = instance.solvePart2(input).toString()
+            var start = System.currentTimeMillis()
             val testOutput = if(testInput.exists() && testInput.readLines().isNotEmpty()) instance.solvePart2(testInput).toString() else ""
-            if(testInput.exists() && testInput.readLines().isNotEmpty()) println("Test Part 2: $testOutput")
-            println("Real Part 2: $output")
+            val time = System.currentTimeMillis() - start
+            if(testInput.exists() && testInput.readLines().isNotEmpty()) println("Test Part 2: $testOutput ($time ms)")
+            start = System.currentTimeMillis()
+            val output = instance.solvePart2(input).toString()
+            println("Real Part 2: $output (${System.currentTimeMillis() - start} ms)")
             if(output != "0" && output != "")
                 Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(output), null)
 //            if (showPopup("Part 2 solution: $output. Submit?")) {
