@@ -17,7 +17,6 @@ fun main() = runBlocking {
         val testDir = "src/main/resources/cache/test/${instance.year}"
         val cachedInput = File(cacheDir, "${instance.year}-${instance.day}.in")
         val testInput = File(testDir, "${instance.year}-${instance.day}.in")
-        testInput.createNewFile()
         val part1Output = File(cacheDir, "output_part1.txt")
         val part2Output = File(cacheDir, "output_part2.txt")
 
@@ -29,6 +28,7 @@ fun main() = runBlocking {
             val fetchedInput = client.getPuzzleInput(instance.year, instance.day)
             File(cacheDir).mkdirs()
             File(testDir).mkdirs()
+            testInput.createNewFile()
             cachedInput.writeText(fetchedInput)
             cachedInput
         }
