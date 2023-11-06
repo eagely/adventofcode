@@ -2,6 +2,7 @@ package utils
 
 import utils.grid.Grid
 import utils.point.Point
+import java.io.File
 import java.math.BigDecimal
 import kotlin.math.abs
 import kotlin.math.pow
@@ -99,6 +100,8 @@ object Utils {
         println(this)
         return this
     }
+    fun File.rl(): List<String> = this.readLines().dropLastWhile { it.isBlank() }
+    fun File.rt(): String = this.readText().trim()
     val String.l: Int get() = this.length
     val Collection<*>.s: Int get() = this.size
 }

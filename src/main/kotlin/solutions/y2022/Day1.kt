@@ -3,8 +3,6 @@ import Solution
 import java.io.File
 
 class Day1 : Solution(2022) {
-
-
     override fun solvePart1(input: File): String {
         val lines: List<String> = input.readLines()
         return getMostNutritiousBackpack(lines).toString()
