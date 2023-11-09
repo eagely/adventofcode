@@ -1,7 +1,9 @@
 package utils.grid
 
+import utils.Utils.abs
 import utils.point.Point
-import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.sign
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
@@ -24,9 +26,13 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
 
     operator fun get(point: Point): T? = data[point]
     operator fun get(row: Int, col: Int): T? = data[Point(row, col)]
-    operator fun get(value: T): Point = data.entries.find { it.value == value }?.key ?: throw Exception("Value not found")
+    operator fun get(value: T): Point =
+        data.entries.find { it.value == value }?.key ?: throw Exception("Value not found")
+
     fun getOrDefault(point: Point, defaultValue: T): T = data.getOrDefault(point, defaultValue)
-    fun getOrDefault(value: T, defaultPoint: Point): Point = data.entries.find { it.value == value }?.key ?: defaultPoint
+    fun getOrDefault(value: T, defaultPoint: Point): Point =
+        data.entries.find { it.value == value }?.key ?: defaultPoint
+
     fun getPointsWithValue(value: T): Set<Point> = data.filterValues { it == value }.keys
 
     fun replace(oldValue: T, newValue: T): Grid<T> {
@@ -37,7 +43,7 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
 
     fun getRow(row: Int): List<T?> {
         val rowElements = mutableListOf<T?>()
-        for (col in minY..maxY) {
+        for (col in minY .. maxY) {
             rowElements.add(get(Point(row, col)))
         }
         return rowElements
@@ -45,7 +51,7 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
 
     fun getColumn(col: Int): List<T?> {
         val colElements = mutableListOf<T?>()
-        for (row in minX..maxX) {
+        for (row in minX .. maxX) {
             colElements.add(get(Point(row, col)))
         }
         return colElements
@@ -53,7 +59,7 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
 
     fun getRows(): List<List<T?>> {
         val rowsElements = mutableListOf<List<T?>>()
-        for (row in minX..maxX) {
+        for (row in minX .. maxX) {
             rowsElements.add(getRow(row))
         }
         return rowsElements
@@ -61,15 +67,15 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
 
     fun getColumns(): List<List<T?>> {
         val colsElements = mutableListOf<List<T?>>()
-        for (col in minY..maxY) {
+        for (col in minY .. maxY) {
             colsElements.add(getColumn(col))
         }
         return colsElements
     }
 
     fun getDiagonals(): List<List<T?>> {
-        val diagonal1 = (0..<rows).map { get(Point(it, it)) }
-        val diagonal2 = (0..<rows).map { get(Point(it, rows - it - 1)) }
+        val diagonal1 = (0 ..< rows).map { get(Point(it, it)) }
+        val diagonal2 = (0 ..< rows).map { get(Point(it, rows - it - 1)) }
         return listOf(diagonal1, diagonal2)
     }
 
@@ -142,67 +148,95 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
     fun getCardinalNeighbors(row: Int, column: Int): Set<T?> =
         getCardinalNeighborPositions(row, column).map { get(Point(it.x, it.y)) }.toSet()
 
-    fun movePointsBy(points: Set<Point>, xOff: Long, yOff:Long): Set<Point> {
+    fun movePointsBy(
+        points: Set<Point>,
+        xOff: Int,
+        yOff: Int,
+        circular: Boolean = false,
+        skipNull: Boolean = false
+    ): Set<Point> {
         val newGrid = mutableMapOf<Point, T>()
         points.forEach { point ->
-            val value = this.data[point]
+            val value = data[point]
             if (value != null) {
-                this.data.remove(point)
-                newGrid[Point(point.x + xOff, point.y + yOff)] = value
-            }
-        }
-        this.data.putAll(newGrid)
-        return newGrid.keys
-    }
+                var newX = point.x
+                var newY = point.y
+                while (skipNull && data[Point(newX, newY)] == null) {
+                    newX = if (circular) (newX + xOff) % rows else newX + xOff
+                    newY = if (circular) (newY + yOff) % columns else newY + yOff
 
-    fun getHighestOfValue(value: T): Point? = data.filterValues { it == value }.keys.maxByOrNull { it.y }
-
-    fun getLowestOfValue(value: T): Point? = data.filterValues { it == value }.keys.minByOrNull { it.y }
-
-    fun getRightmostOfValue(value: T): Point? = data.filterValues { it == value }.keys.maxByOrNull { it.x }
-
-    fun getLeftmostOfValue(value: T): Point? = data.filterValues { it == value }.keys.minByOrNull { it.x }
-
-    fun getHighest(num: Int): Grid<T> {
-        val newGrid = Grid<T>(num, this.columns)
-        for (i in 0 ..< num) {
-            for (j in 0 ..< this.columns) {
-                val value = this[i, j]
-                if (value != null) {
-                    newGrid[i, j] = value
+                    if (!circular && (newX !in 0 until rows || newY !in 0 until columns)) {
+                        newX = point.x
+                        newY = point.y
+                        break
+                    }
+                }
+                data.remove(point)
+                if (newX != point.x || newY != point.y) {
+                    newGrid[Point(newX, newY)] = value
+                } else if (circular) {
+                    newGrid[Point((point.x + xOff) % rows, (point.y + yOff) % columns)] = value
+                } else {
+                    newGrid[Point(point.x + xOff, point.y + yOff)] = value
                 }
             }
         }
-        return newGrid
+        data.putAll(newGrid)
+        return newGrid.keys
     }
 
-    fun getLowest(num: Int): Grid<T> {
-        val newGrid = Grid<T>(num, this.columns)
-        for (i in 0 ..< num)
-            for (j in 0 ..< this.columns)
-                newGrid[i,j] = this[this.rows - num + i,j]!!
-        return newGrid
+    fun movePointBy(point: Point, xOff: Int, yOff: Int, circular: Boolean = false, skipNull: Boolean = false): Point {
+        val value = data[point] ?: throw IllegalArgumentException("The point does not exist in the grid")
+        var newX = point.x + xOff
+        var newY = point.y + yOff
+        if (skipNull) {
+            while (data[Point(newX, newY)] == null) {
+                newX = if (circular) (newX + 1).mod(rows) else newX + 1
+                newY = if (circular) (newY + 1).mod(columns) else newY + 1
+
+                if (newX == point.x && newY == point.y) throw IllegalArgumentException("No non-null points found in the given direction")
+            }
+        } else {
+            if (circular) {
+                newX = (newX + xOff).mod(rows)
+                newY = (newY + yOff).mod(columns)
+            } else {
+                newX += xOff
+                newY += yOff
+            }
+        }
+        data.remove(point)
+        val newPoint = Point(newX, newY)
+        data[newPoint] = value
+
+        return newPoint
     }
 
-    fun getLeftmost(num: Int): Grid<T> {
-        val newGrid = Grid<T>(this.rows, num)
-        for (i in 0 ..< this.rows)
-            for (j in 0 ..< num)
-                newGrid[i, j] = this[i, j]!!
-        return newGrid
+    fun getFirst(value: T): Point? {
+        for (row in minX until maxX) {
+            for (col in minY until maxY) {
+                if (get(row, col) == value) {
+                    return Point(row, col)
+                }
+            }
+        }
+        return null
     }
 
-    fun getRightmost(num: Int): Grid<T> {
-        val newGrid = Grid<T>(this.rows, num)
-        for (i in 0 ..< this.rows)
-            for (j in 0 ..< num)
-                newGrid[i, j] = this[i, this.columns - num + j]!!
-        return newGrid
+    fun getLast(value: T): Point? {
+        for (row in maxX downTo minX) {
+            for (col in maxY downTo minY) {
+                if (get(row, col) == value) {
+                    return Point(row, col)
+                }
+            }
+        }
+        return null
     }
-    
+
     fun fillWith(value: T): Grid<T> {
-        for (row in 0..<rows) {
-            for (column in 0..<columns) {
+        for (row in 0 ..< rows) {
+            for (column in 0 ..< columns) {
                 if (get(row, column) != null) continue
                 set(row, column, value)
             }
@@ -211,7 +245,8 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
     }
 
     fun floodFill(startPoint: Point, newValue: T): Grid<T> {
-        val oldValue = get(startPoint) ?: throw NullPointerException("Cannot flood fill null value, try using fillWith() first")
+        val oldValue =
+            get(startPoint) ?: throw NullPointerException("Cannot flood fill null value, try using fillWith() first")
 
         val stack = mutableListOf(startPoint)
 
@@ -219,7 +254,8 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
             val currentPoint = stack.removeAt(stack.size - 1)
 
             if (currentPoint.x in 0 ..< rows && currentPoint.y in 0 ..< columns &&
-                get(currentPoint) == oldValue) {
+                get(currentPoint) == oldValue
+            ) {
 
                 this[currentPoint] = newValue
 
@@ -244,7 +280,7 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
     fun invert(): Grid<T> {
         val newGrid = Grid<T>(columns, rows)
 
-        for ((point, value) in this.data) {
+        for ((point, value) in data) {
             val newPoint = Point(point.y, point.x)
             newGrid[newPoint] = value
         }
@@ -253,11 +289,11 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
     }
 
     fun isInside(x: Int, y: Int): Boolean {
-        return x in 0..<rows && y in 0..<columns
+        return x in 0 ..< rows && y in 0 ..< columns
     }
 
     fun isOutside(x: Int, y: Int): Boolean {
-        return !(x in 0..<rows && y in 0..<columns)
+        return !(x in 0 ..< rows && y in 0 ..< columns)
     }
 
     fun canMove(points: Set<Point>, dx: Int, dy: Int): Boolean {
@@ -268,49 +304,108 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
         }
     }
 
-    override fun toString(): String {
-        val rowsInGrid = (minY..maxY)
-        val columnsInGrid = (minX..maxX)
-
-        val lineSeparator = System.lineSeparator()
-        return rowsInGrid.joinToString(separator = lineSeparator) { row ->
-            columnsInGrid.joinToString(separator = " ") { column ->
-                get(Point(column, row))?.toString() ?: " "
-            }
+    fun subGrid(minrow: Int, maxrow: Int, mincol: Int, maxcol: Int): Grid<T> {
+        val subGrid = Grid<T>(maxrow-minrow+1, maxcol-mincol+1)
+        this.data.filter { (point, _) ->
+            point.x in minrow..maxrow && point.y in mincol..maxcol
+        }.forEach { (point, value) ->
+            subGrid[Point(point.x - minrow, point.y - mincol)] = value
         }
+        return subGrid
     }
 
-    fun toString(default: String = " ", invertVertically: Boolean = false, startFromOrigin: Boolean = false): String {
-        val startRow = if (startFromOrigin) 0 else minY
-        val startCol = if (startFromOrigin) 0 else minX
-        val endRow = maxY
-        val endCol = maxX
-
-        val maxRowDigits = (endRow.toString().length).coerceAtLeast((startRow.absoluteValue).toString().length) + 1
-        val maxColDigits = endCol.toString().length
-
-        return buildString {
-            for (i in 0 ..< maxColDigits) {
-                append(" ".repeat(maxRowDigits))
-                for (col in startCol..endCol) {
-                    val ch = col.toString().padStart(maxColDigits)[i]
-                    append(" ").append(ch)
-                }
-                appendLine()
+    fun walledWrappedMove(point: Point, ro: Int, co: Int, wall: Char = '#'): Point {
+        var (r, c) = point
+        var pointBeforeWall = point
+        repeat(ro.abs()) {
+            r = (r + ro.sign) % rows
+            var cell = this[Point(r, c)]
+            if (cell == wall) {
+                return pointBeforeWall
             }
-            for (row in if (invertVertically) endRow downTo startRow else startRow..endRow) {
-                val rowStr = row.toString().padStart(maxRowDigits, ' ')
-                append(rowStr).append(" ")
-                for (col in startCol..endCol) {
-                    val cellValue = get(Point(col, row))?.toString() ?: default
-                    append(cellValue).append(" ")
-                }
-                appendLine()
+            while (cell == null) {
+                r = (r + ro.sign + rows) % rows
+                cell = this[Point(r, c)]
             }
+            if (cell == wall) {
+                return pointBeforeWall
+            }
+            pointBeforeWall = Point(r, c)
         }
+        repeat(co.abs()) {
+            c = (c + co.sign) % columns
+            var cell = this[Point(r, c)]
+            if (cell == wall) {
+                return pointBeforeWall
+            }
+            while (cell == null) {
+                c = (c + co.sign + columns) % columns
+                cell = this[Point(r, c)]
+            }
+            if (cell == wall) {
+                return pointBeforeWall
+            }
+            pointBeforeWall = Point(r, c)
+        }
+        return Point(r, c)
+    }
+
+    fun oldToString(): String {
+            val stringBuilder = StringBuilder()
+            val defaultFill = " "
+            val yList = (minY..maxY).toList()
+            val i = yList.map { it.toString() }.maxOf { it.length }
+            val curPrint = i
+            for(j in i-1 downTo 0) {
+                stringBuilder.append(" ".repeat(i - j))
+                yList.forEach { stringBuilder.append(try { it.toString()[curPrint] } catch (e: StringIndexOutOfBoundsException) { ' ' } + " ") }
+                stringBuilder.append("\n")
+            }
+
+            (minX..maxX).forEach { row ->
+                (minY..maxY).forEach { col ->
+                    val value = get(Point(row, col))
+                    stringBuilder.append(value?.toString() ?: defaultFill)
+                }
+                stringBuilder.append("\n")
+            }
+
+            return stringBuilder.toString()
+    }
+
+    override fun toString(): String {
+        val stringBuilder = StringBuilder()
+
+        val maxDimension = max(maxX, maxY)
+
+        val topIndices = (minX..maxDimension).map {
+            if (it < 10) {
+                " "
+            } else {
+                it / 10
+            }
+        }.joinToString(separator = " ")
+
+        val bottomIndices = (minX..maxDimension).map { it % 10 }.joinToString(separator = " ")
+
+        // Add the column indices to the string
+        stringBuilder.append("$topIndices\n$bottomIndices\n")
+
+        // print grid values
+        (minY..maxDimension).forEach { row ->  // reverse order of rows
+            (minX..maxDimension).forEach { col ->
+                val value = data[Point(row, col)]?.toString() ?: " "
+                stringBuilder.append("$value ")
+            }
+            if (row < maxDimension) stringBuilder.append("\n")
+        }
+
+        return stringBuilder.toString()
     }
 
     override fun contains(element: T): Boolean = data.containsValue(element)
+
+    fun contains(element: Point): Boolean = data.containsKey(element)
 
     override val size: Int get() = data.size
 
@@ -342,7 +437,7 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
 
     fun deepCopy(): Grid<T> {
         val newGrid = Grid<T>(this.rows, this.columns)
-        this.data.forEach { (point, value) ->
+        data.forEach { (point, value) ->
             newGrid[point.x, point.y] = value
         }
         return newGrid
@@ -353,7 +448,8 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
             val grid = Grid<T?>()
             for (i in rows.indices) {
                 for (j in rows[i].indices) {
-                    grid[Point(j, i)] = rows[i][j]
+                    if (rows[i][j] != ' ')
+                        grid[Point(i, j)] = rows[i][j]
                 }
             }
             return grid
@@ -363,22 +459,21 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
         fun <T : Any> of(rows: List<T>): Grid<T?> {
             val grid = Grid<T?>()
             rows.forEachIndexed { i, value ->
-                grid[Point(0, i)] = value
+                grid[Point(i, 0)] = value
             }
             return grid
         }
 
         @JvmName("ofStringList")
-        fun of(rows: List<String>): Grid<Char?> {
-            val grid = Grid<Char?>()
+        fun of(rows: List<String>): Grid<Char> {
+            val grid = Grid<Char>()
             for (i in rows.indices) {
                 for (j in rows[i].indices) {
-                    grid[Point(j, i)] = rows[i][j]
+                    if (rows[i][j] != ' ')
+                        grid[Point(i, j)] = rows[i][j]
                 }
             }
             return grid
         }
     }
-
-
 }

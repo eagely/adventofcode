@@ -1,6 +1,9 @@
 package utils.point
 
-import kotlin.math.*
+import utils.movement.Direction
+import kotlin.math.abs
+import kotlin.math.absoluteValue
+import kotlin.math.sign
 
 data class Point(var x: Int, var y: Int) {
     constructor(x: Number, y: Number) : this(x.toInt(), y.toInt())
@@ -44,6 +47,8 @@ data class Point(var x: Int, var y: Int) {
         }
     }
 
+    fun invert() = Point(y, x)
+
     fun getCloserOrEqualPoints(target: Point): Set<Point> =
         (x - this.manhattanDistance(target) .. x + this.manhattanDistance(target)).flatMap { dx ->
             (y - this.manhattanDistance(target) .. y + this.manhattanDistance(target)).mapNotNull { dy ->
@@ -60,8 +65,10 @@ data class Point(var x: Int, var y: Int) {
 
     fun manhattanDistance(other: Point) = abs(x - other.x) + abs(y - other.y)
     operator fun plus(other: Point) = Point(x + other.x, y + other.y)
+    operator fun plus(other: Direction) = this + other.toPoint()
     operator fun unaryPlus() = Point(+x, +y)
     operator fun minus(other: Point) = Point(x - other.x, y - other.y)
+    operator fun minus(other: Direction) = this - other.toPoint()
     operator fun unaryMinus() = Point(-x, -y)
     operator fun times(other: Point) = Point(x * other.x, y * other.y)
     operator fun div(other: Point) = Point(x / other.x, y / other.y)
