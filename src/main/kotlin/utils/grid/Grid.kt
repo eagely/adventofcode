@@ -20,8 +20,8 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
     operator fun set(row: Int, column: Int, value: T) = set(Point(row, column), value)
     operator fun set(point: Point, value: T) {
         data[point] = value
-        rows = maxOf(rows, point.x + 1)
-        columns = maxOf(columns, point.y + 1)
+        rows = maxX - minX + 1
+        columns = maxY - minY + 1
     }
 
     operator fun get(point: Point): T? = data[point]
@@ -305,9 +305,9 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
     }
 
     fun subGrid(minrow: Int, maxrow: Int, mincol: Int, maxcol: Int): Grid<T> {
-        val subGrid = Grid<T>(maxrow-minrow+1, maxcol-mincol+1)
+        val subGrid = Grid<T>(maxrow - minrow + 1, maxcol - mincol + 1)
         this.data.filter { (point, _) ->
-            point.x in minrow..maxrow && point.y in mincol..maxcol
+            point.x in minrow .. maxrow && point.y in mincol .. maxcol
         }.forEach { (point, value) ->
             subGrid[Point(point.x - minrow, point.y - mincol)] = value
         }
@@ -351,26 +351,33 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
     }
 
     fun oldToString(): String {
-            val stringBuilder = StringBuilder()
-            val defaultFill = " "
-            val yList = (minY..maxY).toList()
-            val i = yList.map { it.toString() }.maxOf { it.length }
-            val curPrint = i
-            for(j in i-1 downTo 0) {
-                stringBuilder.append(" ".repeat(i - j))
-                yList.forEach { stringBuilder.append(try { it.toString()[curPrint] } catch (e: StringIndexOutOfBoundsException) { ' ' } + " ") }
-                stringBuilder.append("\n")
+        val stringBuilder = StringBuilder()
+        val defaultFill = " "
+        val yList = (minY .. maxY).toList()
+        val i = yList.map { it.toString() }.maxOf { it.length }
+        for (j in i - 1 downTo 0) {
+            stringBuilder.append(" ".repeat(i - j))
+            yList.forEach {
+                stringBuilder.append(
+                    try {
+                        it.toString()[i]
+                    } catch (e: StringIndexOutOfBoundsException) {
+                        ' '
+                    } + " "
+                )
             }
+            stringBuilder.append("\n")
+        }
 
-            (minX..maxX).forEach { row ->
-                (minY..maxY).forEach { col ->
-                    val value = get(Point(row, col))
-                    stringBuilder.append(value?.toString() ?: defaultFill)
-                }
-                stringBuilder.append("\n")
+        (minX .. maxX).forEach { row ->
+            (minY .. maxY).forEach { col ->
+                val value = get(Point(row, col))
+                stringBuilder.append(value?.toString() ?: defaultFill)
             }
+            stringBuilder.append("\n")
+        }
 
-            return stringBuilder.toString()
+        return stringBuilder.toString()
     }
 
     override fun toString(): String {
@@ -378,7 +385,7 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
 
         val maxDimension = max(maxX, maxY)
 
-        val topIndices = (minX..maxDimension).map {
+        val topIndices = (minX .. maxDimension).map {
             if (it < 10) {
                 " "
             } else {
@@ -386,14 +393,14 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
             }
         }.joinToString(separator = " ")
 
-        val bottomIndices = (minX..maxDimension).map { it % 10 }.joinToString(separator = " ")
+        val bottomIndices = (minX .. maxDimension).map { it % 10 }.joinToString(separator = " ")
 
         // Add the column indices to the string
         stringBuilder.append("$topIndices\n$bottomIndices\n")
 
         // print grid values
-        (minY..maxDimension).forEach { row ->  // reverse order of rows
-            (minX..maxDimension).forEach { col ->
+        (minY .. maxDimension).forEach { row ->  // reverse order of rows
+            (minX .. maxDimension).forEach { col ->
                 val value = data[Point(row, col)]?.toString() ?: " "
                 stringBuilder.append("$value ")
             }
