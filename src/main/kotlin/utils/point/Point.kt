@@ -16,6 +16,7 @@ data class Point(var x: Int, var y: Int) {
     val dl: Point get() = Point(x - 1, y - 1)
     val l: Point get() = Point(x - 1, y)
     val ul: Point get() = Point(x - 1, y + 1)
+    val sign: Point get() = Point(x.sign, y.sign)
 
     fun isInside(maxX: Int, maxY: Int): Boolean {
         return x in 0..<maxX && y in 0..<maxY
@@ -64,6 +65,8 @@ data class Point(var x: Int, var y: Int) {
         }.toSet()
 
     fun manhattanDistance(other: Point) = abs(x - other.x) + abs(y - other.y)
+    fun gridPlus(other: Direction) = this + other.toPointOnGrid()
+    fun gridMinus(other: Direction) = this - other.toPointOnGrid()
     operator fun plus(other: Point) = Point(x + other.x, y + other.y)
     operator fun plus(other: Direction) = this + other.toPoint()
     operator fun unaryPlus() = Point(+x, +y)
