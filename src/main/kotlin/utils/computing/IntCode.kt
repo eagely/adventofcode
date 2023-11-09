@@ -1,4 +1,4 @@
-package utils
+package utils.computing
 
 class IntCode(private val program: IntArray, private val input: Int) {
     private var pointer = 0

@@ -1,7 +1,7 @@
 package solutions.y2019
 
 import Solution
-import utils.IntCode
+import utils.computing.IntCode
 import java.io.File
 
 class Day5 : Solution(2019) {

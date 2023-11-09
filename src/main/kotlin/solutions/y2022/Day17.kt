@@ -110,4 +110,5 @@ class Day17 : Solution(2022) {
             else -> throw Exception("This is mathematically not possible")
         }
     }
+    private fun Grid<Char>.getHighestOfValue(value: Char): Point? = data.filterValues { it == value }.keys.maxByOrNull { it.y }
 }
