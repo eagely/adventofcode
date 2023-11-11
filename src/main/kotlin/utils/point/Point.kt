@@ -22,8 +22,8 @@ data class Point(var x: Int, var y: Int) {
         return x in 0..<maxX && y in 0..<maxY
     }
 
-    fun getCardinalNeighbors(): List<Point> {
-        return listOf(u, r, d, l)
+    fun getCardinalNeighbors(): Set<Point> {
+        return setOf(u, r, d, l)
     }
 
     fun getNeighbors(): Set<Point> {
@@ -56,6 +56,8 @@ data class Point(var x: Int, var y: Int) {
                 Point(dx, dy).takeIf { it.manhattanDistance(this) <= this.manhattanDistance(target) }
             }
         }.toSet()
+
+    fun mod(value: Int) = Point(this.x % value, this.y % value)
 
     fun getCloserPoints(target: Point): Set<Point> =
         (x - this.manhattanDistance(target) .. x + this.manhattanDistance(target)).flatMap { dx ->

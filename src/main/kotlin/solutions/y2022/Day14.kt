@@ -70,7 +70,6 @@ class Day14 : Solution(2022) {
                     nextPos = currentPos.u
                 } else break@inner
             }
-
             cave[currentPos] = 'o'
             sandCount++
         }
