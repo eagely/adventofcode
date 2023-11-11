@@ -95,6 +95,14 @@ object Utils {
         println(this)
         return this
     }
+    fun Long.mod(mod: Int): Long {
+        val comp = this % mod
+        return if (comp < 0) comp + mod else comp
+    }
+    fun Int.mod(mod: Int): Int {
+        val comp = this % mod
+        return if (comp < 0) comp + mod else comp
+    }
     infix fun Int.p(y: Int): Point = Point(this, y)
     infix fun Set<*>.and (other: Set<*>): Set<*> = this.intersect(other)
     infix fun Set<*>.or (other: Set<*>): Set<*> = this.union(other)
