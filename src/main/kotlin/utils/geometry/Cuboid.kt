@@ -14,8 +14,8 @@ data class Cuboid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
         if (side < 0 || side > sides) throw IllegalArgumentException("Side $side does not exist")
         if (!sideData.contains(point)) throw IllegalArgumentException("Point $point does not exist on side $side")
         if (sideData.rows != sideData.columns) throw IllegalArgumentException("Side $side is not a square")
-        return if (data[sides - 1].contains(point + direction))
-            Triple(side, if (sideData[point + direction] == '#') point else point + direction, direction)
+        return if (data[sides - 1].contains(point.gridPlus(direction)))
+            Triple(side, if (sideData[point.gridPlus(direction)] == '#') point else point.gridPlus(direction), direction)
         else
             wrap(side, point, direction)
     }

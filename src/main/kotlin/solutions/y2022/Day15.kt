@@ -32,10 +32,15 @@ class Day15 : Solution(2022) {
     }
 
     private fun Point.getCloserOrEqualPointsForRow(beacon: Point, row: Int): Set<Point> {
-        return (x - this.manhattanDistance(beacon) .. x + this.manhattanDistance(beacon)).mapNotNull { dx ->
-            Point(dx, row).takeIf { it.manhattanDistance(this) <= this.manhattanDistance(beacon) }
-        }.toSet()
+        val manhattanDistance = this.manhattanDistance(beacon)
+        val deltaY = kotlin.math.abs(row - y)
+        if (deltaY > manhattanDistance) return emptySet()  // If the row is outside the Manhattan distance, return an empty set
+
+        val maxX = x + (manhattanDistance - deltaY)  // Max x-coordinate within the Manhattan distance for this row
+        val minX = x - (manhattanDistance - deltaY)  // Min x-coordinate within the Manhattan distance for this row
+        return (minX..maxX).map { dx -> Point(dx, row) }.toSet()
     }
+
 
     override fun solvePart2(input: File): String {
         val lines = input.readLines()

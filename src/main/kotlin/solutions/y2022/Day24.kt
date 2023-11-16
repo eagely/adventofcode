@@ -16,7 +16,6 @@ class Day24 : Solution(2022) {
         val start = -1 p 0
 
         val goal = Point(grid.rows, grid.columns - 1)
-
         return bfs(start, goal, grid)
     }
 
@@ -71,6 +70,7 @@ class Day24 : Solution(2022) {
     private fun lcm(a: Int, b: Int): Int {
         return a * b / gcd(a, b)
     }
+
 
     override fun solvePart2(input: File): Any {
         val grid = Grid.of(input.rl().drop(1).dropLast(1).map { it.drop(1).dropLast(1) })
