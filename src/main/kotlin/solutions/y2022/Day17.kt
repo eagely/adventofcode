@@ -96,8 +96,7 @@ class Day17 : Solution(2022) {
                 (numberOfCompleteCycles * heightDifferencePerCycle) +
                 (absHeights[indexForRemainingRocks] - absHeights[patternStartIndex])
 
-        println("The tower will be $totalHeight units tall after 1000000000000 rocks have stopped falling.")
-        return 0
+        return totalHeight
     }
 
     private fun getBlock(index: Int, height: Int): Set<Point> {
