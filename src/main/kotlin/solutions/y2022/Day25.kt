@@ -1,4 +1,4 @@
-package solutions
+package solutions.y2022
 
 import Solution
 import utils.Utils.rl

@@ -2,6 +2,8 @@ package utils
 
 import utils.grid.Grid
 import utils.point.Point
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.io.File
 import java.math.BigDecimal
 import kotlin.math.abs
@@ -95,19 +97,18 @@ object Utils {
         println(this)
         return this
     }
-    fun Long.mod(mod: Int): Long {
-        val comp = this % mod
-        return if (comp < 0) comp + mod else comp
+    infix fun Long.posmod(mod: Int): Int {
+        return (this.mod(mod) + mod) % mod
     }
-    fun Int.mod(mod: Int): Int {
-        val comp = this % mod
-        return if (comp < 0) comp + mod else comp
+    infix fun Int.posmod(mod: Int): Int {
+        return (this % mod + mod) % mod
     }
     infix fun Int.p(y: Int): Point = Point(this, y)
     infix fun Set<*>.and (other: Set<*>): Set<*> = this.intersect(other)
     infix fun Set<*>.or (other: Set<*>): Set<*> = this.union(other)
     infix fun Set<*>.xor (other: Set<*>): Set<*> = this.union(other).minus(this.intersect(other))
     infix fun Set<*>.without (other: Set<*>): Set<*> = this.minus(other)
+    fun copyToClipboard(content: String) = Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(content), null)
     fun File.rl(): List<String> = this.readLines().dropLastWhile { it.isBlank() }
     fun File.rt(): String = this.readText().trim()
     val String.l: Int get() = this.length
