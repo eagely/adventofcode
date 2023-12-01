@@ -4,7 +4,6 @@ import utils.point.Point
 
 enum class Direction(val angle: Int) {
     NORTH(0), EAST(90), SOUTH(180), WEST(270);
-
     operator fun plus(other: Direction) = Direction.of((angle + other.angle) % 360)
     operator fun minus(other: Direction) = Direction.of((angle - other.angle) % 360)
     fun extendOnGrid() = when (this) {

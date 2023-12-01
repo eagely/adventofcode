@@ -1,12 +1,17 @@
 package utils.grid
 
 import utils.Utils.abs
+import utils.Utils.p
 import utils.point.Point
 import kotlin.math.sign
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
-data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
+data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T> {
+    constructor() : this(0, 0)
+
     var data = mutableMapOf<Point, T>()
+    val rows: Int get() = maxX - minX + 1
+    val columns: Int get() = maxY - minY + 1
     val minX: Int get() = data.keys.minOfOrNull { it.x } ?: 0
     val minY: Int get() = data.keys.minOfOrNull { it.y } ?: 0
     val maxX: Int get() = data.keys.maxOfOrNull { it.x } ?: 0
@@ -17,23 +22,21 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
 
     operator fun set(points: Set<Point>, value: T) {
         points.forEach { this[it] = value }
-        rows = maxX - minX + 1
-        columns = maxY - minY + 1
     }
 
     fun add(points: Set<Point>, value: T) {
         points.forEach { point ->
             data.putIfAbsent(point, value)
         }
-        rows = maxX - minX + 1
-        columns = maxY - minY + 1
+
     }
 
     operator fun set(row: Int, column: Int, value: T) = set(Point(row, column), value)
     operator fun set(point: Point, value: T) {
         data[point] = value
-        rows = maxX - minX + 1
-        columns = maxY - minY + 1
+    }
+    fun fastSet(point: Point, value: T) {
+        data[point] = value
     }
 
     operator fun get(point: Point): T? = data[point]
@@ -236,7 +239,11 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
 
 
     fun addPoints(xRange: IntRange, yRange: IntRange, value: T): Grid<T> = apply {
-        xRange.forEach { x -> yRange.forEach { y -> set(x, y, value) } }
+        xRange.forEach { x -> yRange.forEach { y -> if(data[x p y] == null) fastSet(x p y, value) } }
+    }
+
+    fun setPoints(xRange: IntRange, yRange: IntRange, value: T): Grid<T> = apply {
+        xRange.forEach { x -> yRange.forEach { y -> fastSet(x p y, value) } }
     }
 
 
@@ -391,8 +398,7 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
         @JvmName("ofMap")
         fun <T> of(data: MutableMap<Point, T>): Grid<T> = Grid<T>().apply {
             this.data = data
-            this.rows = maxX - minX + 1
-            this.columns = maxY - minY + 1
+
         }
 
         @JvmName("ofDoubleList")
@@ -404,8 +410,7 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
             }.toMap().toMutableMap()
             return Grid<T>().apply {
                 this.data = data
-                this.rows = maxX - minX + 1
-                this.columns = maxY - minY + 1
+
             }
         }
 
@@ -416,8 +421,7 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
             }.toMap().toMutableMap()
             return Grid<T>().apply {
                 this.data = data
-                this.rows = maxX - minX + 1
-                this.columns = maxY - minY + 1
+
             }
         }
 
@@ -430,8 +434,7 @@ data class Grid<T>(var rows: Int = 0, var columns: Int = 0) : Collection<T> {
             }.filter { it.second != ' ' }.toMap().toMutableMap()
             return Grid<Char>().apply {
                 this.data = data
-                this.rows = maxX - minX + 1
-                this.columns = maxY - minY + 1
+
             }
         }
     }
