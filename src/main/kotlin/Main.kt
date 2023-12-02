@@ -29,7 +29,7 @@ fun main() = runBlocking {
             val solve = if (part == 1) instance::solvePart1 else instance::solvePart2
             var test: String
             var real: String
-            if (tin.rt().isNotEmpty()) {
+            if (tin.exists() && tin.rt().isNotEmpty()) {
                 val tt = measureTimeMillis {
                     test = if (tin.exists() && tin.readLines().isNotEmpty()) solve(tin).toString() else ""
                 }
