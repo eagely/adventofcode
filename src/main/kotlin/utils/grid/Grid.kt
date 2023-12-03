@@ -9,6 +9,8 @@ import kotlin.math.sign
 data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T> {
     constructor() : this(0, 0)
 
+    val indices: List<Point> get() = data.keys.toList()
+
     var data = mutableMapOf<Point, T>()
     val rows: Int get() = maxX - minX + 1
     val columns: Int get() = maxY - minY + 1
@@ -35,10 +37,12 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     operator fun set(point: Point, value: T) {
         data[point] = value
     }
-    fun fastSet(point: Point, value: T) {
-        data[point] = value
-    }
 
+    operator fun set(xRange: IntRange, yRange: IntRange, value: T) = xRange.forEach { x -> yRange.forEach { y -> set(x p y, value) } }
+    operator fun set(x: Int, yRange: IntRange, value: T) = yRange.forEach { set(x p it, value) }
+    operator fun set(xRange: IntRange, y: Int, value: T) = xRange.forEach { set(it p y, value) }
+
+    operator fun get(row: Int): List<T?> = getRow(row)
     operator fun get(point: Point): T? = data[point]
     operator fun get(row: Int, col: Int): T? = data[Point(row, col)]
     operator fun get(value: T): Point =
@@ -61,28 +65,72 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     fun getRows(): List<List<T?>> = (minX..maxX).map { row -> getRow(row) }
     fun getColumns(): List<List<T?>> = (minY..maxY).map { col -> getColumn(col) }
 
-    fun filter(predicate: (Map.Entry<Point, T>) -> Boolean): Map<Point, T> {
-        return data.filter(predicate)
+    fun forEach(action: (T) -> Unit) {
+        data.values.forEach(action)
     }
 
-    fun all(predicate: (Map.Entry<Point, T>) -> Boolean): Boolean {
-        return data.all(predicate)
+    fun forEachIndexed(action: (Point, T) -> Unit) {
+        data.forEach { (point, value) -> action(point, value) }
     }
 
-    fun any(predicate: (Map.Entry<Point, T>) -> Boolean): Boolean {
-        return data.any(predicate)
+    fun <R> map(transform: (T) -> R): List<R> {
+        return data.values.map(transform)
     }
 
-    fun none(predicate: (Map.Entry<Point, T>) -> Boolean): Boolean {
-        return data.none(predicate)
+    fun <R> mapIndexed(transform: (Point, T) -> R): List<R> {
+        return data.map { (point, value) -> transform(point, value) }
     }
 
-    fun <R> map(transform: (Map.Entry<Point, T>) -> R): List<R> {
-        return data.map(transform)
+    fun filter(predicate: (T) -> Boolean) = Grid<T>().apply {
+        data = this@Grid.data.filterValues(predicate).toMutableMap()
     }
 
-    fun forEach(action: (Map.Entry<Point, T>) -> Unit) {
-        data.forEach(action)
+    fun filterIndexed(predicate: (Point, T) -> Boolean): List<T> {
+        return data.filter { (point, value) -> predicate(point, value) }.values.toList()
+    }
+
+    fun filterConsecutive(predicate: (T) -> Boolean): Grid<String> {
+        val result = data.entries.fold(mutableListOf<Pair<Point, StringBuilder>>()) { acc, (point, value) ->
+            if (predicate(value)) {
+                if (acc.isEmpty() || point != acc.last().first + Point(0, 1)) {
+                    acc.add(point to StringBuilder(value.toString()))
+                } else {
+                    acc.last().second.append(value)
+                }
+            }
+            acc
+        }
+
+        val resultGrid = Grid<String>()
+        result.forEach { (startPoint, stringBuilder) ->
+            resultGrid[startPoint] = stringBuilder.toString()
+        }
+
+        return resultGrid
+    }
+
+    fun any(predicate: (T) -> Boolean): Boolean {
+        return data.values.any(predicate)
+    }
+
+    fun anyIndexed(predicate: (Point, T) -> Boolean): Boolean {
+        return data.any { (point, value) -> predicate(point, value) }
+    }
+
+    fun all(predicate: (T) -> Boolean): Boolean {
+        return data.values.all(predicate)
+    }
+
+    fun allIndexed(predicate: (Point, T) -> Boolean): Boolean {
+        return data.all { (point, value) -> predicate(point, value) }
+    }
+
+    fun none(predicate: (T) -> Boolean): Boolean {
+        return data.values.none(predicate)
+    }
+
+    fun noneIndexed(predicate: (Point, T) -> Boolean): Boolean {
+        return data.none { (point, value) -> predicate(point, value) }
     }
 
     fun fill(points: Set<Point>, value: Char): Grid<Char?> {
@@ -98,37 +146,20 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         return grid
     }
 
-    fun getCardinalNeighborPositions(row: Int, column: Int): Set<Point> {
-        val neighbors = mutableSetOf<Point>()
-        val relativePositions = listOf(Point(-1, 0), Point(0, -1), Point(0, 1), Point(1, 0))
-        for (position in relativePositions) {
-            val potentialNeighbor = Point(row + position.x, column + position.y)
-            if (data.containsKey(potentialNeighbor)) {
-                neighbors.add(potentialNeighbor)
-            }
-        }
-        return neighbors
-    }
+    fun getCardinalNeighborPositions(row: Int, column: Int) = Point(row, column).getCardinalNeighbors()
 
-    fun getNeighborPositions(row: Int, column: Int): Set<Point> {
-        val neighbors = mutableSetOf<Point>()
-        val relativePositions = listOf(
-            Point(-1, -1), Point(-1, 0), Point(-1, 1), Point(0, -1), Point(0, 1), Point(1, -1), Point(1, 0), Point(1, 1)
-        )
-        for (position in relativePositions) {
-            val potentialNeighbor = Point(row + position.x, column + position.y)
-            if (data.containsKey(potentialNeighbor)) {
-                neighbors.add(potentialNeighbor)
-            }
-        }
-        return neighbors
-    }
+    fun getNeighborPositions(row: Int, col: Int) = Point(row, col).getNeighbors()
 
+    fun getNeighborPositions(point: Point) = point.getNeighbors()
+    fun getNeighbors(point: Point) = getNeighborPositions(point).mapNotNull { get(it) }.toSet()
+    fun getCardinalNeighborPositions(point: Point) = point.getCardinalNeighbors()
+
+    fun getCardinalNeighbors(point: Point) = getCardinalNeighborPositions(point).mapNotNull { get(it) }.toSet()
     fun getNeighbors(row: Int, column: Int): Set<T?> =
-        getNeighborPositions(row, column).map { get(Point(it.x, it.y)) }.toSet()
+        getNeighborPositions(row, column).mapNotNull { get(Point(it.x, it.y)) }.toSet()
 
     fun getCardinalNeighbors(row: Int, column: Int): Set<T?> =
-        getCardinalNeighborPositions(row, column).map { get(Point(it.x, it.y)) }.toSet()
+        getCardinalNeighborPositions(row, column).mapNotNull { get(Point(it.x, it.y)) }.toSet()
 
     fun movePointsBy(
         points: Set<Point>, xOff: Int, yOff: Int, circular: Boolean = false, skipNull: Boolean = false
@@ -239,11 +270,12 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
 
 
     fun addPoints(xRange: IntRange, yRange: IntRange, value: T): Grid<T> = apply {
-        xRange.forEach { x -> yRange.forEach { y -> if(data[x p y] == null) fastSet(x p y, value) } }
+        xRange.forEach { x -> yRange.forEach { y -> if (data[x p y] == null) set(x p y, value) } }
     }
 
+    @Deprecated("use grid[xRange, yRange] = value instead", ReplaceWith("set(xRange, yRange, value)"))
     fun setPoints(xRange: IntRange, yRange: IntRange, value: T): Grid<T> = apply {
-        xRange.forEach { x -> yRange.forEach { y -> fastSet(x p y, value) } }
+        xRange.forEach { x -> yRange.forEach { y -> set(x p y, value) } }
     }
 
 
@@ -398,7 +430,6 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         @JvmName("ofMap")
         fun <T> of(data: MutableMap<Point, T>): Grid<T> = Grid<T>().apply {
             this.data = data
-
         }
 
         @JvmName("ofDoubleList")
@@ -436,6 +467,20 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
                 this.data = data
 
             }
+        }
+
+        @JvmName("numberAt")
+        fun Grid<Char>.numberAt(point: Point): String? {
+            if (get(point) == null || !get(point)!!.isDigit()) return null
+            var start = point.y
+            while (start >= 0 && get(point.x, start)!!.isDigit()) {
+                start--
+            }
+            var end = point.y
+            while (end < columns && get(point.x, end)!!.isDigit()) {
+                end++
+            }
+            return (start + 1 until end).joinToString("") { get(point.x, it).toString() }
         }
     }
 }

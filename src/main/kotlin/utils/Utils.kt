@@ -192,6 +192,8 @@ object Utils {
     fun File.rt(): String = this.readText().trim()
     fun File.sdnl() = this.rt().split("\n\n")
     fun List<String>.snl() = this.map { it.split("\n") }
+    fun Collection<Point>.getNeighbors() = this.flatMap { it.getNeighbors() }.toSet()
+    fun Collection<Point>.getCardinalNeighbors() = this.flatMap { it.getCardinalNeighbors() }.toSet()
     val String.l: Int get() = this.length
     val Collection<*>.s: Int get() = this.size
 }
