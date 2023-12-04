@@ -33,8 +33,8 @@ object Utils {
     fun Float.format(scale: Int) = "%.${scale}f".format(this)
     fun Int.abs() = Math.abs(this)
     fun Long.abs() = Math.abs(this)
-    fun Int.pow(power: Int): Int = this.pow(power)
     fun Long.pow(power: Int): Long = this.toDouble().pow(power).toLong()
+    fun Int.pow(power: Int): Int = this.toDouble().pow(power).toInt()
     fun <T> List<T>.isAllEqual(): Boolean {
         for (i in 1..<this.size) if (this[i] != this[i - 1]) return false
         return true
@@ -194,6 +194,31 @@ object Utils {
     fun List<String>.snl() = this.map { it.split("\n") }
     fun Collection<Point>.getNeighbors() = this.flatMap { it.getNeighbors() }.toSet()
     fun Collection<Point>.getCardinalNeighbors() = this.flatMap { it.getCardinalNeighbors() }.toSet()
+    fun <T> Collection<T>.filterConsecutive(predicate: (T) -> Boolean): List<List<T>> {
+        val result = mutableListOf<List<T>>()
+        var currentList = mutableListOf<T>()
+
+        for (element in this) {
+            if (predicate(element)) {
+                currentList.add(element)
+            } else if (currentList.isNotEmpty()) {
+                result.add(currentList)
+                currentList = mutableListOf()
+            }
+        }
+
+        if (currentList.isNotEmpty()) {
+            result.add(currentList)
+        }
+
+        return result
+    }
+
+    fun <T> Collection<T>.undistinct(): List<T> {
+        val frequencyMap = this.groupingBy { it }.eachCount()
+        return this.filter { frequencyMap[it]!! > 1 }
+    }
+
     val String.l: Int get() = this.length
     val Collection<*>.s: Int get() = this.size
 }
