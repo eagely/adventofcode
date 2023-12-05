@@ -9,22 +9,20 @@ import java.math.BigDecimal
 import java.security.MessageDigest
 import kotlin.math.abs
 import kotlin.math.pow
+import kotlin.math.sign
 import kotlin.random.Random
 
 object Utils {
 
     fun String.extractNumbers(): String = this.filter { it.isDigit() }
     fun String.extractNegatives(): String {
-        return Regex("-?\\d+").findAll(this)
-            .joinToString(separator = ",") { it.value }
+        return Regex("-?\\d+").findAll(this).joinToString(separator = ",") { it.value }
     }
 
     fun String.extractLetters(): String = this.filter { it.isLetter() }
     fun String.removeTrailingNumbers(): String = this.replace(Regex("\\d+$"), "")
     fun String.containsNumber(): Boolean = this.contains(Regex("\\d+"))
-    fun String.toChar(): Char =
-        if (this.l != 1) throw IllegalArgumentException("String of length other than 1 cannot be converted to a Char") else this.toCharArray()
-            .first()
+    fun String.toChar(): Char = if (this.l != 1) throw IllegalArgumentException("String of length other than 1 cannot be converted to a Char") else this.toCharArray().first()
 
     fun Char.asInt() = this.toString().toInt()
     infix fun <T> List<T>.at(pos: Int) = this[pos % this.size]
@@ -73,31 +71,25 @@ object Utils {
         val list = ArrayList<T>()
         for (item in this) {
             list.add(item)
-            if (predicate(item))
-                break
+            if (predicate(item)) break
         }
         return list
     }
 
-    fun Iterable<Int>.product(): Int =
-        reduce { a, b -> a * b }
+    fun Iterable<Int>.product(): Int = reduce { a, b -> a * b }
 
-    fun List<IntRange>.reduce(): List<IntRange> =
-        if (this.size <= 1) this
-        else {
-            val sorted = this.sortedBy { it.first }
-            sorted.drop(1).fold(mutableListOf(sorted.first())) { reduced, range ->
-                val lastRange = reduced.last()
-                if (range.first <= lastRange.last)
-                    reduced[reduced.lastIndex] = (lastRange.first..maxOf(lastRange.last, range.last))
-                else
-                    reduced.add(range)
-                reduced
-            }
+    fun List<IntRange>.reduce(): List<IntRange> = if (this.size <= 1) this
+    else {
+        val sorted = this.sortedBy { it.first }
+        sorted.drop(1).fold(mutableListOf(sorted.first())) { reduced, range ->
+            val lastRange = reduced.last()
+            if (range.first <= lastRange.last) reduced[reduced.lastIndex] = (lastRange.first..maxOf(lastRange.last, range.last))
+            else reduced.add(range)
+            reduced
         }
+    }
 
-    fun <T> List<T>.nth(n: Int): T =
-        this[n % size]
+    fun <T> List<T>.nth(n: Int): T = this[n % size]
 
     fun Any?.print(): Any? {
         print(this)
@@ -121,8 +113,7 @@ object Utils {
     infix fun Set<*>.and(other: Set<*>): Set<*> = this.intersect(other)
     infix fun Set<*>.or(other: Set<*>): Set<*> = this.union(other)
     infix fun Set<*>.xor(other: Set<*>): Set<*> = this.union(other).minus(this.intersect(other))
-    infix fun String.hash(algorithm: String) =
-        MessageDigest.getInstance(algorithm).digest(this.toByteArray()).joinToString("") { "%02x".format(it) }
+    infix fun String.hash(algorithm: String) = MessageDigest.getInstance(algorithm).digest(this.toByteArray()).joinToString("") { "%02x".format(it) }
 
     fun copyToClipboard(content: String) = Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(content), null)
 
@@ -166,27 +157,28 @@ object Utils {
     infix fun String.matching(other: String): String = this.zip(other).filter { (a, b) -> a == b }.map { it.first }.joinToString("")
     infix fun String.nonmatching(other: String): String = this.zip(other).filter { (a, b) -> a != b }.map { it.first }.joinToString("")
     fun String.halve() = this.splitAt(this.l / 2)
+    fun String.split() = this.split(" ").dropBlanks()
+    fun <T> Collection<T>.dropBlanks() = this.filter { it.toString().isNotBlank() }
+    fun List<String>.split() = this.map { it.split() }
+    operator fun IntRange.plus(other: Int) = (this.first + other)..(this.last + other)
+    operator fun IntRange.minus(other: Int) = (this.first - other)..(this.last - other)
+    operator fun LongRange.plus(other: Long) = (this.first + other)..(this.last + other)
+    operator fun LongRange.minus(other: Long) = (this.first - other)..(this.last - other)
     infix fun String.splitAt(index: Int) = Pair(this.substring(0, index), this.substring(index))
     infix fun <T, R> Iterable<T>.mp(transform: (T) -> R) = this.map(transform)
     fun String.distinct() = this.toSet().joinToString("")
-    fun String.duplicates(): String =
-        this.groupingBy { it }
-            .eachCount()
-            .filter { it.value > 1 }
-            .flatMap { (char, count) -> List(count) { char } }
-            .joinToString("")
+    fun String.duplicates(): String = this.groupingBy { it }.eachCount().filter { it.value > 1 }.flatMap { (char, count) -> List(count) { char } }.joinToString("")
 
     fun List<String>.containsLength(length: Int) = this.any { it.l == length }
     fun String.contains(char: Char, count: Int): Boolean = this.count { it == char } == count
-    fun String.consecutive(): List<String> =
-        this.fold(mutableListOf<String>()) { acc, char ->
-            if (acc.isEmpty() || acc.last().last() != char) {
-                acc.add(char.toString())
-            } else {
-                acc[acc.lastIndex] = acc.last() + char
-            }
-            acc
+    fun String.consecutive(): List<String> = this.fold(mutableListOf<String>()) { acc, char ->
+        if (acc.isEmpty() || acc.last().last() != char) {
+            acc.add(char.toString())
+        } else {
+            acc[acc.lastIndex] = acc.last() + char
         }
+        acc
+    }
 
     fun File.rl(): List<String> = this.readLines().dropLastWhile { it.isBlank() }
     fun File.rt(): String = this.readText().trim()
@@ -217,6 +209,11 @@ object Utils {
     fun <T> Collection<T>.undistinct(): List<T> {
         val frequencyMap = this.groupingBy { it }.eachCount()
         return this.filter { frequencyMap[it]!! > 1 }
+    }
+    operator fun <T> Collection<T>.get(index: Int): T = if (index.sign == -1) this[this.size-index] else this[index]
+    operator fun <T> Collection<T>.get(range: IntRange): List<T> = this.toList().subList(range.first, range.last + 1)
+    operator fun <T> MutableList<T>.set(range: IntRange, value: T) {
+        range.forEach { this[it] = value }
     }
 
     val String.l: Int get() = this.length
