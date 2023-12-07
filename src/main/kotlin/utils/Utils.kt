@@ -5,9 +5,8 @@ import utils.point.Point
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.io.File
-import java.math.BigDecimal
 import java.security.MessageDigest
-import kotlin.math.abs
+import java.util.*
 import kotlin.math.pow
 import kotlin.math.sign
 import kotlin.random.Random
@@ -46,12 +45,6 @@ object Utils {
     fun <T> List<T>.allContains(value: T): Boolean {
         for (i in this) if (!i.toString().contains(value.toString())) return false
         return true
-    }
-
-    data class Node(val point: Point, val parent: Node? = null)
-
-    fun heuristic(node: Node, goal: Node): BigDecimal {
-        return (abs(node.point.x.toDouble() - goal.point.x.toDouble()) + abs(node.point.y.toDouble() - goal.point.y.toDouble())).toBigDecimal()
     }
 
     fun generateRandomGrid(rows: Int, columns: Int, obstacleProbability: Double): Grid<Boolean> {
@@ -218,4 +211,69 @@ object Utils {
 
     val String.l: Int get() = this.length
     val Collection<*>.s: Int get() = this.size
+
+
+    fun <T> bfsPath(
+        start: T,
+        isEnd: (T) -> Boolean,
+        getNext: (T) -> Collection<T>,
+        getStepCost: (T) -> Int = { 1 }
+    ): Pair<List<T>, Int>? {
+        if (isEnd(start)) return Pair(listOf(start), 0)
+
+        val visited = mutableSetOf<T>()
+        val queue: Deque<Pair<T, Pair<List<T>, Int>>> = LinkedList()
+
+        queue.offer(Pair(start, Pair(listOf(start), 0)))
+        visited.add(start)
+
+        while (queue.isNotEmpty()) {
+            val (current, pathWithCost) = queue.poll()
+            val (path, cost) = pathWithCost
+
+            if (isEnd(current)) return Pair(path, cost)
+
+            for (next in getNext(current)) {
+                if (next !in visited) {
+                    visited.add(next)
+                    queue.offer(Pair(next, Pair(path + next, cost + getStepCost(next))))
+                }
+            }
+        }
+
+        return null
+    }
+
+
+    fun <T> bfsCost(
+        start: T,
+        isEnd: (T) -> Boolean,
+        getNext: (T) -> Collection<T>,
+        getStepCost: (T) -> Int = { 1 }
+    ): Int? {
+        if (isEnd(start)) return 0
+
+        val visited = mutableSetOf<T>()
+        val queue: Deque<Pair<T, Int>> = LinkedList()
+
+        queue.offer(Pair(start, 0))
+        visited.add(start)
+
+        while (queue.isNotEmpty()) {
+            val (current, cost) = queue.poll()
+
+            if (isEnd(current)) {
+                return cost
+            }
+
+            for (next in getNext(current)) {
+                if (next !in visited) {
+                    visited.add(next)
+                    queue.offer(Pair(next, cost + getStepCost(next)))
+                }
+            }
+        }
+
+        return null
+    }
 }

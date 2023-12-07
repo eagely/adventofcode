@@ -85,8 +85,8 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         data = this@Grid.data.filterValues(predicate).toMutableMap()
     }
 
-    fun filterIndexed(predicate: (Point, T) -> Boolean): List<T> {
-        return data.filter { (point, value) -> predicate(point, value) }.values.toList()
+    fun filterIndexed(predicate: (Point, T) -> Boolean): Grid<T> {
+        return Grid<T>().apply { data.filter { (point, value) -> predicate(point, value) }.values.toList() }
     }
 
     fun filterConsecutive(predicate: (T) -> Boolean): Grid<String> {
@@ -150,9 +150,9 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
 
     fun getNeighborPositions(row: Int, col: Int) = Point(row, col).getNeighbors()
 
-    fun getNeighborPositions(point: Point) = point.getNeighbors()
+    fun getNeighborPositions(point: Point) = point.getNeighbors().filter { it in data.keys }
     fun getNeighbors(point: Point) = getNeighborPositions(point).mapNotNull { get(it) }.toSet()
-    fun getCardinalNeighborPositions(point: Point) = point.getCardinalNeighbors()
+    fun getCardinalNeighborPositions(point: Point) = point.getCardinalNeighbors().filter { it in data.keys }
 
     fun getCardinalNeighbors(point: Point) = getCardinalNeighborPositions(point).mapNotNull { get(it) }.toSet()
     fun getNeighbors(row: Int, column: Int): Set<T?> =
