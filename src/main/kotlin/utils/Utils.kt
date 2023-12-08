@@ -5,6 +5,7 @@ import utils.point.Point
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.io.File
+import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
 import kotlin.math.pow
@@ -212,7 +213,6 @@ object Utils {
     val String.l: Int get() = this.length
     val Collection<*>.s: Int get() = this.size
 
-
     fun <T> bfsPath(
         start: T,
         isEnd: (T) -> Boolean,
@@ -249,7 +249,7 @@ object Utils {
         start: T,
         isEnd: (T) -> Boolean,
         getNext: (T) -> Collection<T>,
-        getStepCost: (T) -> Int = { 1 }
+        getStepCost: (T) -> Int = { 1 },
     ): Int? {
         if (isEnd(start)) return 0
 
@@ -276,4 +276,24 @@ object Utils {
 
         return null
     }
+    fun gcd(a: Long, b: Long): Long {
+        if (b == 0L) return a
+        return gcd(b, a % b)
+    }
+
+    fun lcm(a: Long, b: Long): Long {
+        return Math.abs(a * b) / gcd(a, b)
+    }
+    fun lcm(a: BigInteger, b: BigInteger): BigInteger {
+        return a.multiply(b).divide(a.gcd(b))
+    }
+
+    fun lcm(vararg nums: BigInteger): BigInteger {
+        return nums.reduce { a, b -> lcm(a, b) }
+    }
+    fun lcm(nums: Set<BigInteger>): BigInteger {
+        return nums.reduce { a, b -> lcm(a, b) }
+    }
+    fun String.uniques(): Int = distinct().count()
+    fun String.counts(): Map<Char, Int> = groupingBy { it }.eachCount()
 }
