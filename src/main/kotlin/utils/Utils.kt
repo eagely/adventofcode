@@ -20,6 +20,9 @@ object Utils {
     }
 
     fun String.extractLetters(): String = this.filter { it.isLetter() }
+    fun String.extractSpecial(): String = this.filter { !it.isLetter() && !it.isDigit() }
+    fun String.extractNumbersSeparated(): List<Int> = this.split(Regex("\\D+")).filter { it.isNotBlank() }.map { it.toInt() }
+    fun String.extractNegativesSeparated(): List<Int> = this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toInt() }
     fun String.removeTrailingNumbers(): String = this.replace(Regex("\\d+$"), "")
     fun String.containsNumber(): Boolean = this.contains(Regex("\\d+"))
     fun String.toChar(): Char = if (this.l != 1) throw IllegalArgumentException("String of length other than 1 cannot be converted to a Char") else this.toCharArray().first()
@@ -144,10 +147,17 @@ object Utils {
 
     infix fun <T> Int.from(list: List<T>) = list.take(this)
     infix fun <T> List<T>.fetch(amt: Int) = this.take(amt)
-    infix fun <T> List<T>.after(index: Int) = this.subList(index + 1, this.size)
-    infix fun <T> List<T>.after(elem: T) = this.subList(this.indexOf(elem) + 1, this.size)
-    infix fun <T> List<T>.before(index: Int) = this.subList(0, index)
-    infix fun <T> List<T>.before(elem: T) = this.subList(0, this.indexOf(elem))
+    fun <T> List<T>.after(index: Int) = this.subList(index + 1, this.size)
+    fun <T> List<T>.after(elem: T) = this.subList(this.indexOf(elem) + 1, this.size)
+    fun <T> List<T>.before(index: Int) = this.subList(0, index)
+    fun <T> List<T>.before(elem: T) = this.subList(0, this.indexOf(elem))
+
+    fun String.after(char: Char) = this.substringAfter(char)
+    fun String.before(char: Char) = this.substringBefore(char)
+    fun String.after(str: String) = this.substringAfter(str)
+    fun String.before(str: String) = this.substringBefore(str)
+    fun String.after(regex: Regex) = this.substringAfter(regex.find(this)?.value ?: "")
+    fun String.before(regex: Regex) = this.substringBefore(regex.find(this)?.value ?: "")
     infix fun String.matching(other: String): String = this.zip(other).filter { (a, b) -> a == b }.map { it.first }.joinToString("")
     infix fun String.nonmatching(other: String): String = this.zip(other).filter { (a, b) -> a != b }.map { it.first }.joinToString("")
     fun String.halve() = this.splitAt(this.l / 2)
@@ -276,6 +286,51 @@ object Utils {
 
         return null
     }
+
+    fun String.scanf(format: String, stripEnd: String = ""): List<String> {
+        var str = this
+        var newf = format.ifNotEndsWith("EOF") { it + "EOF" }
+        var results = mutableListOf<String>()
+        val pattern = """%s([^%]*)\.\.\.""".toRegex()
+        val delimiters = pattern.findAll(format).map { it.value.after("%s").before("...") }.toMutableList()
+        while (newf.contains(pattern)) {
+            if (str.indexOf(delimiters.first()) > str.indexOf(delimiters[1 % delimiters.size])) {
+                delimiters.removeFirst()
+            }
+            val before = newf.before("%s")
+            val after = newf.after("...").first()
+            str = str.after(before).substringBeforeLast(format.substringAfterLast("..."))
+            if (delimiters.size > 1) {
+                results.addAll(str.before(delimiters[1]).split(delimiters.first()))
+            }
+            else {
+                results.addAll(str.split(delimiters.first()))
+                break
+            }
+            str = str.after(delimiters[1])
+            if (str == "EOF") {
+                break
+            }
+        }
+        newf = format
+        str = this
+        while (newf.contains("%s")) {
+            val before = newf.before("%s")
+            val after = newf.after("%s").first()
+            if (newf.after("%s") == "EOF") {
+                results.add(str.after(before))
+                break
+            }
+            results.add(str.after(before).before(after))
+            str = str.after(str[str.indexOf(after)-1])
+            newf = newf.after("%s")
+        }
+
+        results.add(results.removeLast().replace(stripEnd, ""))
+
+        return results.dropBlanks()
+    }
+    fun <T> Collection<T>.destructure() = this.first() to this.drop(1)
     fun gcd(a: Long, b: Long): Long {
         if (b == 0L) return a
         return gcd(b, a % b)
@@ -296,4 +351,38 @@ object Utils {
     }
     fun String.uniques(): Int = distinct().count()
     fun String.counts(): Map<Char, Int> = groupingBy { it }.eachCount()
+    fun String.ifNotContains(char: Char, action: (String) -> (String)): String = if (this.contains(char)) this else action(this)
+    fun String.ifContains(char: Char, action: (String) -> (String)): String = if (this.contains(char)) action(this) else this
+    fun String.ifNotStartsWith(char: Char, action: (String) -> (String)): String = if (this.startsWith(char)) this else action(this)
+    fun String.ifStartsWith(char: Char, action: (String) -> (String)): String = if (this.startsWith(char)) action(this) else this
+    fun String.ifNotEndsWith(char: Char, action: (String) -> (String)): String = if (this.endsWith(char)) this else action(this)
+    fun String.ifEndsWith(char: Char, action: (String) -> (String)): String = if (this.endsWith(char)) action(this) else this
+
+    fun String.ifNotContains(str: String, action: (String) -> (String)): String = if (this.contains(str)) this else action(this)
+    fun String.ifContains(str: String, action: (String) -> (String)): String = if (this.contains(str)) action(this) else this
+    fun String.ifNotStartsWith(str: String, action: (String) -> (String)): String = if (this.startsWith(str)) this else action(this)
+    fun String.ifStartsWith(str: String, action: (String) -> (String)): String = if (this.startsWith(str)) action(this) else this
+    fun String.ifNotEndsWith(str: String, action: (String) -> (String)): String = if (this.endsWith(str)) this else action(this)
+    fun String.ifEndsWith(str: String, action: (String) -> (String)): String = if (this.endsWith(str)) action(this) else this
+    fun String.ifEquals(str: String, action: (String) -> (String)): String = if (this == str) action(this) else this
+    fun String.ifNotEquals(str: String, action: (String) -> (String)): String = if (this != str) this else action(this)
+    fun String.ifEquals(char: Char, action: (String) -> (String)): String = if (this == char.toString()) action(this) else this
+    fun String.ifNotEquals(char: Char, action: (String) -> (String)): String = if (this != char.toString()) this else action(this)
+    fun String.ifNotContains(regex: Regex, action: (String) -> (String)): String = if (this.contains(regex)) this else action(this)
+    fun String.ifContains(regex: Regex, action: (String) -> (String)): String = if (this.contains(regex)) action(this) else this
+    fun String.ifNotStartsWith(regex: Regex, action: (String) -> (String)): String = if (this.startsWith(regex)) this else action(this)
+    fun String.ifStartsWith(regex: Regex, action: (String) -> (String)): String = if (this.startsWith(regex)) action(this) else this
+    fun String.ifNotEndsWith(regex: Regex, action: (String) -> (String)): String = if (this.endsWith(regex)) this else action(this)
+    fun String.ifEndsWith(regex: Regex, action: (String) -> (String)): String = if (this.endsWith(regex)) action(this) else this
+    fun String.ifNotMatches(regex: Regex, action: (String) -> (String)): String = if (this.matches(regex)) this else action(this)
+    fun String.ifMatches(regex: Regex, action: (String) -> (String)): String = if (this.matches(regex)) action(this) else this
+    fun String.endsWith(regex: Regex): Boolean {
+        return this.endsWith(regex.find(this)?.value ?: return false)
+    }
+    fun String.startsWith(regex: Regex): Boolean {
+        return this.startsWith(regex.find(this)?.value ?: return false)
+    }
+    fun String.trimMultiSpace(): String {
+        return this.replace(Regex("\\s+"), " ")
+    }
 }
