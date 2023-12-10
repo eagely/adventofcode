@@ -385,4 +385,38 @@ object Utils {
     fun String.trimMultiSpace(): String {
         return this.replace(Regex("\\s+"), " ")
     }
+
+    fun chineseRemainder(mod: List<Long>, rem: List<Long>): Long {
+        val prod = mod.fold(1L) { acc, i -> acc * i }
+
+        return mod.zip(rem).sumOf { (moduli, remainder) ->
+            val p = prod / moduli
+            remainder * modularMultiplicativeInverse(p, moduli) * p
+        } % prod
+    }
+
+    fun modularMultiplicativeInverse(a: Long, m: Long): Long {
+        var y = 0L
+        var x = 1L
+
+        if (m == 1L) return 0L
+
+        var aTemp = a
+        var mTemp = m
+
+        while (aTemp > 1) {
+            val q = aTemp / mTemp
+            var t = mTemp
+
+            mTemp = aTemp % mTemp
+            aTemp = t
+            t = y
+
+            y = x - q * y
+            x = t
+        }
+
+        return if (x < 0) x + m else x
+    }
+
 }

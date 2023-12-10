@@ -45,8 +45,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     operator fun get(row: Int): List<T?> = getRow(row)
     operator fun get(point: Point): T? = data[point]
     operator fun get(row: Int, col: Int): T? = data[Point(row, col)]
-    operator fun get(value: T): Point =
-        data.entries.find { it.value == value }?.key ?: throw Exception("Value not found")
+    operator fun get(value: T): Point? = data.entries.find { it.value == value }?.key
 
     fun getOrDefault(point: Point, defaultValue: T): T = data.getOrDefault(point, defaultValue)
     fun getOrDefault(value: T, defaultPoint: Point): Point =
