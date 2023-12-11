@@ -8,10 +8,12 @@ import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sign
 import kotlin.random.Random
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 object Utils {
 
     fun String.extractNumbers(): String = this.filter { it.isDigit() }
@@ -32,8 +34,8 @@ object Utils {
     infix fun String.at(pos: Int) = this[pos % this.length]
     fun Double.format(scale: Int) = "%.${scale}f".format(this)
     fun Float.format(scale: Int) = "%.${scale}f".format(this)
-    fun Int.abs() = Math.abs(this)
-    fun Long.abs() = Math.abs(this)
+    fun Int.abs() = abs(this)
+    fun Long.abs() = abs(this)
     fun Long.pow(power: Int): Long = this.toDouble().pow(power).toLong()
     fun Int.pow(power: Int): Int = this.toDouble().pow(power).toInt()
     fun <T> List<T>.isAllEqual(): Boolean {
@@ -175,7 +177,7 @@ object Utils {
 
     fun List<String>.containsLength(length: Int) = this.any { it.l == length }
     fun String.contains(char: Char, count: Int): Boolean = this.count { it == char } == count
-    fun String.consecutive(): List<String> = this.fold(mutableListOf<String>()) { acc, char ->
+    fun String.consecutive(): List<String> = this.fold(mutableListOf()) { acc, char ->
         if (acc.isEmpty() || acc.last().last() != char) {
             acc.add(char.toString())
         } else {
@@ -214,7 +216,8 @@ object Utils {
         val frequencyMap = this.groupingBy { it }.eachCount()
         return this.filter { frequencyMap[it]!! > 1 }
     }
-    operator fun <T> Collection<T>.get(index: Int): T = if (index.sign == -1) this[this.size-index] else this[index]
+
+    operator fun <T> Collection<T>.get(index: Int): T = if (index.sign == -1) this[this.size - index] else this[index]
     operator fun <T> Collection<T>.get(range: IntRange): List<T> = this.toList().subList(range.first, range.last + 1)
     operator fun <T> MutableList<T>.set(range: IntRange, value: T) {
         range.forEach { this[it] = value }
@@ -227,7 +230,7 @@ object Utils {
         start: T,
         isEnd: (T) -> Boolean,
         getNext: (T) -> Collection<T>,
-        getStepCost: (T) -> Int = { 1 }
+        getStepCost: (T) -> Int = { 1 },
     ): Pair<List<T>, Int>? {
         if (isEnd(start)) return Pair(listOf(start), 0)
 
@@ -290,7 +293,7 @@ object Utils {
     fun String.scanf(format: String, stripEnd: String = ""): List<String> {
         var str = this
         var newf = format.ifNotEndsWith("EOF") { it + "EOF" }
-        var results = mutableListOf<String>()
+        val results = mutableListOf<String>()
         val pattern = """%s([^%]*)\.\.\.""".toRegex()
         val delimiters = pattern.findAll(format).map { it.value.after("%s").before("...") }.toMutableList()
         while (newf.contains(pattern)) {
@@ -298,12 +301,10 @@ object Utils {
                 delimiters.removeFirst()
             }
             val before = newf.before("%s")
-            val after = newf.after("...").first()
             str = str.after(before).substringBeforeLast(format.substringAfterLast("..."))
             if (delimiters.size > 1) {
                 results.addAll(str.before(delimiters[1]).split(delimiters.first()))
-            }
-            else {
+            } else {
                 results.addAll(str.split(delimiters.first()))
                 break
             }
@@ -322,7 +323,7 @@ object Utils {
                 break
             }
             results.add(str.after(before).before(after))
-            str = str.after(str[str.indexOf(after)-1])
+            str = str.after(str[str.indexOf(after) - 1])
             newf = newf.after("%s")
         }
 
@@ -330,6 +331,7 @@ object Utils {
 
         return results.dropBlanks()
     }
+
     fun <T> Collection<T>.destructure() = this.first() to this.drop(1)
     fun gcd(a: Long, b: Long): Long {
         if (b == 0L) return a
@@ -337,8 +339,9 @@ object Utils {
     }
 
     fun lcm(a: Long, b: Long): Long {
-        return Math.abs(a * b) / gcd(a, b)
+        return abs(a * b) / gcd(a, b)
     }
+
     fun lcm(a: BigInteger, b: BigInteger): BigInteger {
         return a.multiply(b).divide(a.gcd(b))
     }
@@ -346,9 +349,11 @@ object Utils {
     fun lcm(vararg nums: BigInteger): BigInteger {
         return nums.reduce { a, b -> lcm(a, b) }
     }
+
     fun lcm(nums: Set<BigInteger>): BigInteger {
         return nums.reduce { a, b -> lcm(a, b) }
     }
+
     fun String.uniques(): Int = distinct().count()
     fun String.counts(): Map<Char, Int> = groupingBy { it }.eachCount()
     fun String.ifNotContains(char: Char, action: (String) -> (String)): String = if (this.contains(char)) this else action(this)
@@ -379,9 +384,11 @@ object Utils {
     fun String.endsWith(regex: Regex): Boolean {
         return this.endsWith(regex.find(this)?.value ?: return false)
     }
+
     fun String.startsWith(regex: Regex): Boolean {
         return this.startsWith(regex.find(this)?.value ?: return false)
     }
+
     fun String.trimMultiSpace(): String {
         return this.replace(Regex("\\s+"), " ")
     }
@@ -419,4 +426,54 @@ object Utils {
         return if (x < 0) x + m else x
     }
 
+    fun multiplyMatrices(first: Array<IntArray>, second: Array<IntArray>): Array<IntArray>? {
+        if (first.first().size != second.size) return null
+
+        return Array(first.size) { row ->
+            IntArray(second.first().size) { col ->
+                first[row].indices.sumOf { k -> first[row][k] * second[k][col] }
+            }
+        }
+    }
+
+    fun addMatrices(first: Array<IntArray>, second: Array<IntArray>): Array<IntArray>? {
+        if (first.size != second.size || first.first().size != second.first().size) {
+            return null
+        }
+
+        return Array(first.size) { i ->
+            IntArray(first[i].size) { j ->
+                first[i][j] + second[i][j]
+            }
+        }
+    }
+
+    fun subtractMatrices(first: Array<IntArray>, second: Array<IntArray>): Array<IntArray>? {
+        if (first.size != second.size || first.first().size != second.first().size) {
+            return null
+        }
+
+        return Array(first.size) { i ->
+            IntArray(first[i].size) { j ->
+                first[i][j] - second[i][j]
+            }
+        }
+    }
+
+    fun getPolygonArea(vertices: List<Point>): Double {
+        if (vertices.size < 3) return 0.0
+
+        var sum1 = 0.0
+        var sum2 = 0.0
+
+        for (i in vertices.indices) {
+            val current = vertices[i]
+            val next = vertices[(i + 1) % vertices.size]
+
+            sum1 += current.x * next.y
+            sum2 += current.y * next.x
+        }
+
+        return 0.5 * abs(sum1 - sum2)
+    }
 }
