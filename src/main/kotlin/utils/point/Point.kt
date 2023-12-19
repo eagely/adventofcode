@@ -66,6 +66,24 @@ data class Point(var x: Int, var y: Int) {
             }
         }.toSet()
 
+    fun toDirection(): Direction {
+        return when {
+            x == 0 && y == 1 -> Direction.NORTH
+            x == 0 && y == -1 -> Direction.SOUTH
+            x == 1 && y == 0 -> Direction.EAST
+            x == -1 && y == 0 -> Direction.WEST
+            else -> throw IllegalArgumentException("Point $this is not a direction")
+        }
+    }
+    fun toDirectionOnGrid(): Direction {
+        return when {
+            x == -1 && y == 0 -> Direction.NORTH
+            x == 1 && y == 0 -> Direction.SOUTH
+            x == 0 && y == 1 -> Direction.EAST
+            x == 0 && y == -1 -> Direction.WEST
+            else -> throw IllegalArgumentException("Point $this is not a direction")
+        }
+    }
     fun manhattanDistance(other: Point) = abs(x - other.x) + abs(y - other.y)
     fun gridPlus(other: Direction) = this + other.toPointOnGrid()
     fun gridMinus(other: Direction) = this - other.toPointOnGrid()
@@ -85,6 +103,7 @@ data class Point(var x: Int, var y: Int) {
 
 
     companion object {
+        val ORIGIN = Point(0, 0)
         fun of(input: String): Point {
             val (x, y) = input.split(',', '-').map { it.trim().toInt() }
             return Point(x, y)
