@@ -1,10 +1,12 @@
 package utils
 
 import utils.grid.Grid
+import utils.point.LongPoint
 import utils.point.Point
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.io.File
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
@@ -76,6 +78,11 @@ object Utils {
     }
 
     fun Iterable<Int>.product(): Int = reduce { a, b -> a * b }
+    fun Iterable<Long>.product(): Long = reduce { a, b -> a * b }
+    fun Iterable<Double>.product(): Double = reduce { a, b -> a * b }
+    fun Iterable<Float>.product(): Float = reduce { a, b -> a * b }
+    fun Iterable<BigInteger>.product(): BigInteger = reduce { a, b -> a * b }
+    fun Iterable<BigDecimal>.product(): BigDecimal = reduce { a, b -> a * b }
 
     fun List<IntRange>.reduce(): List<IntRange> = if (this.size <= 1) this
     else {
@@ -119,10 +126,8 @@ object Utils {
     fun <T> List<T>.zipWithAll(): List<Pair<T, T>> {
         val result = mutableListOf<Pair<T, T>>()
         for (i in this.indices) {
-            for (j in this.indices) {
-                if (i != j) {
-                    result.add(Pair(this[i], this[j]))
-                }
+            for (j in i + 1 until this.size) {
+                result.add(Pair(this[i], this[j]))
             }
         }
         return result
@@ -133,19 +138,61 @@ object Utils {
         val seenPairs = mutableSetOf<Pair<T, T>>()
 
         for (i in this.indices) {
-            for (j in this.indices) {
-                if (i != j) {
-                    val pair = Pair(this[i], this[j])
-                    val reversePair = Pair(this[j], this[i])
-                    if (reversePair !in seenPairs) {
-                        result.add(pair)
-                        seenPairs.add(pair)
-                    }
+            for (j in i + 1 until this.size) {
+                val pair = Pair(this[i], this[j])
+                if (pair !in seenPairs) {
+                    result.add(pair)
+                    seenPairs.add(pair)
+                    seenPairs.add(pair.copy(first = pair.second, second = pair.first)) // Add reverse pair as well
                 }
             }
         }
         return result
     }
+
+    fun <T> List<T>.zipWithAll(zipSize: Int = 2): List<List<T>> {
+        if (zipSize < 2) throw IllegalArgumentException("zipSize must be at least 2")
+
+        fun combine(start: Int, current: MutableList<T>): List<List<T>> {
+            if (current.size == zipSize) {
+                return listOf(current.toList())
+            }
+            val combinations = mutableListOf<List<T>>()
+            for (i in start until this.size) {
+                current.add(this[i])
+                combinations += combine(i + 1, current)
+                current.removeAt(current.lastIndex) // Backtrack
+            }
+            return combinations
+        }
+
+        return combine(0, mutableListOf())
+    }
+
+    fun <T> List<T>.zipWithAllUnique(zipSize: Int = 2): List<List<T>> {
+        if (zipSize < 2) throw IllegalArgumentException("zipSize must be at least 2")
+
+        val seenCombinations = mutableSetOf<List<Int>>()
+
+        fun combine(start: Int, current: MutableList<Pair<T, Int>>) {
+            if (current.size == zipSize) {
+                val indices = current.map { it.second }.sorted()
+                if (indices !in seenCombinations) {
+                    seenCombinations.add(indices)
+                }
+                return
+            }
+            for (i in start until this.size) {
+                current.add(Pair(this[i], i))
+                combine(i + 1, current)
+                current.removeAt(current.lastIndex)
+            }
+        }
+
+        combine(0, mutableListOf())
+        return seenCombinations.map { indices -> indices.map { this[it] } }
+    }
+
 
     infix fun <T> Int.from(list: List<T>) = list.take(this)
     infix fun <T> List<T>.fetch(amt: Int) = this.take(amt)
@@ -160,6 +207,20 @@ object Utils {
     fun String.before(str: String) = this.substringBefore(str)
     fun String.after(regex: Regex) = this.substringAfter(regex.find(this)?.value ?: "")
     fun String.before(regex: Regex) = this.substringBefore(regex.find(this)?.value ?: "")
+    fun String.afterLast(char: Char) = this.substringAfterLast(char)
+    fun String.beforeLast(char: Char) = this.substringBeforeLast(char)
+    fun String.afterLast(str: String) = this.substringAfterLast(str)
+    fun String.beforeLast(str: String) = this.substringBeforeLast(str)
+    fun String.afterLast(regex: Regex) = this.substringAfterLast(regex.find(this)?.value ?: "")
+    fun String.beforeLast(regex: Regex) = this.substringBeforeLast(regex.find(this)?.value ?: "")
+    fun String.dropBrackets() = this.replace(Regex("[\\[\\](){}]"), "")
+    fun die(): Nothing = throw RuntimeException("womp womp")
+    fun <T> List<T>.toPair(): Pair<T, T> {
+        require(this.size <= 2) { "List contains more than 2 elements" }
+        return this.first() to this.getOrNull(1)!!
+    }
+
+
     infix fun String.matching(other: String): String = this.zip(other).filter { (a, b) -> a == b }.map { it.first }.joinToString("")
     infix fun String.nonmatching(other: String): String = this.zip(other).filter { (a, b) -> a != b }.map { it.first }.joinToString("")
     fun String.halve() = this.splitAt(this.l / 2)
@@ -186,6 +247,8 @@ object Utils {
         acc
     }
 
+    fun File.ril(): List<Int> = this.readLines().map { it.toInt() }
+    fun File.rll(): List<Long> = this.readLines().map { it.toLong() }
     fun File.rl(): List<String> = this.readLines().dropLastWhile { it.isBlank() }
     fun File.rt(): String = this.readText().trim()
     fun File.sdnl() = this.rt().split("\n\n")
@@ -460,11 +523,11 @@ object Utils {
         }
     }
 
-    fun getPolygonArea(vertices: List<Point>): Double {
-        if (vertices.size < 3) return 0.0
-
-        var sum1 = 0.0
-        var sum2 = 0.0
+    @JvmName("getPolygonAreaInt")
+    fun getPolygonArea(vertices: List<Point>): Long {
+        if (vertices.size < 3) return 0L
+        var sum1 = 0L
+        var sum2 = 0L
 
         for (i in vertices.indices) {
             val current = vertices[i]
@@ -474,6 +537,23 @@ object Utils {
             sum2 += current.y * next.x
         }
 
-        return 0.5 * abs(sum1 - sum2)
+        return abs(sum1 - sum2) / 2
+    }
+
+    @JvmName("getPolygonAreaLong")
+    fun getPolygonArea(vertices: List<LongPoint>): Long {
+        if (vertices.size < 3) return 0L
+        var sum1 = 0L
+        var sum2 = 0L
+
+        for (i in vertices.indices) {
+            val current = vertices[i]
+            val next = vertices[(i + 1) % vertices.size]
+
+            sum1 += current.x * next.y
+            sum2 += current.y * next.x
+        }
+
+        return abs(sum1 - sum2) / 2
     }
 }

@@ -34,9 +34,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     }
 
     operator fun set(row: Int, column: Int, value: T) = set(Point(row, column), value)
-    operator fun set(point: Point, value: T) {
-        data[point] = value
-    }
+    operator fun set(point: Point, value: T) { data[point] = value }
 
     operator fun set(xRange: IntRange, yRange: IntRange, value: T) = xRange.forEach { x -> yRange.forEach { y -> set(x p y, value) } }
     operator fun set(x: Int, yRange: IntRange, value: T) = yRange.forEach { set(x p it, value) }
@@ -107,7 +105,11 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
 
         return resultGrid
     }
-
+    fun shiftedBeforeRow(row: Int, dp: Point): Grid<T> = shifted(dp) { point, _ -> point.x < row }
+    fun shiftedAfterRow(row: Int, dp: Point): Grid<T> = shifted(dp) { point, _ -> point.x > row }
+    fun shiftedBeforeColumn(column: Int, dp: Point): Grid<T> = shifted(dp) { point, _ -> point.y < column }
+    fun shiftedAfterColumn(column: Int, dp: Point): Grid<T> = shifted(dp) { point, _ -> point.y > column }
+    fun shifted(dp: Point, predicate: (Point, T) -> Boolean): Grid<T> = data.map { if (predicate(it.key, it.value)) it.key + dp to it.value else it.key to it.value }.toMap(mutableMapOf()).let { of(it) }
     fun any(predicate: (T) -> Boolean): Boolean {
         return data.values.any(predicate)
     }
@@ -230,8 +232,15 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     }.firstOrNull { point -> data[point] == value }
 
 
-    fun fillWith(value: T): Grid<T> = apply {
-        data.keys.filterNot { get(it) != null }.forEach { set(it, value) }
+    fun fillWith(value: T, indexing: Int = 0): Grid<T> {
+        for (x in indexing until rows) {
+            for (y in indexing until columns) {
+                if (data[Point(x, y)] == null) {
+                    data[Point(x, y)] = value
+                }
+            }
+        }
+        return this
     }
 
     fun floodFill(startPoint: Point, newValue: T): Grid<T> {
@@ -277,7 +286,6 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         xRange.forEach { x -> yRange.forEach { y -> set(x p y, value) } }
     }
 
-
     fun invert(): Grid<T> {
         val newGrid = Grid<T>(columns, rows)
 
@@ -286,6 +294,49 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
             newGrid[newPoint] = value
         }
 
+        return newGrid
+    }
+
+
+    fun invertRows(): Grid<T> {
+        val newGrid = Grid<T>(rows, columns)
+
+        for ((point, value) in data) {
+            val newPoint = Point(rows - point.x - 1, point.y)
+            newGrid[newPoint] = value
+        }
+
+        return newGrid
+    }
+
+    fun invertColumns(): Grid<T> {
+        val newGrid = Grid<T>(rows, columns)
+
+        for ((point, value) in data) {
+            val newPoint = Point(point.x, columns - point.y - 1)
+            newGrid[newPoint] = value
+        }
+
+        return newGrid
+    }
+
+    fun dropExtraRows(other: Grid<T>): Grid<T> {
+        val newGrid = Grid<T>(rows, columns)
+        for ((point, value) in data) {
+            if (other[point] != null) {
+                newGrid[point] = value
+            }
+        }
+        return newGrid
+    }
+
+    fun dropExtraColumns(other: Grid<T>): Grid<T> {
+        val newGrid = Grid<T>(rows, columns)
+        for ((point, value) in data) {
+            if (other[point] != null) {
+                newGrid[point] = value
+            }
+        }
         return newGrid
     }
 
