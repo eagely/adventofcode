@@ -40,17 +40,17 @@ object Utils {
     fun Long.abs() = abs(this)
     fun Long.pow(power: Int): Long = this.toDouble().pow(power).toLong()
     fun Int.pow(power: Int): Int = this.toDouble().pow(power).toInt()
-    fun <T> List<T>.isAllEqual(): Boolean {
+    fun <T> Collection<T>.isAllEqual(): Boolean {
         for (i in 1..<this.size) if (this[i] != this[i - 1]) return false
         return true
     }
 
-    fun <T> List<T>.allEquals(value: T): Boolean {
+    fun <T> Collection<T>.allEquals(value: T): Boolean {
         for (i in this) if (i != value) return false
         return true
     }
 
-    fun <T> List<T>.allContains(value: T): Boolean {
+    fun <T> Collection<T>.allContains(value: T): Boolean {
         for (i in this) if (!i.toString().contains(value.toString())) return false
         return true
     }
@@ -396,9 +396,19 @@ object Utils {
     }
 
     fun <T> Collection<T>.destructure() = this.first() to this.drop(1)
+
+    fun gcd(a: Int, b: Int): Int {
+        if (b == 0) return a
+        return gcd(b, a % b)
+    }
+
     fun gcd(a: Long, b: Long): Long {
         if (b == 0L) return a
         return gcd(b, a % b)
+    }
+
+    fun lcm(a: Int, b: Int): Int {
+        return abs(a * b) / gcd(a, b)
     }
 
     fun lcm(a: Long, b: Long): Long {
@@ -409,11 +419,27 @@ object Utils {
         return a.multiply(b).divide(a.gcd(b))
     }
 
+    fun lcm(vararg nums: Int): Int {
+        return nums.reduce { a, b -> lcm(a, b) }
+    }
+
+    fun lcm(nums: Collection<Int>): Int {
+        return nums.reduce { a, b -> lcm(a, b) }
+    }
+
+    fun lcm(vararg nums: Long): Long {
+        return nums.reduce { a, b -> lcm(a, b) }
+    }
+
+    fun lcm(nums: Collection<Long>): Long {
+        return nums.reduce { a, b -> lcm(a, b) }
+    }
+
     fun lcm(vararg nums: BigInteger): BigInteger {
         return nums.reduce { a, b -> lcm(a, b) }
     }
 
-    fun lcm(nums: Set<BigInteger>): BigInteger {
+    fun lcm(nums: Collection<BigInteger>): BigInteger {
         return nums.reduce { a, b -> lcm(a, b) }
     }
 
