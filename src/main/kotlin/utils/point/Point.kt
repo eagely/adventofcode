@@ -1,5 +1,6 @@
 package utils.point
 
+import utils.Utils.pm
 import utils.movement.Direction
 import kotlin.math.abs
 import kotlin.math.absoluteValue
@@ -84,6 +85,7 @@ data class Point(var x: Int, var y: Int) {
             else -> throw IllegalArgumentException("Point $this is not a direction")
         }
     }
+    infix fun pm(other: Point) = this % other
     fun manhattanDistance(other: Point) = abs(x - other.x) + abs(y - other.y)
     fun gridPlus(other: Direction) = this + other.toPointOnGrid()
     fun gridMinus(other: Direction) = this - other.toPointOnGrid()
@@ -95,7 +97,8 @@ data class Point(var x: Int, var y: Int) {
     operator fun unaryMinus() = Point(-x, -y)
     operator fun times(other: Point) = Point(x * other.x, y * other.y)
     operator fun div(other: Point) = Point(x / other.x, y / other.y)
-    operator fun rem(other: Point) = Point(x % other.x, y % other.y)
+    operator fun rem(other: Point) = Point(x pm other.x, y pm other.y)
+    operator fun rem(other: Int) = Point(x pm other, y pm other)
     operator fun inc() = Point(x + 1, y + 1)
     operator fun dec() = Point(x - 1, y - 1)
     operator fun compareTo(other: Point) = (x + y).compareTo(other.x + other.y)
