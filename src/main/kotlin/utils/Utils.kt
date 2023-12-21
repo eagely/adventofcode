@@ -107,12 +107,19 @@ object Utils {
         return this
     }
 
-    infix fun Long.posmod(mod: Int): Int {
-        return (this.mod(mod) + mod) % mod
+    infix fun Long.pm(other: Long): Long {
+        val mod = this % other
+        return if (mod < 0) mod + other else mod
     }
 
-    infix fun Int.posmod(mod: Int): Int {
-        return (this % mod + mod) % mod
+    infix fun Long.pm(other: Int): Int {
+        val mod = this % other
+        return if (mod < 0) mod.toInt() + other else mod.toInt()
+    }
+
+    infix fun Int.pm(other: Int): Int {
+        val mod = this % other
+        return if (mod < 0) mod + other else mod
     }
 
     infix fun Int.p(y: Int): Point = Point(this, y)
