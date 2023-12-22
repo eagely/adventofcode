@@ -108,7 +108,7 @@ data class Point(var x: Int, var y: Int) {
     companion object {
         val ORIGIN = Point(0, 0)
         fun of(input: String): Point {
-            val (x, y) = input.split(',', '-').map { it.trim().toInt() }
+            val (x, y) = input.split(',', '-', ' ').map { it.trim().toInt() }
             return Point(x, y)
         }
     }
