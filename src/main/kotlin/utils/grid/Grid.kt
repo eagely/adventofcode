@@ -222,14 +222,30 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         return newPoint
     }
 
-    fun getFirst(value: T) = (minX..maxX).asSequence().flatMap { row ->
-        (minY..maxY).asSequence().map { col -> Point(row, col) }
-    }.firstOrNull { point -> data[point] == value }
+    fun getFirst(value: T): Point? {
+        for (row in minX..maxX) {
+            for (col in minY..maxY) {
+                val point = Point(row, col)
+                if (data[point] == value) {
+                    return point
+                }
+            }
+        }
+        return null
+    }
 
+    fun getLast(value: T): Point? {
+        for (row in maxX downTo minX) {
+            for (col in maxY downTo minY) {
+                val point = Point(row, col)
+                if (data[point] == value) {
+                    return point
+                }
+            }
+        }
+        return null
+    }
 
-    fun getLast(value: T) = (maxX downTo minX).asSequence().flatMap { row ->
-        (maxY downTo minY).asSequence().map { col -> Point(row, col) }
-    }.firstOrNull { point -> data[point] == value }
 
 
     fun fillWith(value: T, indexing: Int = 0): Grid<T> {

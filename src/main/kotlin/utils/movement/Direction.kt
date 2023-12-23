@@ -8,7 +8,8 @@ enum class Direction(val angle: Int) {
     fun opposite() = Direction.of(angle + 180)
     operator fun plus(other: Direction) = Direction.of((angle + other.angle) % 360)
     operator fun minus(other: Direction) = Direction.of((angle - other.angle) % 360)
-
+    operator fun component1() = this.toPoint().x
+    operator fun component2() = this.toPoint().y
 
     @Deprecated("Use extend() instead", ReplaceWith("extend()"))
     fun extendOnGrid() = when (this) {
