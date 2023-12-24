@@ -11,6 +11,7 @@ repositories {
 }
 
 dependencies {
+    implementation("io.github.p-org.solvers:z3:4.8.14-v5")
     implementation("io.ktor:ktor-client-core:1.6.7")
     implementation("io.ktor:ktor-client-cio:1.6.7")
     implementation("io.arrow-kt:arrow-core:1.2.0")

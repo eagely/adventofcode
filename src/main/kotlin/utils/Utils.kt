@@ -40,7 +40,7 @@ object Utils {
     fun Long.abs() = abs(this)
     fun Long.pow(power: Int): Long = this.toDouble().pow(power).toLong()
     fun Int.pow(power: Int): Int = this.toDouble().pow(power).toInt()
-    fun <T> Collection<T>.isAllEqual(): Boolean {
+    fun <T> List<T>.isAllEqual(): Boolean {
         for (i in 1..<this.size) if (this[i] != this[i - 1]) return false
         return true
     }
@@ -287,7 +287,6 @@ object Utils {
         return this.filter { frequencyMap[it]!! > 1 }
     }
 
-    operator fun <T> Collection<T>.get(index: Int): T = if (index.sign == -1) this[this.size - index] else this[index]
     operator fun <T> Collection<T>.get(range: IntRange): List<T> = this.toList().subList(range.first, range.last + 1)
     operator fun <T> MutableList<T>.set(range: IntRange, value: T) {
         range.forEach { this[it] = value }
@@ -414,6 +413,16 @@ object Utils {
         return gcd(b, a % b)
     }
 
+    fun gcd(a: BigDecimal, b: BigDecimal): BigDecimal {
+        if (b == BigDecimal.ZERO) return a
+        return gcd(b, a % b)
+    }
+
+    fun gcd(a: BigInteger, b: BigInteger): BigInteger {
+        if (b == BigInteger.ZERO) return a
+        return gcd(b, a % b)
+    }
+
     fun lcm(a: Int, b: Int): Int {
         return abs(a * b) / gcd(a, b)
     }
@@ -489,13 +498,16 @@ object Utils {
         return this.replace(Regex("\\s+"), " ")
     }
 
+    operator fun <T> List<T>.component6(): T {
+        return this[5]
+    }
     fun chineseRemainder(mod: List<Long>, rem: List<Long>): Long {
         val prod = mod.fold(1L) { acc, i -> acc * i }
 
         return mod.zip(rem).sumOf { (moduli, remainder) ->
             val p = prod / moduli
             remainder * modularMultiplicativeInverse(p, moduli) * p
-        } % prod
+        }.mod(prod)
     }
 
     fun modularMultiplicativeInverse(a: Long, m: Long): Long {
@@ -520,6 +532,47 @@ object Utils {
         }
 
         return if (x < 0) x + m else x
+    }
+
+
+    fun chineseRemainder(mod: List<BigInteger>, rem: List<BigInteger>): BigInteger {
+        val prod = mod.fold(BigInteger.ONE) { acc, i -> acc * i }
+
+        return mod.zip(rem).sumOf { (moduli, remainder) ->
+            val p = prod / moduli
+            remainder * modularMultiplicativeInverse(p, moduli) * p
+        }.mod(prod)
+    }
+
+    fun modularMultiplicativeInverse(a: BigInteger, m: BigInteger): BigInteger {
+        var m0 = m
+        var x0 = BigInteger.ZERO
+        var x1 = BigInteger.ONE
+
+        if (m0 == BigInteger.ONE) return BigInteger.ZERO
+
+        var aTemp = a
+        while (aTemp > BigInteger.ONE) {
+            if (m0 == BigInteger.ZERO) {
+                println("Inverse doesn't exist")
+                return BigInteger.ZERO
+            }
+            val q = aTemp / m0
+            var t = m0
+
+            m0 = aTemp % m0
+            aTemp = t
+            t = x0
+
+            x0 = x1 - q * x0
+            x1 = t
+        }
+
+        if (x1 < BigInteger.ZERO) {
+            x1 += m
+        }
+
+        return x1
     }
 
     fun multiplyMatrices(first: Array<IntArray>, second: Array<IntArray>): Array<IntArray>? {
