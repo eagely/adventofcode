@@ -44,3 +44,5 @@ bin/
 /src/main/resources/
 /.idea/
 /.idea/
+/src/main/kotlin/solutions/y2015/
+/src/main/kotlin/solutions/y2020/

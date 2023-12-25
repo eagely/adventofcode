@@ -12,10 +12,14 @@ repositories {
 
 dependencies {
     implementation("io.github.p-org.solvers:z3:4.8.14-v5")
-    implementation("io.ktor:ktor-client-core:1.6.7")
-    implementation("io.ktor:ktor-client-cio:1.6.7")
+    implementation("org.apache.commons:commons-math3:3.6.1")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("io.ktor:ktor-client-core:2.3.7")
+    implementation("io.ktor:ktor-client-cio:2.3.7")
     implementation("io.arrow-kt:arrow-core:1.2.0")
     implementation("io.arrow-kt:arrow-fx-coroutines:1.2.0")
+    implementation("org.slf4j:slf4j-log4j12:2.0.9")
+    implementation("org.jgrapht:jgrapht-core:1.5.1")
     testImplementation(kotlin("test"))
 }
 
