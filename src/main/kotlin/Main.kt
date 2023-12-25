@@ -2,7 +2,11 @@
 import kotlinx.coroutines.runBlocking
 import utils.Utils.copyToClipboard
 import utils.Utils.rt
+import utils.annotations.NoReal
+import utils.annotations.NoTest
 import java.io.File
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.memberFunctions
 import kotlin.system.measureTimeMillis
 
 fun main() = runBlocking {
@@ -25,19 +29,29 @@ fun main() = runBlocking {
             rin
         }
 
+
+
         fun run(part: Int) {
-            val solve = if (part == 1) instance::solvePart1 else instance::solvePart2
+            val methodName = if (part == 1) "solvePart1" else "solvePart2"
+            val solveMethod = instance::class.memberFunctions.firstOrNull { it.name == methodName }
+            val isNoTestAnnotated = solveMethod?.findAnnotation<NoTest>() != null
+            val isNoRealAnnotated = solveMethod?.findAnnotation<NoReal>() != null
+
             var test: String
             var real: String
-            if (tin.exists() && tin.rt().isNotEmpty()) {
+            if (!isNoTestAnnotated && tin.exists() && tin.rt().isNotEmpty()) {
                 val tt = measureTimeMillis {
-                    test = if (tin.exists() && tin.readLines().isNotEmpty()) solve(tin).toString() else ""
+                    test = solveMethod?.call(instance, tin)?.toString() ?: ""
                 }
                 println("Test Part $part: $test ($tt ms)")
             }
-            val time = measureTimeMillis { real = solve(input).toString() }
-            println("Real Part $part: $real ($time ms)")
-            if (real != "0" && real != "") copyToClipboard(real)
+            if (!isNoRealAnnotated && rin.exists() && rin.rt().isNotEmpty()) {
+                val tr = measureTimeMillis {
+                    real = solveMethod?.call(instance, rin)?.toString() ?: ""
+                }
+                println("Real Part $part: $real ($tr ms)")
+                if (real != "0" && real != "") copyToClipboard(real)
+            }
         }
 
         run(1)
