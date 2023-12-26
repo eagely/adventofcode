@@ -10,7 +10,7 @@ import kotlin.reflect.full.memberFunctions
 import kotlin.system.measureTimeMillis
 
 fun main() = runBlocking {
-    val client = AdventOfCodeClient("53616c7465645f5f13ea761af63a778b2539ff4e5d636a65a3062192cfa51457eeda4dae2c0445dd799541c4d4a572e71d5ad2f70ebb0b3b8ae7fd74cd5ff305")
+    val client = AdventOfCodeClient(System.getenv("AOC_COOKIE"))
     val solutions = getSolution()
 
     solutions.forEach { instance ->
