@@ -40,9 +40,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-/src/main/kotlin/solutions/y2016/
 /src/main/resources/
 /.idea/
-/.idea/
-/src/main/kotlin/solutions/y2015/
-/src/main/kotlin/solutions/y2020/
+

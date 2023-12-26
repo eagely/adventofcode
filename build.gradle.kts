@@ -31,6 +31,13 @@ kotlin {
     jvmToolchain(17)
 }
 
+
 application {
     mainClass.set("MainKt")
+}
+
+tasks.withType<JavaExec> {
+    if (name == "run") {
+        systemProperty("java.library.path", "/usr/lib/")
+    }
 }
