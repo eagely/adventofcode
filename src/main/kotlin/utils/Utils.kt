@@ -459,6 +459,57 @@ object Utils {
         return nums.reduce { a, b -> lcm(a, b) }
     }
 
+    fun String.remove(vararg strings: String): String {
+        var str = this
+        for (s in strings) {
+            str = str.replace(s, "")
+        }
+        return str
+    }
+
+    fun String.remove(vararg chars: Char): String {
+        var str = this
+        for (c in chars) {
+            str = str.replace(c.toString(), "")
+        }
+        return str
+    }
+
+    fun String.remove(vararg regex: Regex): String {
+        var str = this
+        for (r in regex) {
+            str = str.replace(r, "")
+        }
+        return str
+    }
+
+    @JvmName("removeListString")
+    fun String.remove(strings: List<String>): String {
+        var str = this
+        for (s in strings) {
+            str = str.replace(s, "")
+        }
+        return str
+    }
+
+    @JvmName("removeListChar")
+    fun String.remove(chars: List<Char>): String {
+        var str = this
+        for (c in chars) {
+            str = str.replace(c.toString(), "")
+        }
+        return str
+    }
+
+    @JvmName("removeListRegex")
+    fun String.remove(regex: List<Regex>): String {
+        var str = this
+        for (r in regex) {
+            str = str.replace(r, "")
+        }
+        return str
+    }
+
     fun String.uniques(): Int = distinct().count()
     fun String.counts(): Map<Char, Int> = groupingBy { it }.eachCount()
     fun String.ifNotContains(char: Char, action: (String) -> (String)): String = if (this.contains(char)) this else action(this)
@@ -501,6 +552,7 @@ object Utils {
     operator fun <T> List<T>.component6(): T {
         return this[5]
     }
+
     fun chineseRemainder(mod: List<Long>, rem: List<Long>): Long {
         val prod = mod.fold(1L) { acc, i -> acc * i }
 
