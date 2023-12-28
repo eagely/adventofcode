@@ -441,6 +441,12 @@ object Utils {
         return str
     }
 
+    fun String.quantum(replacee: String, vararg replacer: String) = replacer.map { this.replace(replacee, it) }
+    fun String.quantum(replacee: Char, vararg replacer: Char) = replacer.map { this.replace(replacee, it) }
+    fun String.quantum(replacee: Regex, vararg replacer: String) = replacer.map { this.replace(replacee, it) }
+    fun String.quantum(replacee: Regex, vararg replacer: Char) = replacer.map { this.replace(replacee, it.toString()) }
+
+
     @JvmName("removeListString")
     fun String.remove(strings: List<String>): String {
         var str = this

@@ -10,7 +10,7 @@ import kotlin.reflect.full.memberFunctions
 import kotlin.system.measureTimeMillis
 
 fun main() = runBlocking {
-    val client = AdventOfCodeClient(System.getenv("AOC_COOKIE"))
+    val client = AdventOfCodeClient(System.getenv("AOC_COOKIE") ?: "Unable to get env variable AOC_COOKIE")
     val solutions = getSolution()
 
     solutions.forEach { instance ->
