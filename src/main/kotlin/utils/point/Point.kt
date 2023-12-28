@@ -104,7 +104,6 @@ data class Point(var x: Int, var y: Int) {
     operator fun compareTo(other: Point) = (x + y).compareTo(other.x + other.y)
     override fun toString() = "$x-$y"
 
-
     companion object {
         val ORIGIN = Point(0, 0)
         fun of(input: String): Point {

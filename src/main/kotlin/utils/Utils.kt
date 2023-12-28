@@ -12,7 +12,6 @@ import java.security.MessageDigest
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.pow
-import kotlin.math.sign
 import kotlin.random.Random
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
@@ -359,48 +358,6 @@ object Utils {
         return null
     }
 
-    fun String.scanf(format: String, stripEnd: String = ""): List<String> {
-        var str = this
-        var newf = format.ifNotEndsWith("EOF") { it + "EOF" }
-        val results = mutableListOf<String>()
-        val pattern = """%s([^%]*)\.\.\.""".toRegex()
-        val delimiters = pattern.findAll(format).map { it.value.after("%s").before("...") }.toMutableList()
-        while (newf.contains(pattern)) {
-            if (str.indexOf(delimiters.first()) > str.indexOf(delimiters[1 % delimiters.size])) {
-                delimiters.removeFirst()
-            }
-            val before = newf.before("%s")
-            str = str.after(before).substringBeforeLast(format.substringAfterLast("..."))
-            if (delimiters.size > 1) {
-                results.addAll(str.before(delimiters[1]).split(delimiters.first()))
-            } else {
-                results.addAll(str.split(delimiters.first()))
-                break
-            }
-            str = str.after(delimiters[1])
-            if (str == "EOF") {
-                break
-            }
-        }
-        newf = format
-        str = this
-        while (newf.contains("%s")) {
-            val before = newf.before("%s")
-            val after = newf.after("%s").first()
-            if (newf.after("%s") == "EOF") {
-                results.add(str.after(before))
-                break
-            }
-            results.add(str.after(before).before(after))
-            str = str.after(str[str.indexOf(after) - 1])
-            newf = newf.after("%s")
-        }
-
-        results.add(results.removeLast().replace(stripEnd, ""))
-
-        return results.dropBlanks()
-    }
-
     fun <T> Collection<T>.destructure() = this.first() to this.drop(1)
 
     fun gcd(a: Int, b: Int): Int {
@@ -518,7 +475,6 @@ object Utils {
     fun String.ifStartsWith(char: Char, action: (String) -> (String)): String = if (this.startsWith(char)) action(this) else this
     fun String.ifNotEndsWith(char: Char, action: (String) -> (String)): String = if (this.endsWith(char)) this else action(this)
     fun String.ifEndsWith(char: Char, action: (String) -> (String)): String = if (this.endsWith(char)) action(this) else this
-
     fun String.ifNotContains(str: String, action: (String) -> (String)): String = if (this.contains(str)) this else action(this)
     fun String.ifContains(str: String, action: (String) -> (String)): String = if (this.contains(str)) action(this) else this
     fun String.ifNotStartsWith(str: String, action: (String) -> (String)): String = if (this.startsWith(str)) this else action(this)
