@@ -43,3 +43,4 @@ bin/
 /src/main/resources/
 /.idea/
 
+/src/main/kotlin/solutions/y2023/
