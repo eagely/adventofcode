@@ -82,7 +82,8 @@ object Utils {
     fun Iterable<Float>.product(): Float = reduce { a, b -> a * b }
     fun Iterable<BigInteger>.product(): BigInteger = reduce { a, b -> a * b }
     fun Iterable<BigDecimal>.product(): BigDecimal = reduce { a, b -> a * b }
-
+    fun cardinalDirections() = listOf(Point(0, 1), Point(1, 0), Point(0, -1), Point(-1, 0))
+    fun directions() = cardinalDirections() + listOf(Point(1, 1), Point(1, -1), Point(-1, 1), Point(-1, -1))
     fun List<IntRange>.reduce(): List<IntRange> = if (this.size <= 1) this
     else {
         val sorted = this.sortedBy { it.first }
