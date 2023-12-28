@@ -3,7 +3,6 @@ package utils.point
 import utils.Utils.pm
 import utils.movement.Direction
 import kotlin.math.abs
-import kotlin.math.absoluteValue
 import kotlin.math.sign
 
 data class Point(var x: Int, var y: Int) {
@@ -40,7 +39,7 @@ data class Point(var x: Int, var y: Int) {
     }
 
     fun rotate(degrees: Int = 180): Point {
-        return when (degrees.absoluteValue % 360) {
+        return when (degrees pm 360) {
             0 -> Point(x, y)
             90 -> Point(-y, x)
             180 -> Point(-x, -y)
@@ -96,6 +95,7 @@ data class Point(var x: Int, var y: Int) {
     operator fun minus(other: Direction) = this - other.toPoint()
     operator fun unaryMinus() = Point(-x, -y)
     operator fun times(other: Point) = Point(x * other.x, y * other.y)
+    operator fun times(other: Int) = Point(x * other, y * other)
     operator fun div(other: Point) = Point(x / other.x, y / other.y)
     operator fun rem(other: Point) = Point(x pm other.x, y pm other.y)
     operator fun rem(other: Int) = Point(x pm other, y pm other)
