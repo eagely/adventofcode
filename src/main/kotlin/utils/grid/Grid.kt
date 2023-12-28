@@ -1,6 +1,8 @@
 package utils.grid
 
 import utils.Utils.abs
+import utils.Utils.cardinalDirections
+import utils.Utils.directions
 import utils.Utils.p
 import utils.point.Point
 import kotlin.math.sign
@@ -320,11 +322,11 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     fun getNeighborPositions(point: Point) = point.getNeighbors().filter { it in data.keys }
 
     /**
-     * Returns a Set of all values that are diagonal or cardinal neighbors of the specified point and are in the grid.
+     * Returns a List of all values that are diagonal or cardinal neighbors of the specified point and are in the grid.
      * @param point the point to get the neighbors of.
-     * @return a Set of all values that are diagonal or cardinal neighbors of the specified point and are in the grid.
+     * @return a List of all values that are diagonal or cardinal neighbors of the specified point and are in the grid.
      */
-    fun getNeighbors(point: Point) = getNeighborPositions(point).map { get(it) }.toSet()
+    fun getNeighbors(point: Point) = getNeighborPositions(point).map { get(it) }
 
     /**
      * Returns a Set of all points that are cardinal neighbors of the specified point and are in the grid.
@@ -334,12 +336,45 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     fun getCardinalNeighborPositions(point: Point) = point.getCardinalNeighbors().filter { it in data.keys }
 
     /**
-     * Returns a Set of all values that are cardinal neighbors of the specified point and are in the grid.
+     * Returns a List of all values that are cardinal neighbors of the specified point and are in the grid.
      * @param point the point to get the neighbors of.
-     * @return a Set of all values that are cardinal neighbors of the specified point and are in the grid.
+     * @return a List of all values that are cardinal neighbors of the specified point and are in the grid.
      */
-    fun getCardinalNeighbors(point: Point) = getCardinalNeighborPositions(point).mapNotNull { get(it) }.toSet()
+    fun getCardinalNeighbors(point: Point) = getCardinalNeighborPositions(point).mapNotNull { get(it) }
 
+    /**
+     * Returns a List of all values that are diagonal or cardinal neighbors of the specified point and are not the specified value.
+     * It keeps moving in each direction until it finds a non-skipped neighbor or reaches the grid boundary.
+     * @param point the point to get the neighbors of.
+     * @param skipValue the value to skip.
+     * @return a List of all values that are diagonal or cardinal neighbors of the specified point and are not the specified value.
+     */
+    fun getNeighbors(point: Point, skipValue: T): List<T?> {
+        return directions().mapNotNull { direction ->
+            var nextPoint = point + direction
+            while (nextPoint in data.keys && get(nextPoint) == skipValue) {
+                nextPoint += direction
+            }
+            get(nextPoint)
+        }
+    }
+
+    /**
+     * Returns a List of all values that are cardinal neighbors of the specified point and are not the specified value.
+     * It keeps moving in each direction until it finds a non-skipped neighbor or reaches the grid boundary.
+     * @param point the point to get the neighbors of.
+     * @param skipValue the value to skip.
+     * @return a List of all values that are cardinal neighbors of the specified point and are not the specified value.
+     */
+    fun getCardinalNeighbors(point: Point, skipValue: T): List<T?> {
+        return cardinalDirections().mapNotNull { direction ->
+            var nextPoint = point + direction
+            while (nextPoint in data.keys && get(nextPoint) == skipValue) {
+                nextPoint += direction
+            }
+            get(nextPoint)
+        }
+    }
 
     /**
      * Returns a Set of points after moving the specified Set of points in the given direction.
@@ -828,6 +863,27 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
                 end++
             }
             return (start + 1 until end).joinToString("") { get(point.x, it).toString() }
+        }
+
+        /**
+         * Applies the Game of Life rules to the grid.
+         * @param transform the transformation function to apply to each point.
+         * @param stepCounter the number of steps to simulate. If not provided, the function will return the grid after it stabilizes.
+         * @return the grid after applying the Game of Life rules.
+         */
+        fun Grid<Char>.gameOfLife(stepCounter: Int? = null, transform: (Point, Char, Grid<Char>) -> Char): Grid<Char> {
+            var currentGrid = this
+            var previousGrid: Grid<Char>
+            var steps = 0
+            do {
+                previousGrid = currentGrid.deepCopy()
+                val new = currentGrid.deepCopy()
+                new.data.keys.forEach { point -> new[point] = transform(point, currentGrid[point]!!, currentGrid) }
+                currentGrid = new
+                steps++
+                if (stepCounter != null && steps >= stepCounter) break
+            } while (currentGrid != previousGrid)
+            return currentGrid
         }
     }
 }
