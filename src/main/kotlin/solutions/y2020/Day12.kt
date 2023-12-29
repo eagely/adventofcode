@@ -1,8 +1,7 @@
-package solutions
+package solutions.y2020
 
 import Solution
 import utils.Utils.extractNumbers
-import utils.Utils.pm
 import utils.Utils.rl
 import utils.movement.Direction
 import utils.point.Point
