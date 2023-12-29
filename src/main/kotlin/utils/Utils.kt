@@ -253,13 +253,17 @@ object Utils {
         }
         acc
     }
-
-    fun File.ril(): List<Int> = this.readLines().map { it.toInt() }
-    fun File.rll(): List<Long> = this.readLines().map { it.toLong() }
+    fun permutations(list: List<Int>): List<List<Int>> {
+        return if (list.size == 1) listOf(list)
+        else list.flatMap { i -> permutations(list - i).map { listOf(i) + it } }
+    }
+    fun File.ril(): List<Int> = this.rl().map { it.toInt() }
+    fun File.rll(): List<Long> = this.rl().map { it.toLong() }
     fun File.rl(): List<String> = this.readLines().dropLastWhile { it.isBlank() }
     fun File.rt(): String = this.readText().trim()
     fun File.sdnl() = this.rt().split("\n\n")
     fun List<String>.snl() = this.map { it.split("\n") }
+    fun List<String>.swd() = this.dropBlanks().filter { it.first().isDigit() }
     fun Collection<Point>.getNeighbors() = this.flatMap { it.getNeighbors() }.toSet()
     fun Collection<Point>.getCardinalNeighbors() = this.flatMap { it.getCardinalNeighbors() }.toSet()
     fun <T> Collection<T>.filterConsecutive(predicate: (T) -> Boolean): List<List<T>> {
