@@ -1,8 +1,8 @@
 package utils
 
-import utils.grid.Grid
 import utils.point.LongPoint
 import utils.point.Point
+import utils.point.Point3D
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.io.File
@@ -12,7 +12,6 @@ import java.security.MessageDigest
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.pow
-import kotlin.random.Random
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 object Utils {
@@ -52,16 +51,6 @@ object Utils {
     fun <T> Collection<T>.allContains(value: T): Boolean {
         for (i in this) if (!i.toString().contains(value.toString())) return false
         return true
-    }
-
-    fun generateRandomGrid(rows: Int, columns: Int, obstacleProbability: Double): Grid<Boolean> {
-        val grid = Grid<Boolean>(rows, columns)
-        for (row in 0..<rows) {
-            for (column in 0..<columns) {
-                grid[row, column] = Random.nextDouble() < obstacleProbability
-            }
-        }
-        return grid
     }
 
     fun toFahrenheit(celsius: Double) = celsius * 9 / 5 + 32
@@ -123,6 +112,7 @@ object Utils {
     }
 
     infix fun Int.p(y: Int): Point = Point(this, y)
+    infix fun Point.p(z: Int): Point3D = Point3D(this.x, this.y, z)
     infix fun Set<*>.and(other: Set<*>): Set<*> = this.intersect(other)
     infix fun Set<*>.or(other: Set<*>): Set<*> = this.union(other)
     infix fun Set<*>.xor(other: Set<*>): Set<*> = this.union(other).minus(this.intersect(other))

@@ -10,6 +10,7 @@ import kotlin.math.sign
 /**
  * A generic dynamic grid implementation.
  * It uses Map<Point, T> to store the points, which means accessing a known point is O(1) but indexing a point is O(n).
+ * Currently, since Point3D stores Ints, the grid is limited to 2^32 rows and columns.
  * Hence, there is no guarantee that the points will be in any particular order.
  * @param T the type of elements in the grid.
  */
@@ -82,14 +83,6 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     }
 
     /**
-     * Sets the point at the specified row and column to the given value.
-     * @param row the row of the point.
-     * @param column the column of the point.
-     * @param value the value to set the point to.
-     */
-    operator fun set(row: Int, column: Int, value: T) = set(Point(row, column), value)
-
-    /**
      * Sets the point at the specified Point to the given value.
      * @param point the point to set.
      * @param value the value to set the point to.
@@ -125,17 +118,9 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     /**
      * Returns the value at the specified point.
      * @param point the point to get the value of.
-     * @return the value at the specified point.
+     * @return the value at the specified point, or null if absent.
      */
     operator fun get(point: Point): T? = data[point]
-
-    /**
-     * Returns the value at the specified row and column.
-     * @param row the row of the point.
-     * @param col the column of the point.
-     * @return the value at the specified point.
-     */
-    operator fun get(row: Int, col: Int): T? = data[Point(row, col)]
 
     /**
      * Returns the first point with the specified value.
@@ -471,7 +456,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     }
 
     /**
-     * Flood fills all points connected to startPoint with the specified newValue.
+     * Flood fills all points cardinally (4-way) connected to startPoint with the specified newValue.
      * This method is non local and will affect the grid.
      * @param startPoint the point to start the flood fill from.
      * @param newValue the value to set all points to.
@@ -494,7 +479,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     }
 
     /**
-     * Returns true if the endPoint is connected to startPoint by a flood fill.
+     * Returns true if the endPoint is cardinally (4-way) connected to startPoint by a flood fill.
      * @param startPoint the point to start the flood fill from.
      * @param endPoint the point to check if it is connected to startPoint.
      * @return true if the endPoint is connected to startPoint by a flood fill.
@@ -522,14 +507,12 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
      * @param points the points to check if they can move.
      * @param dx the x offset to move by.
      * @param dy the y offset to move by.
+     * @param free the points to ignore when checking if the points can move.
      * @return true if all the points in the Set can move by the specified offset.
      */
-    fun canMove(points: Set<Point>, dx: Int, dy: Int): Boolean {
-        return points.all { point ->
-            val newX = point.x + dx
-            val newY = point.y + dy
-            this[newX, newY] == null || Point(newX, newY) in points
-        }
+    fun canMove(points: Set<Point>, dx: Int, dy: Int, vararg free: Point?) = points.all { point ->
+        val np = point + Point(dx, dy)
+        if (free.isEmpty()) this[np] == null else np in free || np in points
     }
 
     /**
@@ -842,7 +825,6 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
             }.filter { it.second != ' ' }.toMap().toMutableMap()
             return Grid<Char>().apply {
                 this.data = data
-
             }
         }
 
@@ -855,14 +837,39 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         fun Grid<Char>.numberAt(point: Point): String? {
             if (get(point) == null || !get(point)!!.isDigit()) return null
             var start = point.y
-            while (start >= 0 && get(point.x, start)!!.isDigit()) {
+            while (start >= 0 && this[Point(point.x, start)]!!.isDigit()) {
                 start--
             }
             var end = point.y
-            while (end < columns && get(point.x, end)!!.isDigit()) {
+            while (end < columns && this[Point(point.x, end)]!!.isDigit()) {
                 end++
             }
-            return (start + 1 until end).joinToString("") { get(point.x, it).toString() }
+            return (start + 1 until end).joinToString("") { this[Point(point.x, it)].toString() }
+        }
+
+
+        /**
+         * Applies the Game of Life rules to the grid.
+         * @param transform the transformation function to apply to each point.
+         * @param stepCounter the number of steps to simulate. If not provided, the function will return the grid after it stabilizes.
+         * @return the grid after applying the Game of Life rules.
+         */
+        @JvmName("gameOfLifeBoolean")
+        fun Grid<Boolean>.gameOfLife(stepCounter: Int? = null, transform: (Point, Boolean?, Grid<Boolean>) -> Boolean?): Grid<Boolean> {
+            var currentGrid = this
+            var previousGrid: Grid<Boolean>
+            var steps = 0
+            do {
+                previousGrid = currentGrid.deepCopy()
+                val new = currentGrid.deepCopy()
+                for (point in new.data.keys) {
+                    new[point] = transform(point, currentGrid[point], currentGrid) ?: continue
+                }
+                currentGrid = new
+                steps++
+                if (stepCounter != null && steps >= stepCounter) break
+            } while (currentGrid != previousGrid)
+            return currentGrid
         }
 
         /**
@@ -871,14 +878,17 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
          * @param stepCounter the number of steps to simulate. If not provided, the function will return the grid after it stabilizes.
          * @return the grid after applying the Game of Life rules.
          */
-        fun Grid<Char>.gameOfLife(stepCounter: Int? = null, transform: (Point, Char, Grid<Char>) -> Char): Grid<Char> {
+        @JvmName("gameOfLifeChar")
+        fun Grid<Char>.gameOfLife(stepCounter: Int? = null, transform: (Point, Char?, Grid<Char>) -> Char?): Grid<Char> {
             var currentGrid = this
             var previousGrid: Grid<Char>
             var steps = 0
             do {
                 previousGrid = currentGrid.deepCopy()
                 val new = currentGrid.deepCopy()
-                new.data.keys.forEach { point -> new[point] = transform(point, currentGrid[point]!!, currentGrid) }
+                for (point in new.data.keys) {
+                    new[point] = transform(point, currentGrid[point], currentGrid) ?: continue
+                }
                 currentGrid = new
                 steps++
                 if (stepCounter != null && steps >= stepCounter) break
