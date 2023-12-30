@@ -8,15 +8,15 @@ import java.io.File
 class Day18 : Solution(2022) {
     override fun solvePart1(input: File): Any {
         val grid = parse(input)
-        return grid.grid.keys.sumOf { grid.getExposedSides(it) }
+        return grid.data.keys.sumOf { grid.getExposedSides(it) }
     }
 
     override fun solvePart2(input: File): Int {
         val grid = parse(input)
 
-        val x = grid.grid.keys.run { minOf { it.x } - 1..maxOf { it.x } + 1 }
-        val y = grid.grid.keys.run { minOf { it.y } - 1..maxOf { it.y } + 1 }
-        val z = grid.grid.keys.run { minOf { it.z } - 1..maxOf { it.z } + 1 }
+        val x = grid.data.keys.run { minOf { it.x } - 1..maxOf { it.x } + 1 }
+        val y = grid.data.keys.run { minOf { it.y } - 1..maxOf { it.y } + 1 }
+        val z = grid.data.keys.run { minOf { it.z } - 1..maxOf { it.z } + 1 }
 
         val queue = mutableListOf(Point3D(x.first, y.first, z.first))
         val visited: MutableSet<Point3D> = mutableSetOf()
