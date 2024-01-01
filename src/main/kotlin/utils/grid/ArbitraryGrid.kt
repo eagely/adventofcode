@@ -1,86 +1,43 @@
 package utils.grid
 
-import utils.Utils.p
-import utils.point.Point3D
+import utils.point.ArbitraryPoint
 
 /**
- * A generic dynamic 3d grid implementation.
- * It uses Map<Point3D, T> to store the points, which means accessing a known point is O(1) but indexing a point is O(n).
+ * A generic dynamic arbitrary dimension grid implementation.
+ * It uses Map<ArbitraryPoint, T> to store the points, which means accessing a known point is O(1) but indexing a point is O(n).
  * Hence, there is no guarantee that the points will be in any particular order.
- * Currently, since Point3D stores Ints, the grid is limited to 2^32 rows and columns.
+ * Currently, since ArbitraryPoint stores Ints, the grid is limited to 2^32 rows and columns.
  * @param T the type of elements in the grid.
  */
 @Suppress("unused", "MemberVisibilityCanBePrivate")
-data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var initialColumns: Int = 0) : Collection<T> {
-    constructor() : this(0, 0)
-
+data class ArbitraryGrid<T>(var data: MutableMap<ArbitraryPoint, T>) : Collection<T> {
+    constructor() : this(mutableMapOf())
     /**
      * The indices of the grid
      * @return a list of all the indices in the grid.
      */
-    val indices: List<Point3D> get() = data.keys.toList()
+    val indices: List<ArbitraryPoint> get() = data.keys.toList()
 
     /**
-     * The data of the grid, stored as a map of points to values.
+     * The amount of dimensions in the grid.
      */
-    var data = mutableMapOf<Point3D, T>()
+    val dimensions: Int get() = data.keys.maxOfOrNull { it.c.size } ?: 0
 
     /**
      * The number of elements in the grid.
      */
     override val size: Int get() = data.size
-
-    /**
-     * The rows of the grid.
-     */
-    val rows: Int get() = maxX - minX + 1
-
-    /**
-     * The columns of the grid.
-     */
-    val columns: Int get() = maxY - minY + 1
-
-    /**
-     * The depth of the grid.
-     */
-    val depth: Int get() = maxZ - minZ + 1
-
-    /**
-     * The lowest x value in the grid.
-     */
-    val minX: Int get() = data.keys.minOfOrNull { it.x } ?: 0
-
-    /**
-     * The lowest y value in the grid.
-     */
-    val minY: Int get() = data.keys.minOfOrNull { it.y } ?: 0
-
-    /**
-     * The highest x value in the grid.
-     */
-    val maxX: Int get() = data.keys.maxOfOrNull { it.x } ?: 0
-
-    /**
-     * The highest y value in the grid.
-     */
-    val maxY: Int get() = data.keys.maxOfOrNull { it.y } ?: 0
-
-    /**
-     * The lowest z value in the grid.
-     */
-    val minZ: Int get() = data.keys.minOfOrNull { it.z } ?: 0
-
-    /**
-     * The highest z value in the grid.
-     */
-    val maxZ: Int get() = data.keys.maxOfOrNull { it.z } ?: 0
+    
+    fun size(dimension: Int) = max(dimension) - min(dimension) + 1
+    fun min(dimension: Int) = data.keys.minBy { it.c[dimension] }.c[dimension]
+    fun max(dimension: Int) = data.keys.maxBy { it.c[dimension] }.c[dimension]
 
     /**
      * Sets all the points in the set to the given value.
      * @param points the points to set.
      * @param value the value to set the points to.
      */
-    operator fun set(points: Set<Point3D>, value: T) {
+    operator fun set(points: Set<ArbitraryPoint>, value: T) {
         points.forEach { this[it] = value }
     }
 
@@ -89,7 +46,7 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @param points the points to add.
      * @param value the value to set the points to.
      */
-    fun add(points: Set<Point3D>, value: T) {
+    fun add(points: Set<ArbitraryPoint>, value: T) {
         points.forEach { point -> data.putIfAbsent(point, value) }
     }
 
@@ -98,25 +55,16 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @param point the point to set.
      * @param value the value to set the point to.
      */
-    operator fun set(point: Point3D, value: T) {
+    operator fun set(point: ArbitraryPoint, value: T) {
         data[point] = value
     }
-
-    /**
-     * Sets the points in the specified Cuboid to the given value.
-     * @param xRange the range of x values to set.
-     * @param yRange the range of y values to set.
-     * @param zRange the range of z values to set.
-     * @param value the value to set the points to.
-     */
-    operator fun set(xRange: IntRange, yRange: IntRange, zRange: IntRange, value: T) = xRange.forEach { x -> yRange.forEach { y -> zRange.forEach { z -> set(x p y p z, value) } } }
 
     /**
      * Returns the value at the specified point.
      * @param point the point to get the value of.
      * @return the value at the specified point, or null if absent.
      */
-    operator fun get(point: Point3D): T? = data[point]
+    operator fun get(point: ArbitraryPoint): T? = data[point]
 
     /**
      * Returns the first point with the specified value.
@@ -127,12 +75,12 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
 
 
     /**
-     * Returns the value at the specified Point3D, or defaultValue if absent.
+     * Returns the value at the specified ArbitraryPoint, or defaultValue if absent.
      * @param point the point to get the value of.
      * @param defaultValue the value to return if the point is absent.
      * @return the value at the specified point, or defaultValue if absent.
      */
-    fun getOrDefault(point: Point3D, defaultValue: T) = data.getOrDefault(point, defaultValue)
+    fun getOrDefault(point: ArbitraryPoint, defaultValue: T) = data.getOrDefault(point, defaultValue)
 
     /**
      * Returns the first point with the specified value, or defaultPoint if absent.
@@ -140,7 +88,7 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @param defaultPoint the point to return if the value is absent.
      * @return the first point with the specified value, or defaultPoint if absent.
      */
-    fun getOrDefault(value: T, defaultPoint: Point3D) = data.entries.find { it.value == value }?.key ?: defaultPoint
+    fun getOrDefault(value: T, defaultPoint: ArbitraryPoint) = data.entries.find { it.value == value }?.key ?: defaultPoint
 
     /**
      * Returns a Set of all points with the specified value.
@@ -148,46 +96,10 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @return a Set of all points with the specified value.
      */
     fun getPointsWithValue(value: T) = data.filterValues { it == value }.keys
-
-    /**
-     * Returns the specified row.
-     * @param row the row to get.
-     * @return the specified row.
-     */
-    fun getRow(row: Int) = data.filter { it.key.x == row }.values.toList()
-
-    /**
-     * Returns the specified column.
-     * @param col the column to get.
-     * @return the specified column.
-     */
-    fun getColumn(col: Int) = data.filter { it.key.y == col }.values.toList()
-
-    /**
-     * Returns the specified layer.
-     * @param lay the layer to get.
-     * @return the specified layer.
-     */
-    fun getLayer(lay: Int) = data.filter { it.key.z == lay }.values.toList()
-
-    /**
-     * Returns a list of all rows.
-     * @return a list of all rows.
-     */
-    fun getRows() = (minX..maxX).map { row -> getRow(row) }
-
-    /**
-     * Returns a list of all columns.
-     * @return a list of all columns.
-     */
-    fun getColumns() = (minY..maxY).map { col -> getColumn(col) }
-
-    /**
-     * Returns a list of all layers.
-     * @return a list of all layers.
-     */
-    fun getLayers() = (minZ..maxZ).map { lay -> getLayer(lay) }
-
+ 
+    fun getLine(pos: Int, dimension: Int) = data.keys.filter { it.c[dimension] == pos }.toSet()
+    fun getLines(dimension: Int) = (min(dimension)..max(dimension)).map { getLine(it, dimension) }.toSet()
+    
     /**
      * Iterates over all the points in the grid.
      * @param action the action to perform on each point.
@@ -200,7 +112,7 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * Iterates over all the points in the grid with their points as indices.
      * @param action the action to perform on each point.
      */
-    fun forEachIndexed(action: (Point3D, T) -> Unit) {
+    fun forEachIndexed(action: (ArbitraryPoint, T) -> Unit) {
         data.forEach { (point, value) -> action(point, value) }
     }
 
@@ -209,38 +121,38 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @param transform the transform to apply to each point.
      * @return a new shallow copy grid containing the mapped points.
      */
-    fun <R> map(transform: (T) -> R) = Grid3D<R>().apply { data = this@Grid3D.data.mapValues { transform(it.value) }.toMutableMap() }
+    fun <R> map(transform: (T) -> R) = ArbitraryGrid<R>().apply { data = this@ArbitraryGrid.data.mapValues { transform(it.value) }.toMutableMap() }
 
     /**
      * Maps all points in the grid to a specified transform with their points as indices.
      * @param transform the transform to apply to each point.
      * @return a new shallow copy grid containing the mapped points.
      */
-    fun <R> mapIndexed(transform: (Point3D, T) -> R) = Grid3D<R>().apply { data = this@Grid3D.data.mapValues { (p, v) -> transform(p, v) }.toMutableMap() }
+    fun <R> mapIndexed(transform: (ArbitraryPoint, T) -> R) = ArbitraryGrid<R>().apply { data = this@ArbitraryGrid.data.mapValues { (p, v) -> transform(p, v) }.toMutableMap() }
 
     /**
      * Filters all points in the grid to those that match the specified predicate.
      * @param predicate the predicate to filter by.
      * @return a new shallow copy grid containing the filtered points.
      */
-    fun filter(predicate: (T) -> Boolean) = Grid3D<T>().apply { data = this@Grid3D.data.filterValues(predicate).toMutableMap() }
+    fun filter(predicate: (T) -> Boolean) = ArbitraryGrid<T>().apply { data = this@ArbitraryGrid.data.filterValues(predicate).toMutableMap() }
 
     /**
      * Filters all points in the grid to those that match the specified predicate with their points as indices.
      * @param predicate the predicate to filter by.
      * @return a new shallow copy grid containing the filtered points.
      */
-    fun filterIndexed(predicate: (Point3D, T) -> Boolean) = Grid3D<T>().apply { data.filter { (point, value) -> predicate(point, value) }.values.toList() }
+    fun filterIndexed(predicate: (ArbitraryPoint, T) -> Boolean) = ArbitraryGrid<T>().apply { data.filter { (point, value) -> predicate(point, value) }.values.toList() }
 
     /**
      * Filters all points in the grid to those that match the specified predicate, but keeps consecutively matching points together.
      * @param predicate the predicate to filter by.
      * @return a new shallow copy Grid3D<String> containing the filtered points, with each string being a consecutive sequence of matching points.
      */
-    fun filterConsecutive(lay: Int, predicate: (T) -> Boolean): Grid3D<String> {
-        val result = data.entries.fold(mutableListOf<Pair<Point3D, StringBuilder>>()) { acc, (point, value) ->
+    fun filterConsecutive(lay: Int, predicate: (T) -> Boolean): ArbitraryGrid<String> {
+        val result = data.entries.fold(mutableListOf<Pair<ArbitraryPoint, StringBuilder>>()) { acc, (point, value) ->
             if (predicate(value)) {
-                if (acc.isEmpty() || point != acc.last().first + Point3D(0, 1, lay)) {
+                if (acc.isEmpty() || point != acc.last().first + ArbitraryPoint(0, 1, lay)) {
                     acc.add(point to StringBuilder(value.toString()))
                 } else {
                     acc.last().second.append(value)
@@ -248,7 +160,7 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
             }
             acc
         }
-        val resultGrid = Grid3D<String>()
+        val resultGrid = ArbitraryGrid<String>()
         result.forEach { (startPoint, stringBuilder) ->
             resultGrid[startPoint] = stringBuilder.toString()
         }
@@ -269,7 +181,7 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @param predicate the predicate to match.
      * @return true if any elements in the grid match the given predicate.
      */
-    fun anyIndexed(predicate: (Point3D, T) -> Boolean): Boolean {
+    fun anyIndexed(predicate: (ArbitraryPoint, T) -> Boolean): Boolean {
         return data.any { (point, value) -> predicate(point, value) }
     }
 
@@ -287,7 +199,7 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @param predicate the predicate to match.
      * @return true if all elements in the grid match the given predicate.
      */
-    fun allIndexed(predicate: (Point3D, T) -> Boolean): Boolean {
+    fun allIndexed(predicate: (ArbitraryPoint, T) -> Boolean): Boolean {
         return data.all { (point, value) -> predicate(point, value) }
     }
 
@@ -305,7 +217,7 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @param predicate the predicate to match.
      * @return true if none of the elements in the grid match the given predicate.
      */
-    fun noneIndexed(predicate: (Point3D, T) -> Boolean): Boolean {
+    fun noneIndexed(predicate: (ArbitraryPoint, T) -> Boolean): Boolean {
         return data.none { (point, value) -> predicate(point, value) }
     }
 
@@ -314,114 +226,28 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @param point the point to get the neighbors of.
      * @return a Set of all points that are diagonal or cardinal neighbors of the specified point and are in the grid.
      */
-    fun getNeighborPositions(point: Point3D) = point.getNeighbors().filter { it in data.keys }
+    fun getNeighborPositions(point: ArbitraryPoint) = point.getNeighbors().filter { it in data.keys }
 
     /**
      * Returns a List of all values that are diagonal or cardinal neighbors of the specified point and are in the grid.
      * @param point the point to get the neighbors of.
      * @return a List of all values that are diagonal or cardinal neighbors of the specified point and are in the grid.
      */
-    fun getNeighbors(point: Point3D) = getNeighborPositions(point).map { this[it] }
+    fun getNeighbors(point: ArbitraryPoint) = getNeighborPositions(point).map { this[it] }
 
     /**
      * Returns a Set of all points that are cardinal neighbors of the specified point and are in the grid.
      * @param point the point to get the neighbors of.
      * @return a Set of all points that are cardinal neighbors of the specified point and are in the grid.
      */
-    fun getCardinalNeighborPositions(point: Point3D) = point.getCardinalNeighbors().filter { it in data.keys }
+    fun getCardinalNeighborPositions(point: ArbitraryPoint) = point.getCardinalNeighbors().filter { it in data.keys }
 
     /**
      * Returns a List of all values that are cardinal neighbors of the specified point and are in the grid.
      * @param point the point to get the neighbors of.
      * @return a List of all values that are cardinal neighbors of the specified point and are in the grid.
      */
-    fun getCardinalNeighbors(point: Point3D) = getCardinalNeighborPositions(point).mapNotNull { this[it] }
-
-    /**
-     * Replaces all null points in the grid with the given value, turning the grid into a rectangle.
-     * This method is non local and will affect the grid.
-     * @param value the value to replace null points with.
-     * @return the grid after replacing all null points with the given value.
-     */
-    fun fillWith(value: T): Grid3D<T> {
-        for (x in minX..maxX) {
-            for (y in minY..maxY) {
-                for (z in minZ..maxZ) {
-                    if (data[Point3D(x, y, z)] == null) {
-                        data[Point3D(x, y, z)] = value
-                    }
-                }
-            }
-        }
-        return this
-    }
-
-    /**
-     * Flood fills all points cardinally (6-way) connected to startPoint with the specified newValue.
-     * This method is non local and will affect the grid.
-     * @param startPoint the point to start the flood fill from.
-     * @param newValue the value to set all points to.
-     * @return the grid after flood filling.
-     */
-    fun floodFill(startPoint: Point3D, newValue: T): Grid3D<T> {
-        val originalValue = get(startPoint) ?: return this
-        val visited = mutableSetOf<Point3D>()
-        val queue = ArrayDeque<Point3D>()
-        queue.add(startPoint)
-
-        while (queue.isNotEmpty()) {
-            val current = queue.removeFirst()
-            if (current in visited || get(current) != originalValue) continue
-            this[current] = newValue
-            visited.add(current)
-            queue.addAll(current.getCardinalNeighbors())
-        }
-        return this
-    }
-
-    /**
-     * Returns true if the endPoint is cardinally (6-way) connected to startPoint by a flood fill.
-     * @param startPoint the point to start the flood fill from.
-     * @param endPoint the point to check if it is connected to startPoint.
-     * @return true if the endPoint is connected to startPoint by a flood fill.
-     */
-    fun floodFillContains(startPoint: Point3D, endPoint: Point3D): Boolean {
-        val match = get(startPoint) ?: return false
-        val visited = mutableSetOf<Point3D>()
-        val queue = ArrayDeque<Point3D>()
-        queue.add(startPoint)
-
-        while (queue.isNotEmpty()) {
-            val currentPoint = queue.removeFirst()
-            if (currentPoint == endPoint) return true
-            if (!visited.add(currentPoint)) continue
-            if (currentPoint.x !in minX..maxX || currentPoint.y !in minY..maxY || get(currentPoint) != match) continue
-            queue.addAll(currentPoint.getCardinalNeighbors().filter { it !in visited })
-        }
-        return false
-    }
-
-    /**
-     * Returns true if all the points in the Set can move by the specified offset.
-     * A point being able to move means the point after the offset is either null or in the Set.
-     * Points between the original point and the point after the offset are ignored.
-     * @param points the points to check if they can move.
-     * @param dx the x offset to move by.
-     * @param dy the y offset to move by.
-     * @param free the points to ignore when checking if the points can move.
-     * @return true if all the points in the Set can move by the specified offset.
-     */
-    fun canMove(points: Set<Point3D>, dz: Int, dx: Int, dy: Int, vararg free: Point3D?) = points.all { point ->
-        val np = point + Point3D(dz, dx, dy)
-        if (free.isEmpty()) this[np] == null else np in free || np in points
-    }
-
-    /**
-     * Returns the number of exposed sides (not connected to any other points in the grid) of the specified point.
-     * @param point the point to get the number of exposed sides of.
-     * @return the number of exposed sides of the specified point.
-     */
-    fun getExposedSides(point: Point3D) = 6 - point.getCardinalNeighbors().filter { it in data.keys }.size
+    fun getCardinalNeighbors(point: ArbitraryPoint) = getCardinalNeighborPositions(point).mapNotNull { this[it] }
 
     /**
      * Returns true if the grid contains the specified value.
@@ -435,7 +261,7 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @param element the point to search for.
      * @return true if the grid contains the specified point.
      */
-    fun contains(element: Point3D) = data.containsKey(element)
+    fun contains(element: ArbitraryPoint) = data.containsKey(element)
 
     /**
      * Returns true if the grid contains all the elements in the specified collection.
@@ -472,19 +298,11 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Grid3D<*>
+        other as ArbitraryGrid<*>
 
-        if (depth != other.depth || rows != other.rows || columns != other.columns) return false
+        if (size != other.size) return false
 
-        for (z in 0..<depth) {
-            for (x in 0..<rows) {
-                for (y in 0..<columns) {
-                    if (this[Point3D(x, y, z)] != other[Point3D(x, y, z)]) return false
-                }
-            }
-        }
-
-        return true
+        return data.keys.all { this[it] == other[it] }
     }
 
     /**
@@ -492,10 +310,10 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @return a hash code value for the grid.
      */
     override fun hashCode(): Int {
-        var result = depth
-        result = 31 * result + rows
-        result = 31 * result + columns
-        result = 31 * result + data.hashCode()
+        var result = data.hashCode()
+        result = 31 * result + indices.hashCode()
+        result = 31 * result + dimensions
+        result = 31 * result + size
         return result
     }
 
@@ -503,12 +321,12 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * Returns a deep copy of the grid.
      * @return a deep copy of the grid.
      */
-    fun deepCopy(copyFunction: (T) -> T): Grid3D<T> {
-        val newData = mutableMapOf<Point3D, T>()
+    fun deepCopy(copyFunction: (T) -> T): ArbitraryGrid<T> {
+        val newData = mutableMapOf<ArbitraryPoint, T>()
         for ((point, value) in this.data) {
             newData[point.copy()] = copyFunction(value)
         }
-        return Grid3D<T>(rows, columns).apply { this.data = newData }
+        return ArbitraryGrid<T>().apply { this.data = newData }
     }
 
     /**
@@ -516,19 +334,7 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @return a String representation of the grid.
      */
     override fun toString(): String {
-        val builder = StringBuilder()
-        for (z in minZ..maxZ) {
-            builder.append("z=$z\n")
-            for (x in minX..maxX) {
-                for (y in minY..maxY) {
-                    val value = this[Point3D(x, y, z)]
-                    builder.append(value ?: ".")
-                }
-                builder.append("\n")
-            }
-            builder.append("\n")
-        }
-        return builder.toString()
+        return "Arbitrary Grid with $dimensions dimensions and $size elements, point data is $data"
     }
 
     /**
@@ -543,9 +349,9 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @param y the y coordinate of the point.
      * @param value the value to set the point to.
      */
-    @Deprecated("Use point setter instead", ReplaceWith("this[Point3D(x, y, z)] = value"))
+    @Deprecated("Use point setter instead", ReplaceWith("this[ArbitraryPoint(x, y, z)] = value"))
     operator fun set(z: Int, x: Int, y: Int, value: T) {
-        data[Point3D(z, x, y)] = value
+        data[ArbitraryPoint(z, x, y)] = value
     }
 
     /**
@@ -555,8 +361,10 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
      * @param y the y coordinate of the point.
      * @return the value at the specified point, or null if absent.
      */
-    @Deprecated("Use point getter instead", ReplaceWith("this[Point3D(x, y, z)]"))
-    operator fun get(z: Int, x: Int, y: Int): T? = data[Point3D(z, x, y)]
+    @Deprecated("Use point getter instead", ReplaceWith("this[ArbitraryPoint(x, y, z)]"))
+    operator fun get(z: Int, x: Int, y: Int): T? = data[ArbitraryPoint(z, x, y)]
+
+
 
     companion object {
         /**
@@ -564,63 +372,63 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
          * @return a deep copy of the grid.
          */
         @JvmName("deepCopyChar")
-        fun Grid3D<Char>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
+        fun ArbitraryGrid<Char>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
 
         /**
          * Deep copies the Grid3D<Int>
          * @return a deep copy of the grid.
          */
         @JvmName("deepCopyInt")
-        fun Grid3D<Int>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
+        fun ArbitraryGrid<Int>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
 
         /**
          * Deep copies the Grid3D<Boolean>
          * @return a deep copy of the grid.
          */
         @JvmName("deepCopyBoolean")
-        fun Grid3D<Boolean>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
+        fun ArbitraryGrid<Boolean>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
 
         /**
          * Deep copies the Grid3D<String>
          * @return a deep copy of the grid.
          */
         @JvmName("deepCopyString")
-        fun Grid3D<String>.deepCopy() = of(this.data.map { it.key.copy() to String(it.value.toCharArray()) }.toMap(mutableMapOf()))
+        fun ArbitraryGrid<String>.deepCopy() = of(this.data.map { it.key.copy() to String(it.value.toCharArray()) }.toMap(mutableMapOf()))
 
         /**
          * Deep copies the Grid3D<Double>
          * @return a deep copy of the grid.
          */
         @JvmName("deepCopyDouble")
-        fun Grid3D<Double>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
+        fun ArbitraryGrid<Double>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
 
         /**
          * Deep copies the Grid3D<Float>
          * @return a deep copy of the grid.
          */
         @JvmName("deepCopyFloat")
-        fun Grid3D<Float>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
+        fun ArbitraryGrid<Float>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
 
         /**
          * Deep copies the Grid3D<Long>
          * @return a deep copy of the grid.
          */
         @JvmName("deepCopyLong")
-        fun Grid3D<Long>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
+        fun ArbitraryGrid<Long>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
 
         /**
          * Deep copies the Grid3D<Short>
          * @return a deep copy of the grid.
          */
         @JvmName("deepCopyShort")
-        fun Grid3D<Short>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
+        fun ArbitraryGrid<Short>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
 
         /**
          * Deep copies the Grid3D<Byte>
          * @return a deep copy of the grid.
          */
         @JvmName("deepCopyByte")
-        fun Grid3D<Byte>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
+        fun ArbitraryGrid<Byte>.deepCopy() = of(this.data.map { it.key.copy() to it.value }.toMap(mutableMapOf()))
 
         /**
          * Create a new grid from the specified mutable map data.
@@ -628,7 +436,7 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
          * @return a new grid from the specified mutable map data.
          */
         @JvmName("ofMutableMap")
-        fun <T> of(data: MutableMap<Point3D, T>): Grid3D<T> = Grid3D<T>().apply {
+        fun <T> of(data: MutableMap<ArbitraryPoint, T>): ArbitraryGrid<T> = ArbitraryGrid<T>().apply {
             this.data = data
         }
 
@@ -638,61 +446,27 @@ data class Grid3D<T>(var initialDepth: Int = 0, var initialRows: Int = 0, var in
          * @return a new grid from the specified map data.
          */
         @JvmName("ofMap")
-        fun <T> of(data: Map<Point3D, T>): Grid3D<T> = Grid3D<T>().apply {
+        fun <T> of(data: Map<ArbitraryPoint, T>): ArbitraryGrid<T> = ArbitraryGrid<T>().apply {
             this.data = data.toMutableMap()
         }
 
-        @JvmName("ofTripleList")
-        fun <T> of(listOfRows: List<List<List<T>>>): Grid3D<T> {
-            val data = mutableMapOf<Point3D, T>()
-
-            listOfRows.forEachIndexed { z, layer ->
-                layer.forEachIndexed { x, row ->
-                    row.forEachIndexed { y, element ->
-                        data[Point3D(x, y, z)] = element
-                    }
-                }
-            }
-
-            return Grid3D<T>().apply {
-                this.data = data
-            }
-        }
-
-        @JvmName("ofDoubleStringList")
-        fun of(listOfRows: List<List<String>>): Grid3D<Char> {
-            val data = mutableMapOf<Point3D, Char>()
-
-            listOfRows.forEachIndexed { z, layer ->
-                layer.forEachIndexed { x, row ->
-                    row.forEachIndexed { y, element ->
-                        data[Point3D(x, y, z)] = element
-                    }
-                }
-            }
-
-            return Grid3D<Char>().apply {
-                this.data = data
-            }
-        }
-
         @JvmName("ofStringList")
-        fun of(list: List<String>): Grid3D<Char> {
-            val data = mutableMapOf<Point3D, Char>()
+        fun of(list: List<String>, dimensions: Int): ArbitraryGrid<Char> {
+            val data = mutableMapOf<ArbitraryPoint, Char>()
 
             list.forEachIndexed { x, row ->
                 row.forEachIndexed { y, element ->
-                    data[Point3D(x, y, 0)] = element
+                    data[ArbitraryPoint(listOf(x, y) + List(dimensions-2) { 0 })] = element
                 }
             }
 
-            return Grid3D<Char>().apply {
+            return ArbitraryGrid<Char>().apply {
                 this.data = data
             }
         }
 
         @JvmName("gameOfLifeChar")
-        fun Grid3D<Char>.gameOfLife(stepCounter: Int? = null, transform: (Point3D, Char?, Grid3D<Char>) -> Char?): Grid3D<Char> {
+        fun ArbitraryGrid<Char>.gameOfLife(stepCounter: Int? = null, transform: (ArbitraryPoint, Char?, ArbitraryGrid<Char>) -> Char?): ArbitraryGrid<Char> {
             var currentGrid = this
             var steps = 0
 

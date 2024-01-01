@@ -10,8 +10,8 @@ import kotlin.math.sign
 /**
  * A generic dynamic grid implementation.
  * It uses Map<Point, T> to store the points, which means accessing a known point is O(1) but indexing a point is O(n).
- * Currently, since Point3D stores Ints, the grid is limited to 2^32 rows and columns.
  * Hence, there is no guarantee that the points will be in any particular order.
+ * Currently, since Point3D stores Ints, the grid is limited to 2^32 rows and columns.
  * @param T the type of elements in the grid.
  */
 @Suppress("unused", "MemberVisibilityCanBePrivate")

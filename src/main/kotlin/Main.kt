@@ -32,22 +32,23 @@ fun main() = runBlocking {
 
 
         fun run(part: Int) {
+            val solveMethod = if (part == 1) instance::solvePart1 else instance::solvePart2
             val methodName = if (part == 1) "solvePart1" else "solvePart2"
-            val solveMethod = instance::class.memberFunctions.firstOrNull { it.name == methodName }
-            val isNoTestAnnotated = solveMethod?.findAnnotation<NoTest>() != null
-            val isNoRealAnnotated = solveMethod?.findAnnotation<NoReal>() != null
+            val check = instance::class.memberFunctions.firstOrNull { it.name == methodName }
+            val isNoTestAnnotated = check?.findAnnotation<NoTest>() != null
+            val isNoRealAnnotated = check?.findAnnotation<NoReal>() != null
 
             var test: String
             var real: String
             if (!isNoTestAnnotated && tin.exists() && tin.rt().isNotEmpty()) {
                 val tt = measureTimeMillis {
-                    test = solveMethod?.call(instance, tin)?.toString() ?: ""
+                    test = solveMethod(tin).toString()
                 }
                 println("Test Part $part: $test ($tt ms)")
             }
             if (!isNoRealAnnotated && rin.exists() && rin.rt().isNotEmpty()) {
                 val tr = measureTimeMillis {
-                    real = solveMethod?.call(instance, rin)?.toString() ?: ""
+                    real = solveMethod(rin).toString()
                 }
                 println("Real Part $part: $real ($tr ms)")
                 if (real != "0" && real != "") copyToClipboard(real)
