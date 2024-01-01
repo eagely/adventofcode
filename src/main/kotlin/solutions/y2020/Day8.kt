@@ -1,4 +1,4 @@
-package solutions
+package solutions.y2020
 
 import Solution
 import utils.Utils.die
