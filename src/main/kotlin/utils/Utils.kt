@@ -12,6 +12,7 @@ import java.security.MessageDigest
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 object Utils {
@@ -28,6 +29,14 @@ object Utils {
     fun String.removeTrailingNumbers(): String = this.replace(Regex("\\d+$"), "")
     fun String.containsNumber(): Boolean = this.contains(Regex("\\d+"))
     fun String.toChar(): Char = if (this.l != 1) throw IllegalArgumentException("String of length other than 1 cannot be converted to a Char") else this.toCharArray().first()
+    fun <T> Collection<T>.join() = this.joinToString("")
+    fun <T> Collection<T>.join(separator: String) = this.joinToString(separator)
+    fun <T> Array<T>.join() = this.joinToString("")
+    fun <T> Array<T>.join(separator: String) = this.joinToString(separator)
+    fun CharArray.join() = this.joinToString("")
+    fun CharArray.join(separator: String) = this.joinToString(separator)
+    fun <T> Iterable<T>.join() = this.joinToString("")
+    fun <T> Iterable<T>.join(separator: String) = this.joinToString(separator)
 
     fun Char.asInt() = this.toString().toInt()
     infix fun <T> List<T>.at(pos: Int) = this[pos % this.size]
@@ -247,11 +256,13 @@ object Utils {
         return if (list.size == 1) listOf(list)
         else list.flatMap { i -> permutations(list - i).map { listOf(i) + it } }
     }
+    fun isqrt(x: Int) = sqrt(x.toDouble()).toInt()
     fun File.ril(): List<Int> = this.rl().map { it.toInt() }
     fun File.rll(): List<Long> = this.rl().map { it.toLong() }
     fun File.rl(): List<String> = this.readLines().dropLastWhile { it.isBlank() }
     fun File.rt(): String = this.readText().trim()
     fun File.sdnl() = this.rt().split("\n\n")
+    fun File.sdanl() = this.rt().split("\n\n").map { it.split("\n") }
     fun List<String>.snl() = this.map { it.split("\n") }
     fun List<String>.swd() = this.dropBlanks().filter { it.first().isDigit() }
     fun Collection<Point>.getNeighbors() = this.flatMap { it.getNeighbors() }.toSet()
@@ -651,4 +662,6 @@ object Utils {
 
         return abs(sum1 - sum2) / 2
     }
+
+    infix fun <T> T.log(meta: Any?): T = this.also { println("$meta    $it") }
 }

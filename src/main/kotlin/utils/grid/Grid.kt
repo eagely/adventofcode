@@ -179,6 +179,12 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     fun getColumns(): List<List<T?>> = (minY..maxY).map { col -> getColumn(col) }
 
     /**
+     * Returns a list of all sides of the grid.
+     * @return a list of all sides of the grid.
+     */
+    fun getSides(): List<List<T?>> = listOf(getRow(minX), getRow(maxX), getColumn(minY), getColumn(maxY))
+
+    /**
      * Iterates over all the points in the grid.
      * @param action the action to perform on each point.
      */
@@ -436,6 +442,22 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         val newPoint = Point(newX, newY)
         data[newPoint] = value
         return newPoint
+    }
+
+    fun rotateClockwise(): Grid<T> {
+        val newGrid = Grid<T>(initialColumns, initialRows)
+        forEachIndexed { point, value ->
+            newGrid[Point(point.y, initialRows - 1 - point.x)] = value
+        }
+        return newGrid
+    }
+
+    fun flipHorizontal(): Grid<T> {
+        val newGrid = Grid<T>(initialRows, initialColumns)
+        forEachIndexed { point, value ->
+            newGrid[Point(initialRows - 1 - point.x, point.y)] = value
+        }
+        return newGrid
     }
 
     /**
