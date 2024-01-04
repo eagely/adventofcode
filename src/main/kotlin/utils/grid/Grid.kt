@@ -64,6 +64,11 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
      */
     val maxY: Int get() = data.keys.maxOfOrNull { it.y } ?: 0
 
+    val ur: Point get() = Point(minX, maxY)
+    val lr: Point get() = Point(maxX, maxY)
+    val ul: Point get() = Point(minX, minY)
+    val ll: Point get() = Point(maxX, minY)
+
     /**
      * Sets all the points in the set to the given value.
      * @param points the points to set.
