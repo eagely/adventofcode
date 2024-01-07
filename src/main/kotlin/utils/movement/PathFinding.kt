@@ -22,8 +22,8 @@ object PathFinding {
 
     data class DijkstraResult<out State>(val path: List<State>, val cost: Int) {
         constructor(weightedPath: List<Weighted<State>>) : this(weightedPath.map { it.state }, weightedPath.sumOf { it.weight })
-        val start get() = if (path.isNotEmpty()) path.first() else null
-        val end get() = if (path.isNotEmpty()) path.last() else null
+        val start get() = path.firstOrNull()
+        val end get() = path.lastOrNull()
         val length get() = path.size - 1
 
         override fun toString(): String {
@@ -87,6 +87,7 @@ object PathFinding {
     }
 
     inline fun <State> bfsPath(start: State, end: State, next: (State) -> Iterable<State>): BfsResult<State> {
+        if (start == end) return BfsResult(listOf(start))
         return bfsAllPaths(start, next).getPath(end)
     }
 
@@ -94,23 +95,14 @@ object PathFinding {
         var min: BfsResult<State>? = null
 
         for (s in start) {
-            val path = bfsAllPaths(s, next).getPath(isEnd)
+            val path = bfsPath(s, isEnd, next)
             if (min == null || path.length < min.length) min = path
         }
 
         return min
     }
 
-    inline fun <State> bfsPath(start: Iterable<State>, end: State, next: (State) -> Iterable<State>): BfsResult<State>? {
-        var min: BfsResult<State>? = null
-
-        for (s in start) {
-            val path = bfsAllPaths(s, next).getPath(end)
-            if (min == null || (path.length != -1 && path.length < min.length)) min = path
-        }
-
-        return min
-    }
+    inline fun <State> bfsPath(start: Iterable<State>, end: State, next: (State) -> Iterable<State>) = BfsResult(bfsPath(end, isEnd = { it in start }, next).path.reversed())
 
     inline fun <State> dijkstraAllPaths(start: State, next: (State) -> Iterable<Weighted<State>>): SingleSourceWeightedBacktrack<State> {
         val queue = PriorityQueue<Weighted<State>>(compareBy { it.weight })
@@ -139,6 +131,7 @@ object PathFinding {
     }
 
     inline fun <State> dijkstraPath(start: State, end: State, next: (State) -> Iterable<Weighted<State>>): DijkstraResult<State> {
+        if (start == end) return DijkstraResult(listOf(start), 0)
         return dijkstraAllPaths(start, next).getPath(end)
     }
 
@@ -153,14 +146,5 @@ object PathFinding {
         return min
     }
 
-    inline fun <State> dijkstraPath(start: Iterable<State>, end: State, next: (State) -> Iterable<Weighted<State>>): DijkstraResult<State>? {
-        var min: DijkstraResult<State>? = null
-
-        for (s in start) {
-            val path = dijkstraAllPaths(s, next).getPath(end)
-            if (min == null || (path.length != -1 && path.length < min.length)) min = path
-        }
-
-        return min
-    }
+    inline fun <State> dijkstraPath(start: Iterable<State>, end: State, next: (State) -> Iterable<Weighted<State>>) = dijkstraPath(end, isEnd = { it in start }, next).let { DijkstraResult(it.path.reversed(), it.cost) }
 }
