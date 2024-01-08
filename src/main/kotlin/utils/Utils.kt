@@ -39,6 +39,7 @@ object Utils {
     fun <T> Iterable<T>.join(separator: String) = this.joinToString(separator)
 
     fun Char.asInt() = this.toString().toInt()
+    fun Int.asChar() = this.toString().first()
     infix fun <T> List<T>.at(pos: Int) = this[pos % this.size]
     infix fun String.at(pos: Int) = this[pos % this.length]
     fun Double.format(scale: Int) = "%.${scale}f".format(this)
@@ -46,7 +47,7 @@ object Utils {
     fun Int.abs() = abs(this)
     fun Long.abs() = abs(this)
     fun Long.pow(power: Int): Long = this.toDouble().pow(power).toLong()
-    fun Int.pow(power: Int): Int = this.toDouble().pow(power).toInt()
+    infix fun Int.pow(power: Int): Int = this.toDouble().pow(power).toInt()
     fun <T> List<T>.isAllEqual(): Boolean {
         for (i in 1..<this.size) if (this[i] != this[i - 1]) return false
         return true
@@ -220,6 +221,10 @@ object Utils {
     fun String.afterLast(regex: Regex) = this.substringAfterLast(regex.find(this)?.value ?: "")
     fun String.beforeLast(regex: Regex) = this.substringBeforeLast(regex.find(this)?.value ?: "")
     fun String.dropBrackets() = this.replace(Regex("[\\[\\](){}]"), "")
+    fun String.inv(): String {
+        if ("[^0-1]+".toRegex() in this) throw IllegalArgumentException("String must be binary")
+        return this.map { if (it == '0') '1' else '0' }.join()
+    }
     fun die(): Nothing = throw RuntimeException("womp womp")
     fun <T> List<T>.toPair(): Pair<T, T> {
         require(this.size <= 2) { "List contains more than 2 elements" }
