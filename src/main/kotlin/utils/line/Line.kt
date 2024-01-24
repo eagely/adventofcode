@@ -5,9 +5,50 @@ import kotlin.math.*
 
 data class Line(var start: Point, var end: Point) {
 
+    val angle: Double get() {
+        val angle = atan2((end.y - start.y).toDouble(), (end.x - start.x).toDouble())
+        return (if (angle < 0) angle + 2 * PI else angle) * 180 / PI
+    }
+
     fun distance(): Double = sqrt(((start.x - end.x).toDouble().pow(2) + (start.y - end.y).toDouble().pow(2)))
 
     fun manhattanDistance(): Int = abs(start.x - end.x) + abs(start.y - end.y)
+    fun getIntegerPoints(x0: Int, y0: Int, x1: Int, y1: Int): List<Point> {
+        val points = mutableListOf<Point>()
+
+        var x = x0
+        var y = y0
+        val dx = Math.abs(x1 - x0)
+        val dy = Math.abs(y1 - y0)
+        val sx = if (x0 < x1) 1 else -1
+        val sy = if (y0 < y1) 1 else -1
+        var err = dx - dy
+
+        while (true) {
+            points.add(Point(x, y))
+
+            if (x == x1 && y == y1) {
+                break
+            }
+
+            val e2 = 2 * err
+            if (e2 > -dy) {
+                err -= dy
+                x += sx
+            }
+            if (e2 < dx) {
+                err += dx
+                y += sy
+            }
+        }
+
+        return points
+    }
+
+    fun intersection(other: Line): List<Point> {
+        if (!this.intersects(other)) return emptyList()
+        return getIntegerPoints(this.start.x, this.start.y, this.end.x, this.end.y).intersect(getIntegerPoints(other.start.x, other.start.y, other.end.x, other.end.y)).toList()
+    }
 
     private fun orientation(p: Point, q: Point, r: Point): Int {
         val value = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y)
@@ -21,7 +62,10 @@ data class Line(var start: Point, var end: Point) {
     fun onSegment(p: Point, q: Point, r: Point): Boolean = q.x <= max(p.x, r.x) && q.x >= min(p.x, r.x) && q.y <= max(p.y, r.y) && q.y >= min(p.y, r.y)
     fun onSegment(point: Point): Boolean = point.x <= max(start.x, end.x) && point.x >= min(start.x, end.x) && point.y <= max(start.y, end.y) && point.y >= min(start.y, end.y)
 
-    fun intersects(other: Line): Boolean {
+    fun xRange() = min(start.x, end.x)..max(start.x, end.x)
+    fun yRange() = min(start.y, end.y)..max(start.y, end.y)
+
+    infix fun intersects(other: Line): Boolean {
         val o1 = orientation(start, end, other.start)
         val o2 = orientation(start, end, other.end)
         val o3 = orientation(other.start, other.end, start)
