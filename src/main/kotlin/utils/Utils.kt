@@ -266,6 +266,8 @@ object Utils {
     fun isqrt(x: Int) = sqrt(x.toDouble()).toInt()
     fun File.ril(): List<Int> = this.rl().map { it.toInt() }
     fun File.rll(): List<Long> = this.rl().map { it.toLong() }
+    fun File.rit(): List<Int> = this.rt().split(',', ' ', '-').map { it.toInt() }
+    fun File.rlt(): List<Long> = this.rt().split(',', ' ', '-').map { it.toLong() }
     fun File.rl(): List<String> = this.readLines().dropLastWhile { it.isBlank() }
     fun File.rt(): String = this.readText().trim()
     fun File.sdnl() = this.rt().split("\n\n")
