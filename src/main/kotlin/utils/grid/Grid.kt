@@ -231,7 +231,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
      * @param predicate the predicate to filter by.
      * @return a new shallow copy grid containing the filtered points.
      */
-    fun filterIndexed(predicate: (Point, T) -> Boolean) = Grid<T>().apply { data.filter { (point, value) -> predicate(point, value) }.values.toList() }
+    fun filterIndexed(predicate: (Point, T) -> Boolean) = Grid<T>().apply { data = this@Grid.data.filter { (point, value) -> predicate(point, value) }.toMutableMap() }
 
     /**
      * Filters all points in the grid to those that match the specified predicate, but keeps consecutively matching points together.
@@ -525,6 +525,35 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
             queue.addAll(currentPoint.getCardinalNeighbors().filter { it !in visited })
         }
         return false
+    }
+
+    fun separate(): List<Set<Point>> {
+        val separatedGrids = mutableListOf<Set<Point>>()
+        val visited = mutableSetOf<Point>()
+
+        for (point in data.keys) {
+            if (point in visited) continue
+
+            val currentSet = mutableSetOf<Point>()
+            val queue = ArrayDeque<Point>()
+            queue.addLast(point)
+
+            while (queue.isNotEmpty()) {
+                val currentPoint = queue.removeFirst()
+                visited.add(currentPoint)
+                currentSet.add(currentPoint)
+
+                for (neighbor in getCardinalNeighborPositions(currentPoint)) {
+                    if (neighbor !in visited) {
+                        queue.addLast(neighbor)
+                    }
+                }
+            }
+
+            separatedGrids.add(currentSet)
+        }
+
+        return separatedGrids
     }
 
     /**

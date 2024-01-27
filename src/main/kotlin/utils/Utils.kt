@@ -257,10 +257,12 @@ object Utils {
         }
         acc
     }
-    fun permutations(list: List<Int>): List<List<Int>> {
-        return if (list.size == 1) listOf(list)
-        else list.flatMap { i -> permutations(list - i).map { listOf(i) + it } }
+    fun <T> List<T>.permutations(): List<List<T>> {
+        return if (this.size == 1) listOf(this)
+        else this.flatMap { i -> (this - i).permutations().map { listOf(i) + it } }
     }
+
+    fun String.permutations() = this.toList().permutations().join()
     fun isqrt(x: Int) = sqrt(x.toDouble()).toInt()
     fun File.ril(): List<Int> = this.rl().map { it.toInt() }
     fun File.rll(): List<Long> = this.rl().map { it.toLong() }
