@@ -88,6 +88,15 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     }
 
     /**
+     * Maps all the points in the set to the given transform, if they are present in the grid.
+     * @param points the points to map.
+     * @param transform the transform to apply to each point.
+     */
+    operator fun set(points: Set<Point>, transform: (T) -> T) {
+        points.forEach { if (it in data.keys) data[it] = transform(data[it]!!) }
+    }
+
+    /**
      * Sets the point at the specified Point to the given value.
      * @param point the point to set.
      * @param value the value to set the point to.
@@ -914,6 +923,30 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         fun Grid<Boolean>.gameOfLife(stepCounter: Int? = null, transform: (Point, Boolean?, Grid<Boolean>) -> Boolean?): Grid<Boolean> {
             var currentGrid = this
             var previousGrid: Grid<Boolean>
+            var steps = 0
+            do {
+                previousGrid = currentGrid.deepCopy()
+                val new = currentGrid.deepCopy()
+                for (point in new.data.keys) {
+                    new[point] = transform(point, currentGrid[point], currentGrid) ?: continue
+                }
+                currentGrid = new
+                steps++
+                if (stepCounter != null && steps >= stepCounter) break
+            } while (currentGrid != previousGrid)
+            return currentGrid
+        }
+
+        /**
+         * Applies the Game of Life rules to the grid.
+         * @param transform the transformation function to apply to each point.
+         * @param stepCounter the number of steps to simulate. If not provided, the function will return the grid after it stabilizes.
+         * @return the grid after applying the Game of Life rules.
+         */
+        @JvmName("gameOfLifeInt")
+        fun Grid<Int>.gameOfLife(stepCounter: Int? = null, transform: (Point, Int?, Grid<Int>) -> Int?): Grid<Int> {
+            var currentGrid = this
+            var previousGrid: Grid<Int>
             var steps = 0
             do {
                 previousGrid = currentGrid.deepCopy()

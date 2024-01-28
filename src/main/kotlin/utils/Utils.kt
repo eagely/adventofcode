@@ -1,5 +1,6 @@
 package utils
 
+import utils.grid.Grid
 import utils.point.LongPoint
 import utils.point.Point
 import utils.point.Point3D
@@ -272,6 +273,14 @@ object Utils {
     fun File.rt(): String = this.readText().trim()
     fun File.sdnl() = this.rt().split("\n\n")
     fun File.sdanl() = this.rt().split("\n\n").map { it.split("\n") }
+    @JvmName("doubleListGrid")
+    fun <T> List<List<T>>.grid() = Grid.of(this)
+    @JvmName("stringListGrid")
+    fun <T> List<String>.grid() = Grid.of(this)
+    fun File.intgrid() = this.rl().map { it.map { it.asInt() } }.grid()
+    fun File.longgrid() = this.rl().map { it.map { it.asInt().toLong() } }.grid()
+    fun File.chargrid() = this.rl().map { it.toList() }.grid()
+
     fun List<String>.snl() = this.map { it.split("\n") }
     fun List<String>.swd() = this.dropBlanks().filter { it.first().isDigit() }
     fun Collection<Point>.getNeighbors() = this.flatMap { it.getNeighbors() }.toSet()
