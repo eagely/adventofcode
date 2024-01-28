@@ -281,6 +281,8 @@ object Utils {
     fun File.longgrid() = this.rl().map { it.map { it.asInt().toLong() } }.grid()
     fun File.chargrid() = this.rl().map { it.toList() }.grid()
 
+    fun String.isLowercase() = this == this.lowercase()
+    fun String.isUppercase() = this == this.uppercase()
     fun List<String>.snl() = this.map { it.split("\n") }
     fun List<String>.swd() = this.dropBlanks().filter { it.first().isDigit() }
     fun Collection<Point>.getNeighbors() = this.flatMap { it.getNeighbors() }.toSet()
