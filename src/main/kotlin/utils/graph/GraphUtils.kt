@@ -14,6 +14,7 @@ object GraphUtils {
     fun <V, E> Graph<V, E>.addEdges(edges: Collection<Pair<V, V>>, weight: (V, V) -> Double? = { _, _ -> null }) = this.apply { edges.forEach { (source, target) -> this.addEdge(source, target)?.let { e -> weight(source, target)?.let { setEdgeWeight(e, it) } } } }
     fun <V, E> Graph<V, E>.addVertices(vertices: Collection<V>) = this.apply { vertices.forEach { this.addVertex(it) } }
     fun <V, E> Graph<V, E>.addSelfLoops(vertices: Collection<V> = this.vertexSet()) = this.apply { vertices.forEach { this.addEdge(it, it) } }
+    fun <V, E> Graph<V, E>.getConnection(edge: E, vertex: V) = listOf(this.getEdgeTarget(edge), this.getEdgeSource(edge)).first { it != vertex }!!
 
     fun simpleGraphOf(input: List<String>, next: (Point) -> Collection<Point> = Point::getCardinalNeighbors, hasEdge: (Vertex<Char>, Vertex<Char>) -> Boolean = { _, _ -> true }) = SimpleGraph<Vertex<Char>, DefaultEdge>(DefaultEdge::class.java).apply {
         addVertices(input.flatMapIndexed { x, row -> row.mapIndexed { y, c -> Vertex(Point(x, y), c) } })
