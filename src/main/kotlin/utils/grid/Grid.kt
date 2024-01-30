@@ -229,6 +229,13 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
     fun <R> mapIndexed(transform: (Point, T) -> R) = Grid<R>().apply { data = this@Grid.data.mapValues { (p, v) -> transform(p, v) }.toMutableMap() }
 
     /**
+     * Maps all points in the grid to a specified transform, but only keeps non-null values.
+     * @param transform the transform to apply to each point.
+     * @return a new shallow copy grid containing the mapped points.
+     */
+    fun <R> mapNotNull(transform: (T) -> R?) = Grid<R>().apply { data = this@Grid.data.mapValues { transform(it.value) }.filterValues { it != null }.mapValues { it.value!! }.toMutableMap() }
+
+    /**
      * Filters all points in the grid to those that match the specified predicate.
      * @param predicate the predicate to filter by.
      * @return a new shallow copy grid containing the filtered points.
@@ -589,7 +596,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
      * @return a subgrid within the specified bounds.
      */
     fun subGrid(minrow: Int, maxrow: Int, mincol: Int, maxcol: Int): Grid<T> {
-        val subGrid = Grid<T>(maxrow - minrow + 1, maxcol - mincol + 1)
+        val subGrid = Grid<T>()
         this.data.filter { (point, _) ->
             point.x in minrow..maxrow && point.y in mincol..maxcol
         }.forEach { (point, value) ->
@@ -640,6 +647,24 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
             pointBeforeWall = Point(r, c)
         }
         return Point(r, c)
+    }
+
+    fun invertX(): Grid<T> {
+        val newGrid = Grid<T>(rows, columns)
+        val mX = maxX
+        forEachIndexed { point, value ->
+            newGrid[Point(mX - point.x, point.y)] = value
+        }
+        return newGrid
+    }
+
+    fun invertY(): Grid<T> {
+        val newGrid = Grid<T>(rows, columns)
+        val mY = maxY
+        forEachIndexed { point, value ->
+            newGrid[Point(point.x, mY - point.y)] = value
+        }
+        return newGrid
     }
 
     /**
