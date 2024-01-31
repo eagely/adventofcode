@@ -667,6 +667,27 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         return newGrid
     }
 
+    fun repeatVertically(times: Int): Grid<T> {
+        val newGrid = Grid<T>()
+        this.data.forEach { (point, value) ->
+            (0 until times).forEach { i ->
+                newGrid.data[Point(point.x + (i * this.rows), point.y)] = value
+            }
+        }
+        return newGrid
+    }
+
+    fun repeatHorizontally(times: Int): Grid<T> {
+        val newGrid = Grid<T>()
+        this.data.forEach { (point, value) ->
+            (0 until times).forEach { i ->
+                newGrid.data[Point(point.x, point.y + (i * this.columns))] = value
+            }
+        }
+        return newGrid
+    }
+
+
     /**
      * Returns a String representation of the grid.
      * @return a String representation of the grid.

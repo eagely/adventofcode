@@ -2,6 +2,7 @@ package utils.graph
 
 import org.jgrapht.Graph
 import org.jgrapht.graph.*
+import utils.Utils.p
 import utils.point.Point
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
@@ -15,6 +16,11 @@ object GraphUtils {
     fun <V, E> Graph<V, E>.addVertices(vertices: Collection<V>) = this.apply { vertices.forEach { this.addVertex(it) } }
     fun <V, E> Graph<V, E>.addSelfLoops(vertices: Collection<V> = this.vertexSet()) = this.apply { vertices.forEach { this.addEdge(it, it) } }
     fun <V, E> Graph<V, E>.getConnection(edge: E, vertex: V) = listOf(this.getEdgeTarget(edge), this.getEdgeSource(edge)).first { it != vertex }!!
+
+    val <V, E> Graph<Vertex<V>, E>.tl get() = this.vertexSet().first { it.position == this.vertexSet().minOf { it.position.x } p this.vertexSet().minOf { it.position.y } }
+    val <V, E> Graph<Vertex<V>, E>.br get() = this.vertexSet().first { it.position == this.vertexSet().maxOf { it.position.x } p this.vertexSet().maxOf { it.position.y } }
+    val <V, E> Graph<Vertex<V>, E>.tr get() = this.vertexSet().first { it.position == this.vertexSet().minOf { it.position.x } p this.vertexSet().maxOf { it.position.y } }
+    val <V, E> Graph<Vertex<V>, E>.bl get() = this.vertexSet().first { it.position == this.vertexSet().maxOf { it.position.x } p this.vertexSet().minOf { it.position.y } }
 
     fun simpleGraphOf(input: List<String>, next: (Point) -> Collection<Point> = Point::getCardinalNeighbors, hasEdge: (Vertex<Char>, Vertex<Char>) -> Boolean = { _, _ -> true }) = SimpleGraph<Vertex<Char>, DefaultEdge>(DefaultEdge::class.java).apply {
         addVertices(input.flatMapIndexed { x, row -> row.mapIndexed { y, c -> Vertex(Point(x, y), c) } })
