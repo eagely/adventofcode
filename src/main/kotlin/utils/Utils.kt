@@ -280,7 +280,6 @@ object Utils {
     fun File.intgrid() = this.rl().map { it.map { it.asInt() } }.grid()
     fun File.longgrid() = this.rl().map { it.map { it.asInt().toLong() } }.grid()
     fun File.chargrid() = this.rl().map { it.toList() }.grid()
-
     fun String.isLowercase() = this == this.lowercase()
     fun String.isUppercase() = this == this.uppercase()
     fun List<String>.snl() = this.map { it.split("\n") }
@@ -501,6 +500,8 @@ object Utils {
 
     fun String.uniques(): Int = distinct().count()
     fun String.counts(): Map<Char, Int> = groupingBy { it }.eachCount()
+    fun <T> Iterable<T>.uniques() = distinct().count()
+    fun <T> Iterable<T>.counts() = groupingBy { it }.eachCount()
     fun String.ifNotContains(char: Char, action: (String) -> (String)): String = if (this.contains(char)) this else action(this)
     fun String.ifContains(char: Char, action: (String) -> (String)): String = if (this.contains(char)) action(this) else this
     fun String.ifNotStartsWith(char: Char, action: (String) -> (String)): String = if (this.startsWith(char)) this else action(this)
