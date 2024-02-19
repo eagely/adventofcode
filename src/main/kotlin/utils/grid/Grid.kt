@@ -1,11 +1,8 @@
 package utils.grid
 
-import utils.Utils.abs
-import utils.Utils.cardinalDirections
-import utils.Utils.directions
-import utils.Utils.p
 import utils.point.Point
 import kotlin.math.sign
+import utils.*
 
 /**
  * A generic dynamic grid implementation.
@@ -463,22 +460,6 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         val newPoint = Point(newX, newY)
         data[newPoint] = value
         return newPoint
-    }
-
-    fun rotateClockwise(): Grid<T> {
-        val newGrid = Grid<T>(initialColumns, initialRows)
-        forEachIndexed { point, value ->
-            newGrid[Point(point.y, initialRows - 1 - point.x)] = value
-        }
-        return newGrid
-    }
-
-    fun flipHorizontal(): Grid<T> {
-        val newGrid = Grid<T>(initialRows, initialColumns)
-        forEachIndexed { point, value ->
-            newGrid[Point(initialRows - 1 - point.x, point.y)] = value
-        }
-        return newGrid
     }
 
     /**

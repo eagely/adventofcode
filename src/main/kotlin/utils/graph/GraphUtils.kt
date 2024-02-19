@@ -2,8 +2,8 @@ package utils.graph
 
 import org.jgrapht.Graph
 import org.jgrapht.graph.*
-import utils.Utils.p
 import utils.point.Point
+import utils.*
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 object GraphUtils {

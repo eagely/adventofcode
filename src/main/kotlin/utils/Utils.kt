@@ -10,34 +10,39 @@ import java.io.File
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.security.MessageDigest
-import java.util.*
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-@Suppress("unused", "MemberVisibilityCanBePrivate")
+@Deprecated("Use Helper.kt instead, this is only here for backwards compatibility")
+@Suppress("unused")
 object Utils {
-
-    fun String.extractNumbers(): String = this.filter { it.isDigit() }
-    fun String.extractNegatives(): String {
-        return Regex("-?\\d+").findAll(this).joinToString(separator = ",") { it.value }
-    }
-
-    fun String.extractLetters(): String = this.filter { it.isLetter() }
-    fun String.extractSpecial(): String = this.filter { !it.isLetter() && !it.isDigit() }
-    fun String.extractNumbersSeparated(): List<Int> = this.split(Regex("\\D+")).filter { it.isNotBlank() }.map { it.toInt() }
-    fun String.extractNegativesSeparated(): List<Int> = this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toInt() }
-    fun String.removeTrailingNumbers(): String = this.replace(Regex("\\d+$"), "")
-    fun String.containsNumber(): Boolean = this.contains(Regex("\\d+"))
-    fun String.toChar(): Char = if (this.l != 1) throw IllegalArgumentException("String of length other than 1 cannot be converted to a Char") else this.toCharArray().first()
-    fun <T> Collection<T>.join() = this.joinToString("")
-    fun <T> Collection<T>.join(separator: String) = this.joinToString(separator)
+    fun String.replaceAt(index: Int, replacement: Char) = this.substring(0, index) + replacement + this.substring(index + 1)
+    fun String.replaceAt(index: Int, replacement: String) = this.substring(0, index) + replacement + this.substring(index + 1)
+    fun String.insertAt(index: Int, char: Char) = this.substring(0, index) + char + this.substring(index)
+    fun String.insertAt(index: Int, string: String) = this.substring(0, index) + string + this.substring(index)
+    fun String.extractNumbers() = this.filter { it.isDigit() }
+    fun String.extractNegatives() = Regex("-?\\d+").findAll(this).joinToString(separator = ",") { it.value }
+    fun String.extractLetters() = this.filter { it.isLetter() }
+    fun String.extractSpecial() = this.filter { !it.isLetter() && !it.isDigit() }
+    fun String.extractNumbersSeparated() = this.split(Regex("\\D+")).filter { it.isNotBlank() }.map { it.toInt() }
+    fun String.extractNegativesSeparated() = this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toInt() }
+    fun String.removeTrailingNumbers() = this.replace(Regex("\\d+$"), "")
+    fun String.containsNumber() = this.contains(Regex("\\d+"))
+    fun String.toChar() = if (this.l != 1) throw IllegalArgumentException("String of length other than 1 cannot be converted to a Char") else this.toCharArray().first()
     fun <T> Array<T>.join() = this.joinToString("")
     fun <T> Array<T>.join(separator: String) = this.joinToString(separator)
     fun CharArray.join() = this.joinToString("")
     fun CharArray.join(separator: String) = this.joinToString(separator)
     fun <T> Iterable<T>.join() = this.joinToString("")
     fun <T> Iterable<T>.join(separator: String) = this.joinToString(separator)
+    fun CharIterator.next(n: Int): String {
+        var res = ""
+        repeat(n) {
+            res += this.next()
+        }
+        return res
+    }
 
     fun Char.asInt() = this.toString().toInt()
     fun Int.asChar() = this.toString().first()
@@ -202,13 +207,6 @@ object Utils {
     }
 
 
-    infix fun <T> Int.from(list: List<T>) = list.take(this)
-    infix fun <T> List<T>.fetch(amt: Int) = this.take(amt)
-    fun <T> List<T>.after(index: Int) = this.subList(index + 1, this.size)
-    fun <T> List<T>.after(elem: T) = this.subList(this.indexOf(elem) + 1, this.size)
-    fun <T> List<T>.before(index: Int) = this.subList(0, index)
-    fun <T> List<T>.before(elem: T) = this.subList(0, this.indexOf(elem))
-
     fun String.after(char: Char) = this.substringAfter(char)
     fun String.before(char: Char) = this.substringBefore(char)
     fun String.after(str: String) = this.substringAfter(str)
@@ -226,12 +224,12 @@ object Utils {
         if ("[^0-1]+".toRegex() in this) throw IllegalArgumentException("String must be binary")
         return this.map { if (it == '0') '1' else '0' }.join()
     }
+
     fun die(): Nothing = throw RuntimeException("womp womp")
     fun <T> List<T>.toPair(): Pair<T, T> {
         require(this.size <= 2) { "List contains more than 2 elements" }
         return this.first() to this.getOrNull(1)!!
     }
-
 
     infix fun String.matching(other: String): String = this.zip(other).filter { (a, b) -> a == b }.map { it.first }.joinToString("")
     infix fun String.nonmatching(other: String): String = this.zip(other).filter { (a, b) -> a != b }.map { it.first }.joinToString("")
@@ -249,7 +247,6 @@ object Utils {
     fun String.duplicates(): String = this.groupingBy { it }.eachCount().filter { it.value > 1 }.flatMap { (char, count) -> List(count) { char } }.joinToString("")
 
     fun List<String>.containsLength(length: Int) = this.any { it.l == length }
-    fun String.contains(char: Char, count: Int): Boolean = this.count { it == char } == count
     fun String.consecutive(): List<String> = this.fold(mutableListOf()) { acc, char ->
         if (acc.isEmpty() || acc.last().last() != char) {
             acc.add(char.toString())
@@ -258,6 +255,7 @@ object Utils {
         }
         acc
     }
+
     fun <T> List<T>.permutations(): List<List<T>> {
         return if (this.size == 1) listOf(this)
         else this.flatMap { i -> (this - i).permutations().map { listOf(i) + it } }
@@ -273,8 +271,10 @@ object Utils {
     fun File.rt(): String = this.readText().trim()
     fun File.sdnl() = this.rt().split("\n\n")
     fun File.sdanl() = this.rt().split("\n\n").map { it.split("\n") }
+
     @JvmName("doubleListGrid")
     fun <T> List<List<T>>.grid() = Grid.of(this)
+
     @JvmName("stringListGrid")
     fun <T> List<String>.grid() = Grid.of(this)
     fun File.intgrid() = this.rl().map { it.map { it.asInt() } }.grid()
@@ -306,11 +306,6 @@ object Utils {
         return result
     }
 
-    fun <T> Collection<T>.undistinct(): List<T> {
-        val frequencyMap = this.groupingBy { it }.eachCount()
-        return this.filter { frequencyMap[it]!! > 1 }
-    }
-
     operator fun <T> Collection<T>.get(range: IntRange): List<T> = this.toList().subList(range.first, range.last + 1)
     operator fun <T> MutableList<T>.set(range: IntRange, value: T) {
         range.forEach { this[it] = value }
@@ -318,70 +313,6 @@ object Utils {
 
     val String.l: Int get() = this.length
     val Collection<*>.s: Int get() = this.size
-
-    fun <T> bfsPath(
-        start: T,
-        isEnd: (T) -> Boolean,
-        getNext: (T) -> Collection<T>,
-        getStepCost: (T) -> Int = { 1 },
-    ): Pair<List<T>, Int>? {
-        if (isEnd(start)) return Pair(listOf(start), 0)
-
-        val visited = mutableSetOf<T>()
-        val queue: Deque<Pair<T, Pair<List<T>, Int>>> = LinkedList()
-
-        queue.offer(Pair(start, Pair(listOf(start), 0)))
-        visited.add(start)
-
-        while (queue.isNotEmpty()) {
-            val (current, pathWithCost) = queue.poll()
-            val (path, cost) = pathWithCost
-
-            if (isEnd(current)) return Pair(path, cost)
-
-            for (next in getNext(current)) {
-                if (next !in visited) {
-                    visited.add(next)
-                    queue.offer(Pair(next, Pair(path + next, cost + getStepCost(next))))
-                }
-            }
-        }
-
-        return null
-    }
-
-
-    fun <T> bfsCost(
-        start: T,
-        isEnd: (T) -> Boolean,
-        getNext: (T) -> Collection<T>,
-        getStepCost: (T) -> Int = { 1 },
-    ): Int? {
-        if (isEnd(start)) return 0
-
-        val visited = mutableSetOf<T>()
-        val queue: Deque<Pair<T, Int>> = LinkedList()
-
-        queue.offer(Pair(start, 0))
-        visited.add(start)
-
-        while (queue.isNotEmpty()) {
-            val (current, cost) = queue.poll()
-
-            if (isEnd(current)) {
-                return cost
-            }
-
-            for (next in getNext(current)) {
-                if (next !in visited) {
-                    visited.add(next)
-                    queue.offer(Pair(next, cost + getStepCost(next)))
-                }
-            }
-        }
-
-        return null
-    }
 
     fun <T> Collection<T>.destructure() = this.first() to this.drop(1)
 
@@ -392,11 +323,6 @@ object Utils {
 
     fun gcd(a: Long, b: Long): Long {
         if (b == 0L) return a
-        return gcd(b, a % b)
-    }
-
-    fun gcd(a: BigDecimal, b: BigDecimal): BigDecimal {
-        if (b == BigDecimal.ZERO) return a
         return gcd(b, a % b)
     }
 
@@ -465,12 +391,6 @@ object Utils {
         return str
     }
 
-    fun String.quantum(replacee: String, vararg replacer: String) = replacer.map { this.replace(replacee, it) }
-    fun String.quantum(replacee: Char, vararg replacer: Char) = replacer.map { this.replace(replacee, it) }
-    fun String.quantum(replacee: Regex, vararg replacer: String) = replacer.map { this.replace(replacee, it) }
-    fun String.quantum(replacee: Regex, vararg replacer: Char) = replacer.map { this.replace(replacee, it.toString()) }
-
-
     @JvmName("removeListString")
     fun String.remove(strings: List<String>): String {
         var str = this
@@ -498,6 +418,10 @@ object Utils {
         return str
     }
 
+    fun String.quantum(replacee: String, vararg replacer: String) = replacer.map { this.replace(replacee, it) }
+    fun String.quantum(replacee: Char, vararg replacer: Char) = replacer.map { this.replace(replacee, it) }
+    fun String.quantum(replacee: Regex, vararg replacer: String) = replacer.map { this.replace(replacee, it) }
+    fun String.quantum(replacee: Regex, vararg replacer: Char) = replacer.map { this.replace(replacee, it.toString()) }
     fun String.uniques(): Int = distinct().count()
     fun String.counts(): Map<Char, Int> = groupingBy { it }.eachCount()
     fun <T> Iterable<T>.uniques() = distinct().count()

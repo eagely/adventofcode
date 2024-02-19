@@ -1,7 +1,7 @@
 package utils.point
 
-import utils.Utils.pm
 import kotlin.math.abs
+import utils.*
 
 data class ArbitraryPoint(var c: List<Int>) {
     constructor(vararg c: Number) : this(c.map { it.toInt() })

@@ -1,9 +1,9 @@
 package utils.point
 
-import utils.Utils.pm
 import utils.movement.Direction
 import kotlin.math.abs
 import kotlin.math.sign
+import utils.*
 
 data class Point(var x: Int, var y: Int) {
     constructor(x: Number, y: Number) : this(x.toInt(), y.toInt())
