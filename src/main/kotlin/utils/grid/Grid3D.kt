@@ -1,7 +1,7 @@
 package utils.grid
 
-import utils.Utils.p
 import utils.point.Point3D
+import utils.*
 
 /**
  * A generic dynamic 3d grid implementation.

@@ -2,6 +2,7 @@ package solutions
 
 import Solution
 import java.io.File
+import utils.*
 
 class Day : Solution() {
 

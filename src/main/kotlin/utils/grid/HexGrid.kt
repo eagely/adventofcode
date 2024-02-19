@@ -1,9 +1,9 @@
 package utils.grid
 
-import utils.Utils.println
 import utils.movement.HexDirection
 import utils.point.Point
 import kotlin.math.abs
+import utils.*
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 /**
