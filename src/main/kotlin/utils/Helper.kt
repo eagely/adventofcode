@@ -15,8 +15,12 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+val File.lines get() = rl()
+val File.text get() = rt()
 fun String.hexToBin() = this.chunked(1).map { it.toInt(16).toString(2).padStart(4, '0') }.join()
 fun String.binToHex() = this.chunked(4).map { it.toInt(2).toString(16) }.join()
+fun String.replaceAt(range: IntRange, replacement: Char) = this.substring(0, range.first) + replacement + this.substring(range.last + 1)
+fun String.replaceAt(range: IntRange, replacement: String) = this.substring(0, range.first) + replacement + this.substring(range.last + 1)
 fun String.replaceAt(index: Int, replacement: Char) = this.substring(0, index) + replacement + this.substring(index + 1)
 fun String.replaceAt(index: Int, replacement: String) = this.substring(0, index) + replacement + this.substring(index + 1)
 fun String.insertAt(index: Int, char: Char) = this.substring(0, index) + char + this.substring(index)
@@ -27,6 +31,8 @@ fun String.extractLetters() = this.filter { it.isLetter() }
 fun String.extractSpecial() = this.filter { !it.isLetter() && !it.isDigit() }
 fun String.extractNumbersSeparated() = this.split(Regex("\\D+")).filter { it.isNotBlank() }.map { it.toInt() }
 fun String.extractNegativesSeparated() = this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toInt() }
+fun String.extractLongsSeparated() = this.split(Regex("\\D+")).filter { it.isNotBlank() }.map { it.toLong() }
+fun String.extractNegativeLongsSeparated() = this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toLong() }
 fun String.removeTrailingNumbers() = this.replace(Regex("\\d+$"), "")
 fun String.containsNumber() = this.contains(Regex("\\d+"))
 fun String.toChar() = if (this.l != 1) throw IllegalArgumentException("String of length other than 1 cannot be converted to a Char") else this.toCharArray().first()
@@ -47,6 +53,7 @@ fun Char.asInt() = this.toString().toInt()
 fun Int.asChar() = this.toString().first()
 infix fun <T> List<T>.at(pos: Int) = this[pos % this.size]
 infix fun String.at(pos: Int) = this[pos % this.length]
+operator fun String.get(range: IntRange) = this.substring(range)
 fun Double.format(scale: Int) = "%.${scale}f".format(this)
 fun Float.format(scale: Int) = "%.${scale}f".format(this)
 fun Int.abs() = abs(this)
@@ -162,6 +169,21 @@ fun <T> List<T>.zipWithAll(): List<Pair<T, T>> {
         }
     }
     return result
+}
+
+fun <T> List<T>.zipWithAllIfItsNonAssociative(): List<Pair<T, T>> {
+    val result = mutableListOf<Pair<T, T>>()
+    for (i in this.indices) {
+        for (j in i + 1 until this.size) {
+            result.add(Pair(this[i], this[j]))
+        }
+    }
+    for (i in this.indices.reversed()) {
+        for (j in i - 1 downTo 0) {
+            result.add(Pair(this[i], this[j]))
+        }
+    }
+    return result.distinct()
 }
 
 fun <T> List<T>.zipWithAllUnique(): List<Pair<T, T>> {
