@@ -1,6 +1,6 @@
 package utils.point
 
-import kotlin.math.abs
+import kotlin.math.*
 
 data class Point3D(var x: Int, var y: Int, var z: Int) {
     constructor(x: Number, y: Number, z: Number) : this(x.toInt(), y.toInt(), z.toInt())
@@ -34,8 +34,8 @@ data class Point3D(var x: Int, var y: Int, var z: Int) {
         return neighbors
     }
 
-
-    fun manhattanDistance(other: Point3D) = abs(x - other.x) + abs(y - other.y) + abs(z - other.z)
+    infix fun manhattanDistance(other: Point3D) = abs(x - other.x) + abs(y - other.y) + abs(z - other.z)
+    infix fun distance(other: Point3D) = sqrt(abs((x - other.x)).toDouble().pow(2) + abs((y - other.y)).toDouble().pow(2) + abs((z - other.z)).toDouble().pow(2))
 
     operator fun plus(other: Point3D) = Point3D(x + other.x, y + other.y, z + other.z)
     operator fun minus(other: Point3D) = Point3D(x - other.x, y - other.y, z - other.z)
@@ -48,7 +48,7 @@ data class Point3D(var x: Int, var y: Int, var z: Int) {
     companion object {
         val ORIGIN = Point3D(0, 0, 0)
         fun of(input: String): Point3D {
-            val (x, y, z) = input.split(',', '-', ' ').map { it.trim().toInt() }
+            val (x, y, z) = input.split(',', ' ').map { it.trim().toInt() }
             return Point3D(x, y, z)
         }
     }

@@ -112,8 +112,8 @@ fun <T> Iterable<T>.productOf(predicate: (T) -> BigInteger): BigInteger = map(pr
 @OverloadResolutionByLambdaReturnType
 fun <T> Iterable<T>.productOf(predicate: (T) -> BigDecimal): BigDecimal = map(predicate).product()
 
-fun cardinalDirections() = listOf(Point(0, 1), Point(1, 0), Point(0, -1), Point(-1, 0))
-fun directions() = cardinalDirections() + listOf(Point(1, 1), Point(1, -1), Point(-1, 1), Point(-1, -1))
+val cardinalDirections get() = listOf(Point(0, 1), Point(1, 0), Point(0, -1), Point(-1, 0))
+val directions get() = cardinalDirections + listOf(Point(1, 1), Point(1, -1), Point(-1, 1), Point(-1, -1))
 fun List<IntRange>.reduce(): List<IntRange> = if (this.size <= 1) this
 else {
     val sorted = this.sortedBy { it.first }
@@ -158,6 +158,18 @@ infix fun Set<*>.and(other: Set<*>): Set<*> = this.intersect(other)
 infix fun Set<*>.or(other: Set<*>): Set<*> = this.union(other)
 infix fun Set<*>.xor(other: Set<*>): Set<*> = this.union(other).minus(this.intersect(other))
 infix fun String.hash(algorithm: String) = MessageDigest.getInstance(algorithm).digest(this.toByteArray()).joinToString("") { "%02x".format(it) }
+
+fun <T> Iterable<T>.cyclicIterator(): Iterator<T> {
+    val list = this.toList()
+    if (list.isEmpty()) throw NoSuchElementException("The collection is empty")
+    return iterator {
+        var index = 0
+        while (true) {
+            yield(list[index % list.size])
+            index++
+        }
+    }
+}
 
 fun copyToClipboard(content: String) = Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(content), null)
 

@@ -359,7 +359,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
      * @return a List of all values that are diagonal or cardinal neighbors of the specified point and are not the specified value.
      */
     fun getNeighbors(point: Point, skipValue: T): List<T?> {
-        return directions().mapNotNull { direction ->
+        return directions.mapNotNull { direction ->
             var nextPoint = point + direction
             while (nextPoint in data.keys && get(nextPoint) == skipValue) {
                 nextPoint += direction
@@ -376,7 +376,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
      * @return a List of all values that are cardinal neighbors of the specified point and are not the specified value.
      */
     fun getCardinalNeighbors(point: Point, skipValue: T): List<T?> {
-        return cardinalDirections().mapNotNull { direction ->
+        return cardinalDirections.mapNotNull { direction ->
             var nextPoint = point + direction
             while (nextPoint in data.keys && get(nextPoint) == skipValue) {
                 nextPoint += direction
