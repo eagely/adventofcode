@@ -102,7 +102,7 @@ data class Point(var x: Int, var y: Int) {
     operator fun inc() = Point(x + 1, y + 1)
     operator fun dec() = Point(x - 1, y - 1)
     operator fun compareTo(other: Point) = (x + y).compareTo(other.x + other.y)
-    override fun toString() = "$x-$y"
+    override fun toString() = "($x, $y)"
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
