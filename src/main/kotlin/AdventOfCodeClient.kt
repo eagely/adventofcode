@@ -4,7 +4,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 
-class AdventOfCodeClient(private val sessionCookie: String) {
+class AdventOfCodeClient(private val sessionCookie: String?) {
     private val client = HttpClient {
         install(HttpRedirect) {
             this@HttpClient.followRedirects = true
@@ -15,6 +15,9 @@ class AdventOfCodeClient(private val sessionCookie: String) {
     private val userAgent = "Mozilla/5.0"
 
     suspend fun getPuzzleInput(year: Int, day: Int): String {
+        if (sessionCookie == null) {
+            throw Exception("No session cookie provided")
+        }
         return client.get("$aoc/$year/day/$day/input") {
             headers {
                 append("Cookie", "session=$sessionCookie")
