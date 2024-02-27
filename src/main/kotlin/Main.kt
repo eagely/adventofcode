@@ -1,16 +1,15 @@
-
 import kotlinx.coroutines.runBlocking
-import utils.Utils.copyToClipboard
-import utils.Utils.rt
 import utils.annotations.NoReal
 import utils.annotations.NoTest
 import java.io.File
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberFunctions
 import kotlin.system.measureTimeMillis
+import utils.*
 
+@Suppress("deprecated")
 fun main() = runBlocking {
-    val client = AdventOfCodeClient(System.getenv("AOC_COOKIE") ?: "Unable to get env variable AOC_COOKIE")
+    val client = AdventOfCodeClient(System.getenv("AOC_COOKIE"))
     val solutions = getSolution()
 
     solutions.forEach { instance ->
