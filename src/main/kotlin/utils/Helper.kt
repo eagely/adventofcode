@@ -285,7 +285,10 @@ infix fun String.matching(other: String): String = this.zip(other).filter { (a, 
 infix fun String.nonmatching(other: String): String = this.zip(other).filter { (a, b) -> a != b }.map { it.first }.joinToString("")
 fun String.halve() = this.splitAt(this.l / 2)
 fun String.split() = this.split(" ").dropBlanks()
-fun <T> Collection<T>.dropBlanks() = this.filter { it.toString().isNotBlank() }
+@JvmName("CollectionStringDropBlanks")
+fun Collection<String>.dropBlanks() = this.filter { it.isNotBlank() }
+@JvmName("CollectionCollectionDropBlanks")
+fun Collection<Collection<*>>.dropBlanks() = this.filter { it.isNotEmpty() }
 fun List<String>.split() = this.map { it.split() }
 operator fun IntRange.plus(other: Int) = (this.first + other)..(this.last + other)
 operator fun IntRange.minus(other: Int) = (this.first - other)..(this.last - other)
