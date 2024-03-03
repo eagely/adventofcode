@@ -524,6 +524,43 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         return false
     }
 
+    fun groups(falsy: T): Set<Set<Point>> {
+        val globvis = HashSet<Point>()
+        val groups = HashSet<Set<Point>>()
+        for ((k, v) in data.entries) {
+            if (v == falsy || k in globvis) continue
+            val visited = HashSet<Point>()
+            val queue = ArrayDeque(listOf(k))
+            while (queue.isNotEmpty()) {
+                val cur = queue.removeFirst()
+                visited.add(cur)
+                globvis.add(cur)
+                queue.addAll(getCardinalNeighborPositions(cur).filter { it !in visited && get(it) != falsy })
+            }
+            groups.add(visited)
+        }
+        return groups
+    }
+
+    fun uniqueGroups(): Set<Set<Point>> {
+        val visited = mutableSetOf<Point>()
+        val groups = mutableSetOf<Set<Point>>()
+        for (point in data.keys) {
+            if (point in visited) continue
+            val curgroup = mutableSetOf<Point>()
+            val queue = ArrayDeque<Point>()
+            queue.addLast(point)
+            while (queue.isNotEmpty()) {
+                val cur = queue.removeFirst()
+                visited.add(cur)
+                curgroup.add(cur)
+                queue.addAll(getCardinalNeighborPositions(cur).filter { it !in visited && data[it] == data[point] })
+            }
+            groups.add(curgroup)
+        }
+        return groups
+    }
+
     fun separate(): List<Set<Point>> {
         val separatedGrids = mutableListOf<Set<Point>>()
         val visited = mutableSetOf<Point>()
@@ -928,6 +965,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         @JvmName("numberAt")
         fun Grid<Char>.numberAt(point: Point): String? {
             if (get(point) == null || !get(point)!!.isDigit()) return null
+
             var start = point.y
             while (start >= 0 && this[Point(point.x, start)]!!.isDigit()) {
                 start--

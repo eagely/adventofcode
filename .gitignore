@@ -43,3 +43,4 @@ bin/
 
 /src/main/kotlin/solutions/y2023/
 /src/main/java/org/jgrapht/alg/shortestpath/
+/.idea/
