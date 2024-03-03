@@ -1,4 +1,5 @@
 @file:Suppress("unused")
+
 package utils
 
 import utils.grid.Grid
@@ -19,10 +20,16 @@ val File.lines get() = rl()
 val File.text get() = rt()
 fun String.hexToBin() = this.chunked(1).map { it.toInt(16).toString(2).padStart(4, '0') }.join()
 fun String.binToHex() = this.chunked(4).map { it.toInt(2).toString(16) }.join()
-fun String.replaceAt(range: IntRange, replacement: Char) = this.substring(0, range.first) + replacement + this.substring(range.last + 1)
-fun String.replaceAt(range: IntRange, replacement: String) = this.substring(0, range.first) + replacement + this.substring(range.last + 1)
+fun String.replaceAt(range: IntRange, replacement: Char) =
+    this.substring(0, range.first) + replacement + this.substring(range.last + 1)
+
+fun String.replaceAt(range: IntRange, replacement: String) =
+    this.substring(0, range.first) + replacement + this.substring(range.last + 1)
+
 fun String.replaceAt(index: Int, replacement: Char) = this.substring(0, index) + replacement + this.substring(index + 1)
-fun String.replaceAt(index: Int, replacement: String) = this.substring(0, index) + replacement + this.substring(index + 1)
+fun String.replaceAt(index: Int, replacement: String) =
+    this.substring(0, index) + replacement + this.substring(index + 1)
+
 fun String.insertAt(index: Int, char: Char) = this.substring(0, index) + char + this.substring(index)
 fun String.insertAt(index: Int, string: String) = this.substring(0, index) + string + this.substring(index)
 fun String.extractNumbers() = this.filter { it.isDigit() }
@@ -32,10 +39,15 @@ fun String.extractSpecial() = this.filter { !it.isLetter() && !it.isDigit() }
 fun String.extractNumbersSeparated() = this.split(Regex("\\D+")).filter { it.isNotBlank() }.map { it.toInt() }
 fun String.extractNegativesSeparated() = this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toInt() }
 fun String.extractLongsSeparated() = this.split(Regex("\\D+")).filter { it.isNotBlank() }.map { it.toLong() }
-fun String.extractNegativeLongsSeparated() = this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toLong() }
+fun String.extractNegativeLongsSeparated() =
+    this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toLong() }
+
 fun String.removeTrailingNumbers() = this.replace(Regex("\\d+$"), "")
 fun String.containsNumber() = this.contains(Regex("\\d+"))
-fun String.toChar() = if (this.l != 1) throw IllegalArgumentException("String of length other than 1 cannot be converted to a Char") else this.toCharArray().first()
+fun String.toChar() =
+    if (this.l != 1) throw IllegalArgumentException("String of length other than 1 cannot be converted to a Char") else this.toCharArray()
+        .first()
+
 fun <T> Array<T>.join() = this.joinToString("")
 fun <T> Array<T>.join(separator: String) = this.joinToString(separator)
 fun CharArray.join() = this.joinToString("")
@@ -49,6 +61,7 @@ fun CharIterator.next(n: Int): String {
     }
     return res
 }
+
 fun Char.asInt() = this.toString().toInt()
 fun Int.asChar() = this.toString().first()
 infix fun <T> List<T>.at(pos: Int) = this[pos % this.size]
@@ -93,21 +106,27 @@ fun Iterable<Double>.product(): Double = reduce { a, b -> a * b }
 fun Iterable<Float>.product(): Float = reduce { a, b -> a * b }
 fun Iterable<BigInteger>.product(): BigInteger = reduce { a, b -> a * b }
 fun Iterable<BigDecimal>.product(): BigDecimal = reduce { a, b -> a * b }
+
 @OptIn(kotlin.experimental.ExperimentalTypeInference::class)
 @OverloadResolutionByLambdaReturnType
 fun <T> Iterable<T>.productOf(predicate: (T) -> Int): Int = map(predicate).product()
+
 @OptIn(kotlin.experimental.ExperimentalTypeInference::class)
 @OverloadResolutionByLambdaReturnType
 fun <T> Iterable<T>.productOf(predicate: (T) -> Long): Long = map(predicate).product()
+
 @OptIn(kotlin.experimental.ExperimentalTypeInference::class)
 @OverloadResolutionByLambdaReturnType
 fun <T> Iterable<T>.productOf(predicate: (T) -> Double): Double = map(predicate).product()
+
 @OptIn(kotlin.experimental.ExperimentalTypeInference::class)
 @OverloadResolutionByLambdaReturnType
 fun <T> Iterable<T>.productOf(predicate: (T) -> Float): Float = map(predicate).product()
+
 @OptIn(kotlin.experimental.ExperimentalTypeInference::class)
 @OverloadResolutionByLambdaReturnType
 fun <T> Iterable<T>.productOf(predicate: (T) -> BigInteger): BigInteger = map(predicate).product()
+
 @OptIn(kotlin.experimental.ExperimentalTypeInference::class)
 @OverloadResolutionByLambdaReturnType
 fun <T> Iterable<T>.productOf(predicate: (T) -> BigDecimal): BigDecimal = map(predicate).product()
@@ -119,7 +138,8 @@ else {
     val sorted = this.sortedBy { it.first }
     sorted.drop(1).fold(mutableListOf(sorted.first())) { reduced, range ->
         val lastRange = reduced.last()
-        if (range.first <= lastRange.last) reduced[reduced.lastIndex] = (lastRange.first..maxOf(lastRange.last, range.last))
+        if (range.first <= lastRange.last) reduced[reduced.lastIndex] =
+            (lastRange.first..maxOf(lastRange.last, range.last))
         else reduced.add(range)
         reduced
     }
@@ -157,7 +177,8 @@ infix fun Point.p(z: Int): Point3D = Point3D(this.x, this.y, z)
 infix fun Set<*>.and(other: Set<*>): Set<*> = this.intersect(other)
 infix fun Set<*>.or(other: Set<*>): Set<*> = this.union(other)
 infix fun Set<*>.xor(other: Set<*>): Set<*> = this.union(other).minus(this.intersect(other))
-infix fun String.hash(algorithm: String) = MessageDigest.getInstance(algorithm).digest(this.toByteArray()).joinToString("") { "%02x".format(it) }
+infix fun String.hash(algorithm: String) =
+    MessageDigest.getInstance(algorithm).digest(this.toByteArray()).joinToString("") { "%02x".format(it) }
 
 fun <T> Iterable<T>.cyclicIterator(): Iterator<T> {
     val list = this.toList()
@@ -171,7 +192,8 @@ fun <T> Iterable<T>.cyclicIterator(): Iterator<T> {
     }
 }
 
-fun copyToClipboard(content: String) = Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(content), null)
+fun copyToClipboard(content: String) =
+    Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(content), null)
 
 fun <T> List<T>.zipWithAll(): List<Pair<T, T>> {
     val result = mutableListOf<Pair<T, T>>()
@@ -276,20 +298,37 @@ fun String.inv(): String {
     if ("[^0-1]+".toRegex() in this) throw IllegalArgumentException("String must be binary")
     return this.map { if (it == '0') '1' else '0' }.join()
 }
+
 fun die(): Nothing = throw RuntimeException("womp womp")
 fun <T> List<T>.toPair(): Pair<T, T> {
     require(this.size <= 2) { "List contains more than 2 elements" }
     return this.first() to this.getOrNull(1)!!
 }
-infix fun String.matching(other: String): String = this.zip(other).filter { (a, b) -> a == b }.map { it.first }.joinToString("")
-infix fun String.nonmatching(other: String): String = this.zip(other).filter { (a, b) -> a != b }.map { it.first }.joinToString("")
+
+infix fun String.matching(other: String): String =
+    this.zip(other).filter { (a, b) -> a == b }.map { it.first }.joinToString("")
+
+infix fun String.nonmatching(other: String): String =
+    this.zip(other).filter { (a, b) -> a != b }.map { it.first }.joinToString("")
+
 fun String.halve() = this.splitAt(this.l / 2)
 fun String.split() = this.split(" ").dropBlanks()
+
 @JvmName("CollectionStringDropBlanks")
 fun Collection<String>.dropBlanks() = this.filter { it.isNotBlank() }
+
 @JvmName("CollectionCollectionDropBlanks")
 fun Collection<Collection<*>>.dropBlanks() = this.filter { it.isNotEmpty() }
 fun List<String>.split() = this.map { it.split() }
+val Int.kilo get() = this * 1_000
+val Int.mega get() = this * 1_000_000
+val Int.giga get() = this * 1_000_000_000
+val Long.kilo get() = this * 1_000
+val Long.mega get() = this * 1_000_000
+val Long.giga get() = this * 1_000_000_000
+val Long.tera get() = this * 1_000_000_000_000
+val Long.peta get() = this * 1_000_000_000_000_000
+val Long.exa get() = this * 1_000_000_000_000_000_000
 operator fun IntRange.plus(other: Int) = (this.first + other)..(this.last + other)
 operator fun IntRange.minus(other: Int) = (this.first - other)..(this.last - other)
 operator fun LongRange.plus(other: Long) = (this.first + other)..(this.last + other)
@@ -297,7 +336,9 @@ operator fun LongRange.minus(other: Long) = (this.first - other)..(this.last - o
 infix fun String.splitAt(index: Int) = Pair(this.substring(0, index), this.substring(index))
 infix fun <T, R> Iterable<T>.mp(transform: (T) -> R) = this.map(transform)
 fun String.distinct() = this.toSet().joinToString("")
-fun String.duplicates(): String = this.groupingBy { it }.eachCount().filter { it.value > 1 }.flatMap { (char, count) -> List(count) { char } }.joinToString("")
+fun String.duplicates(): String =
+    this.groupingBy { it }.eachCount().filter { it.value > 1 }.flatMap { (char, count) -> List(count) { char } }
+        .joinToString("")
 
 fun List<String>.containsLength(length: Int) = this.any { it.l == length }
 fun String.consecutive(): List<String> = this.fold(mutableListOf()) { acc, char ->
@@ -308,6 +349,50 @@ fun String.consecutive(): List<String> = this.fold(mutableListOf()) { acc, char 
     }
     acc
 }
+
+fun <T> Collection<T>.swap(i: Int, j: Int): List<T> {
+    val c = this.toMutableList()
+    c[i] = c[j].also { c[j] = c[i] }
+    return c
+}
+
+fun <T> Collection<T>.swap(i: T, j: T): List<T> {
+    val c = this.toMutableList()
+    c[indexOf(i)] = j.also { c[indexOf(j)] = i }
+    return c
+}
+
+@JvmName("IntListSwap")
+fun <T> Collection<T>.swap(e: Pair<Int, Int>): List<T> = this.swap(e.first, e.second)
+
+@JvmName("TListSwap")
+fun <T> Collection<T>.swap(e: Pair<T, T>): List<T> = this.swap(e.first, e.second)
+
+fun <T> MutableList<T>.swap(i: Int, j: Int) {
+    val tmp = this[i]
+    this[i] = this[j]
+    this[j] = tmp
+}
+
+fun <T> MutableList<T>.swap(i: T, j: T) {
+    val indexI = this.indexOf(i)
+    val indexJ = this.indexOf(j)
+    if (indexI != -1 && indexJ != -1) {
+        this.swap(indexI, indexJ)
+    }
+}
+
+@JvmName("IntMutListSwap")
+fun <T> MutableList<T>.swap(e: Pair<Int, Int>) {
+    this.swap(e.first, e.second)
+}
+
+@JvmName("TMutListSwap")
+fun <T> MutableList<T>.swap(e: Pair<T, T>) {
+    this.swap(e.first, e.second)
+}
+
+
 fun <T> List<T>.permutations(): List<List<T>> {
     return if (this.size == 1) listOf(this)
     else this.flatMap { i -> (this - i).permutations().map { listOf(i) + it } }
@@ -323,8 +408,10 @@ fun File.rl(): List<String> = this.readLines().dropLastWhile { it.isBlank() }
 fun File.rt(): String = this.readText().trim()
 fun File.sdnl() = this.rt().split("\n\n")
 fun File.sdanl() = this.rt().split("\n\n").map { it.split("\n") }
+
 @JvmName("doubleListGrid")
 fun <T> List<List<T>>.grid() = Grid.of(this)
+
 @JvmName("stringListGrid")
 fun <T> List<String>.grid() = Grid.of(this)
 fun File.intgrid() = this.rl().map { it.map { it.asInt() } }.grid()
@@ -476,30 +563,74 @@ fun String.uniques(): Int = distinct().count()
 fun String.counts(): Map<Char, Int> = groupingBy { it }.eachCount()
 fun <T> Iterable<T>.uniques() = distinct().count()
 fun <T> Iterable<T>.counts() = groupingBy { it }.eachCount()
-fun String.ifNotContains(char: Char, action: (String) -> (String)): String = if (this.contains(char)) this else action(this)
-fun String.ifContains(char: Char, action: (String) -> (String)): String = if (this.contains(char)) action(this) else this
-fun String.ifNotStartsWith(char: Char, action: (String) -> (String)): String = if (this.startsWith(char)) this else action(this)
-fun String.ifStartsWith(char: Char, action: (String) -> (String)): String = if (this.startsWith(char)) action(this) else this
-fun String.ifNotEndsWith(char: Char, action: (String) -> (String)): String = if (this.endsWith(char)) this else action(this)
-fun String.ifEndsWith(char: Char, action: (String) -> (String)): String = if (this.endsWith(char)) action(this) else this
-fun String.ifNotContains(str: String, action: (String) -> (String)): String = if (this.contains(str)) this else action(this)
-fun String.ifContains(str: String, action: (String) -> (String)): String = if (this.contains(str)) action(this) else this
-fun String.ifNotStartsWith(str: String, action: (String) -> (String)): String = if (this.startsWith(str)) this else action(this)
-fun String.ifStartsWith(str: String, action: (String) -> (String)): String = if (this.startsWith(str)) action(this) else this
-fun String.ifNotEndsWith(str: String, action: (String) -> (String)): String = if (this.endsWith(str)) this else action(this)
-fun String.ifEndsWith(str: String, action: (String) -> (String)): String = if (this.endsWith(str)) action(this) else this
+fun String.ifNotContains(char: Char, action: (String) -> (String)): String =
+    if (this.contains(char)) this else action(this)
+
+fun String.ifContains(char: Char, action: (String) -> (String)): String =
+    if (this.contains(char)) action(this) else this
+
+fun String.ifNotStartsWith(char: Char, action: (String) -> (String)): String =
+    if (this.startsWith(char)) this else action(this)
+
+fun String.ifStartsWith(char: Char, action: (String) -> (String)): String =
+    if (this.startsWith(char)) action(this) else this
+
+fun String.ifNotEndsWith(char: Char, action: (String) -> (String)): String =
+    if (this.endsWith(char)) this else action(this)
+
+fun String.ifEndsWith(char: Char, action: (String) -> (String)): String =
+    if (this.endsWith(char)) action(this) else this
+
+fun String.ifNotContains(str: String, action: (String) -> (String)): String =
+    if (this.contains(str)) this else action(this)
+
+fun String.ifContains(str: String, action: (String) -> (String)): String =
+    if (this.contains(str)) action(this) else this
+
+fun String.ifNotStartsWith(str: String, action: (String) -> (String)): String =
+    if (this.startsWith(str)) this else action(this)
+
+fun String.ifStartsWith(str: String, action: (String) -> (String)): String =
+    if (this.startsWith(str)) action(this) else this
+
+fun String.ifNotEndsWith(str: String, action: (String) -> (String)): String =
+    if (this.endsWith(str)) this else action(this)
+
+fun String.ifEndsWith(str: String, action: (String) -> (String)): String =
+    if (this.endsWith(str)) action(this) else this
+
 fun String.ifEquals(str: String, action: (String) -> (String)): String = if (this == str) action(this) else this
 fun String.ifNotEquals(str: String, action: (String) -> (String)): String = if (this != str) this else action(this)
-fun String.ifEquals(char: Char, action: (String) -> (String)): String = if (this == char.toString()) action(this) else this
-fun String.ifNotEquals(char: Char, action: (String) -> (String)): String = if (this != char.toString()) this else action(this)
-fun String.ifNotContains(regex: Regex, action: (String) -> (String)): String = if (this.contains(regex)) this else action(this)
-fun String.ifContains(regex: Regex, action: (String) -> (String)): String = if (this.contains(regex)) action(this) else this
-fun String.ifNotStartsWith(regex: Regex, action: (String) -> (String)): String = if (this.startsWith(regex)) this else action(this)
-fun String.ifStartsWith(regex: Regex, action: (String) -> (String)): String = if (this.startsWith(regex)) action(this) else this
-fun String.ifNotEndsWith(regex: Regex, action: (String) -> (String)): String = if (this.endsWith(regex)) this else action(this)
-fun String.ifEndsWith(regex: Regex, action: (String) -> (String)): String = if (this.endsWith(regex)) action(this) else this
-fun String.ifNotMatches(regex: Regex, action: (String) -> (String)): String = if (this.matches(regex)) this else action(this)
-fun String.ifMatches(regex: Regex, action: (String) -> (String)): String = if (this.matches(regex)) action(this) else this
+fun String.ifEquals(char: Char, action: (String) -> (String)): String =
+    if (this == char.toString()) action(this) else this
+
+fun String.ifNotEquals(char: Char, action: (String) -> (String)): String =
+    if (this != char.toString()) this else action(this)
+
+fun String.ifNotContains(regex: Regex, action: (String) -> (String)): String =
+    if (this.contains(regex)) this else action(this)
+
+fun String.ifContains(regex: Regex, action: (String) -> (String)): String =
+    if (this.contains(regex)) action(this) else this
+
+fun String.ifNotStartsWith(regex: Regex, action: (String) -> (String)): String =
+    if (this.startsWith(regex)) this else action(this)
+
+fun String.ifStartsWith(regex: Regex, action: (String) -> (String)): String =
+    if (this.startsWith(regex)) action(this) else this
+
+fun String.ifNotEndsWith(regex: Regex, action: (String) -> (String)): String =
+    if (this.endsWith(regex)) this else action(this)
+
+fun String.ifEndsWith(regex: Regex, action: (String) -> (String)): String =
+    if (this.endsWith(regex)) action(this) else this
+
+fun String.ifNotMatches(regex: Regex, action: (String) -> (String)): String =
+    if (this.matches(regex)) this else action(this)
+
+fun String.ifMatches(regex: Regex, action: (String) -> (String)): String =
+    if (this.matches(regex)) action(this) else this
+
 fun String.endsWith(regex: Regex): Boolean {
     return this.endsWith(regex.find(this)?.value ?: return false)
 }
