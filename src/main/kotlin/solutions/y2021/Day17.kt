@@ -1,4 +1,4 @@
-package solutions
+package solutions.y2021
 
 import Solution
 import utils.Utils.rt
