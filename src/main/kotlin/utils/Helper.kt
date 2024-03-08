@@ -320,6 +320,11 @@ fun Collection<String>.dropBlanks() = this.filter { it.isNotBlank() }
 @JvmName("CollectionCollectionDropBlanks")
 fun Collection<Collection<*>>.dropBlanks() = this.filter { it.isNotEmpty() }
 fun List<String>.split() = this.map { it.split() }
+
+val String.isInt get() = try { this.toInt(); true } catch (e: NumberFormatException) { false }
+val String.isLong get() = try { this.toLong(); true } catch (e: NumberFormatException) { false }
+fun String.toIntOrElse(action: () -> Int) = this.toIntOrNull() ?: action()
+fun String.toLongOrElse(action: () -> Long) = this.toLongOrNull() ?: action()
 val Int.kilo get() = this * 1_000
 val Int.mega get() = this * 1_000_000
 val Int.giga get() = this * 1_000_000_000
