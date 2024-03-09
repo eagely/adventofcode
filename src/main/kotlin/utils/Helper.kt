@@ -42,6 +42,23 @@ fun String.extractLongsSeparated() = this.split(Regex("\\D+")).filter { it.isNot
 fun String.extractNegativeLongsSeparated() =
     this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toLong() }
 
+fun String.rotN(n: Int): String {
+    return this.map { char ->
+        when (char) {
+            in 'A'..'Z' -> rotateChar(char, n, 'A', 'Z')
+            in 'a'..'z' -> rotateChar(char, n, 'a', 'z')
+            else -> char
+        }
+    }.joinToString("")
+}
+
+fun rotateChar(c: Char, n: Int, start: Char, end: Char): Char {
+    val rangeSize = end.toInt() - start.toInt() + 1
+    val normalizedIndex = (c.toInt() - start.toInt() + n) % rangeSize
+    return (start.toInt() + normalizedIndex).toChar()
+}
+
+
 fun String.removeTrailingNumbers() = this.replace(Regex("\\d+$"), "")
 fun String.containsNumber() = this.contains(Regex("\\d+"))
 fun String.toChar() =
