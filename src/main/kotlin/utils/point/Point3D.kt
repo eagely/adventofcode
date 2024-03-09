@@ -1,5 +1,6 @@
 package utils.point
 
+import utils.Utils.pm
 import kotlin.math.*
 
 data class Point3D(var x: Int, var y: Int, var z: Int) {
@@ -38,10 +39,15 @@ data class Point3D(var x: Int, var y: Int, var z: Int) {
     infix fun distance(other: Point3D) = sqrt(abs((x - other.x)).toDouble().pow(2) + abs((y - other.y)).toDouble().pow(2) + abs((z - other.z)).toDouble().pow(2))
 
     operator fun plus(other: Point3D) = Point3D(x + other.x, y + other.y, z + other.z)
+    operator fun plus(other: Int) = Point3D(x + other, y + other, z + other)
     operator fun minus(other: Point3D) = Point3D(x - other.x, y - other.y, z - other.z)
+    operator fun minus(other: Int) = Point3D(x - other, y - other, z - other)
     operator fun times(other: Point3D) = Point3D(x * other.x, y * other.y, z * other.z)
+    operator fun times(other: Int) = Point3D(x * other, y * other, z * other)
+    operator fun div(other: Int) = Point3D(x / other, y / other, z / other)
     operator fun div(other: Point3D) = Point3D(x / other.x, y / other.y, z / other.z)
-    operator fun rem(other: Point3D) = Point3D(x % other.x, y % other.y, z % other.z)
+    operator fun rem(other: Point3D) = Point3D(x pm other.x, y pm other.y, z pm other.z)
+    operator fun rem(other: Int) = Point3D(x pm other, y pm other, z pm other)
 
     override fun toString() = "$x-$y-$z"
 
