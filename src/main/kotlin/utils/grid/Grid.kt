@@ -195,6 +195,16 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
      */
     fun getSides(): List<List<T?>> = listOf(getRow(minX), getRow(maxX), getColumn(minY), getColumn(maxY))
 
+    fun remove(point: Point) = data.remove(point)
+
+    fun removeAll(points: Collection<Point>) {
+        points.forEach { data.remove(it) }
+    }
+
+    fun remove(value: T) {
+        data.entries.removeIf { it.value == value }
+    }
+
     /**
      * Iterates over all the points in the grid.
      * @param action the action to perform on each point.
@@ -736,6 +746,56 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
             stringBuilder.append("\n")
         }
         return stringBuilder.toString()
+    }
+
+    fun mapRow(row: Int, transform: (T) -> T): Grid<T> {
+        val new = Grid<T>()
+        for (r in data.keys.filter { it.x == row }.toSet()) {
+            new[r] = transform(get(r)!!)
+        }
+        return new
+    }
+
+    fun mapColumn(col: Int, transform: (T) -> T): Grid<T> {
+        val new = Grid<T>()
+        for (c in data.keys.filter { it.y == col }.toSet()) {
+            new[c] = transform(get(c)!!)
+        }
+        return new
+    }
+
+    fun mapRowIndexed(row: Int, transform: (Point, T) -> T): Grid<T> {
+        val new = Grid<T>()
+        for (r in data.keys.filter { it.x == row }.toSet()) {
+            new[r] = transform(r, get(r)!!)
+        }
+        return new
+    }
+
+    fun mapColumnIndexed(col: Int, transform: (Point, T) -> T): Grid<T> {
+        val new = Grid<T>()
+        for (c in data.keys.filter { it.y == col }.toSet()) {
+            new[c] = transform(c, get(c)!!)
+        }
+        return new
+    }
+
+    fun shiftRow(row: Int, transform: (Point, T) -> Point) {
+        val rowMap = data.filter { it.key.x == row }
+        removeAll(rowMap.keys)
+        rowMap.forEach { set(transform(it.key, it.value), it.value) }
+    }
+
+    fun shiftColumn(row: Int, transform: (Point, T) -> Point) {
+        val colMap = data.filter { it.key.y == row }
+        removeAll(colMap.keys)
+        colMap.forEach { set(transform(it.key, it.value), it.value) }
+    }
+
+    fun shift(what: (Point, T) -> Boolean, transform: (Point, T) -> Point) {
+        val colMap = data.filter { what(it.key, it.value) }
+        removeAll(colMap.keys)
+        colMap.forEach { set(transform(it.key, it.value), it.value) }
     }
 
     /**
