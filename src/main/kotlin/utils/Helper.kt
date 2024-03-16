@@ -82,7 +82,19 @@ fun CharIterator.next(n: Int): String {
     }
     return res
 }
-
+fun <T> Iterator<T>.next(n: Int): List<T> {
+    val res = mutableListOf<T>()
+    repeat(n) {
+        res.add(this.next())
+    }
+    return res
+}
+fun Iterator<*>.skip(n: Int) {
+    repeat(n) {
+        if (!this.hasNext()) return
+        this.next()
+    }
+}
 fun Char.asInt() = this.toString().toInt()
 fun Int.asChar() = this.toString().first()
 infix fun <T> List<T>.at(pos: Int) = this[pos % this.size]
