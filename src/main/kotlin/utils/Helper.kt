@@ -707,6 +707,23 @@ operator fun <T> List<T>.component6(): T {
     return this[5]
 }
 
+/**
+ * Returns the smallest number that satisfies the given modular congruences according to the chinese remainder theorem.
+ * @param mod The list of moduli.
+ * @param rem The list of remainders (moduli - offset).
+ * @return The chinese remainder.
+ */
+@JvmName("chineseRemainderIntList")
+fun chineseRemainder(mod: List<Int>, rem: List<Int>): Long {
+    return chineseRemainder(mod.map { it.toLong() }, rem.map { it.toLong() })
+}
+
+/**
+ * Returns the smallest number that satisfies the given modular congruences according to the chinese remainder theorem.
+ * @param mod The list of moduli.
+ * @param rem The list of remainders (moduli - offset).
+ * @return The chinese remainder.
+ */
 fun chineseRemainder(mod: List<Long>, rem: List<Long>): Long {
     val prod = mod.fold(1L) { acc, i -> acc * i }
 
@@ -740,7 +757,12 @@ fun modularMultiplicativeInverse(a: Long, m: Long): Long {
     return if (x < 0) x + m else x
 }
 
-
+/**
+ * Returns the smallest number that satisfies the given modular congruences according to the chinese remainder theorem.
+ * @param mod The list of moduli.
+ * @param rem The list of remainders (moduli - offset).
+ * @return The chinese remainder.
+ */
 fun chineseRemainder(mod: List<BigInteger>, rem: List<BigInteger>): BigInteger {
     val prod = mod.fold(BigInteger.ONE) { acc, i -> acc * i }
 
