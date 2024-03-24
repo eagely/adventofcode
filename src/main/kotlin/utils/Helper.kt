@@ -2,6 +2,10 @@
 
 package utils
 
+import utils.Utils.l
+import utils.Utils.modularMultiplicativeInverse
+import utils.Utils.rl
+import utils.Utils.rt
 import utils.grid.Grid
 import utils.point.LongPoint
 import utils.point.Point
@@ -255,18 +259,14 @@ fun <T> List<T>.zipWithAllIfItsNonAssociative(): List<Pair<T, T>> {
 
 fun <T> List<T>.zipWithAllUnique(): List<Pair<T, T>> {
     val result = mutableListOf<Pair<T, T>>()
-    val seenPairs = mutableSetOf<Pair<T, T>>()
+    val seen = mutableSetOf<T>()
 
     for (i in this.indices) {
-        for (j in i + 1 until this.size) {
-            val pair = Pair(this[i], this[j])
-            if (pair !in seenPairs) {
-                result.add(pair)
-                seenPairs.add(pair)
-                seenPairs.add(pair.copy(first = pair.second, second = pair.first)) // Add reverse pair as well
-            }
-        }
+        val element = this[i]
+        result.addAll(seen.map { Pair(it, element) })
+        seen.add(element)
     }
+
     return result
 }
 
@@ -437,6 +437,28 @@ fun <T> List<T>.permutations(): List<List<T>> {
 }
 
 fun String.permutations() = this.toList().permutations().map { it.join() }
+
+fun <T> Collection<T>.modifyAt(index: Int, transform: (T) -> T): List<T> {
+    val out = this.toMutableList()
+    out[index] = transform(out[index])
+    return out
+}
+
+fun <T> List<T>.combinations(size: Int): List<List<T>> {
+    if (size <= 0) return listOf(emptyList())
+    if (size > this.size) return emptyList()
+    if (size == this.size) return listOf(this)
+    if (size == 1) return this.map { listOf(it) }
+
+    val combinations = mutableListOf<List<T>>()
+    val rest = this.drop(1)
+    rest.combinations(size - 1).forEach { combination ->
+        combinations.add(listOf(this[0]) + combination)
+    }
+    combinations += rest.combinations(size)
+    return combinations
+}
+
 fun isqrt(x: Int) = sqrt(x.toDouble()).toInt()
 fun File.ril(): List<Int> = this.rl().map { it.toInt() }
 fun File.rll(): List<Long> = this.rl().map { it.toLong() }
