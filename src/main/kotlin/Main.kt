@@ -1,11 +1,12 @@
 import kotlinx.coroutines.runBlocking
 import utils.annotations.NoReal
 import utils.annotations.NoTest
+import utils.copyToClipboard
+import utils.rt
 import java.io.File
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberFunctions
 import kotlin.system.measureTimeMillis
-import utils.*
 
 @Suppress("deprecated")
 fun main() = runBlocking {
@@ -27,7 +28,6 @@ fun main() = runBlocking {
             rin.writeText(client.getPuzzleInput(instance.year, instance.day))
             rin
         }
-
 
 
         fun run(part: Int) {
@@ -63,8 +63,17 @@ fun getSolution(): List<Solution> {
     val solutionsDir = File("src/main/kotlin/solutions")
     val currentFiles = solutionsDir.listFiles()?.map { it.name } ?: emptyList()
 
-    return currentFiles
-        .asSequence()
-        .filter { it.matches(Regex("Day\\d+\\.kt")) && it != "Day.kt" }
-        .map { Class.forName("solutions.${it.removeSuffix(".kt")}").getDeclaredConstructor().newInstance() as Solution }.toList()
+    solutionsDir.listFiles()?.forEach { file ->
+        if (file.isFile && file.extension == "kt") {
+            val contents = file.readText()
+            if (".readText()" in contents) {
+                println("Warning: Usage of readText() found in ${file.path}, this function is dangerous as inputs usually have trailing newlines and these could be interpreted by your program to be part of the input. Use File.text or File.rt() helper methods from Helper.kt instead")
+            }
+            if (".readLines()" in contents) {
+                println("Warning: Usage of readLines() found in ${file.path}, this function is dangerous as inputs usually have trailing newlines and these could be interpreted by your program to be part of the input. Use File.lines or File.rl() helper methods from Helper.kt instead")
+            }
+        }
+    }
+
+    return currentFiles.asSequence().filter { it.matches(Regex("Day\\d+\\.kt")) && it != "Day.kt" }.map { Class.forName("solutions.${it.removeSuffix(".kt")}").getDeclaredConstructor().newInstance() as Solution }.toList()
 }
