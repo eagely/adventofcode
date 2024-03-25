@@ -2,10 +2,6 @@
 
 package utils
 
-import utils.Utils.l
-import utils.Utils.modularMultiplicativeInverse
-import utils.Utils.rl
-import utils.Utils.rt
 import utils.grid.Grid
 import utils.point.LongPoint
 import utils.point.Point
@@ -16,9 +12,23 @@ import java.io.File
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.security.MessageDigest
-import kotlin.math.abs
-import kotlin.math.pow
-import kotlin.math.sqrt
+import kotlin.math.*
+
+fun ilog(x: Double, b: Double): Int {
+    return (log10(x) / log10(b)).toInt()
+}
+
+fun ilog(x: Float, b: Float): Int {
+    return (log10(x) / log10(b)).toInt()
+}
+
+fun ilog(x: Int, b: Int): Int {
+    return (log10(x.toDouble()) / log10(b.toDouble())).toInt()
+}
+
+fun ilog(x: Long, b: Long): Int {
+    return (log10(x.toDouble()) / log10(b.toDouble())).toInt()
+}
 
 val File.lines get() = rl()
 val File.text get() = rt()
@@ -108,7 +118,7 @@ fun Double.format(scale: Int) = "%.${scale}f".format(this)
 fun Float.format(scale: Int) = "%.${scale}f".format(this)
 fun Int.abs() = abs(this)
 fun Long.abs() = abs(this)
-fun Long.pow(power: Int): Long = this.toDouble().pow(power).toLong()
+infix fun Long.pow(power: Int): Long = this.toDouble().pow(power).toLong()
 infix fun Int.pow(power: Int): Int = this.toDouble().pow(power).toInt()
 fun <T> List<T>.isAllEqual(): Boolean {
     for (i in 1..<this.size) if (this[i] != this[i - 1]) return false
