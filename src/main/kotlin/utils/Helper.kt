@@ -231,6 +231,22 @@ else {
     }
 }
 
+fun String.rotateRight(n: Int): String {
+    val len = this.length
+    if (len == 0) return this
+
+    val effectiveShift = n % len
+    return this.substring(len - effectiveShift) + this.substring(0, len - effectiveShift)
+}
+
+fun String.rotateLeft(n: Int): String {
+    val len = this.length
+    if (len == 0) return this
+
+    val effectiveShift = n % len
+    return this.substring(effectiveShift) + this.substring(0, effectiveShift)
+}
+
 fun <T> List<T>.nth(n: Int): T = this[n % size]
 
 fun Any?.print(): Any? {
