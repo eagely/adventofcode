@@ -147,6 +147,43 @@ inline fun <T> Iterable<T>.takeUntil(predicate: (T) -> Boolean): List<T> {
     return list
 }
 
+@JvmName("mergeIntRanges")
+fun merge(ranges: List<IntRange>): List<IntRange> {
+    if (ranges.isEmpty()) return emptyList()
+    val sortedRanges = ranges.sortedBy { it.first }
+    val merged = mutableListOf<IntRange>()
+    var currentMerge = sortedRanges[0]
+    for (range in sortedRanges.drop(1)) {
+        if (range.first <= currentMerge.last + 1) {
+            currentMerge = currentMerge.first..maxOf(currentMerge.last, range.last)
+        } else {
+            merged.add(currentMerge)
+            currentMerge = range
+        }
+    }
+    merged.add(currentMerge)
+    return merged
+}
+
+@JvmName("mergeLongRanges")
+fun merge(ranges: List<LongRange>): List<LongRange> {
+    if (ranges.isEmpty()) return emptyList()
+    val sortedRanges = ranges.sortedBy { it.first }
+    val merged = mutableListOf<LongRange>()
+    var currentMerge = sortedRanges[0]
+    for (range in sortedRanges.drop(1)) {
+        if (range.first <= currentMerge.last + 1) {
+            currentMerge = currentMerge.first..maxOf(currentMerge.last, range.last)
+        } else {
+            merged.add(currentMerge)
+            currentMerge = range
+        }
+    }
+    merged.add(currentMerge)
+    return merged
+}
+
+
 fun Iterable<Int>.product(): Int = reduce { a, b -> a * b }
 fun Iterable<Long>.product(): Long = reduce { a, b -> a * b }
 fun Iterable<Double>.product(): Double = reduce { a, b -> a * b }
@@ -180,6 +217,8 @@ fun <T> Iterable<T>.productOf(predicate: (T) -> BigDecimal): BigDecimal = map(pr
 
 val cardinalDirections get() = listOf(Point(0, 1), Point(1, 0), Point(0, -1), Point(-1, 0))
 val directions get() = cardinalDirections + listOf(Point(1, 1), Point(1, -1), Point(-1, 1), Point(-1, -1))
+val IntRange.size get() = this.last - this.first + 1
+val LongRange.size get() = this.last - this.first + 1
 fun List<IntRange>.reduce(): List<IntRange> = if (this.size <= 1) this
 else {
     val sorted = this.sortedBy { it.first }
