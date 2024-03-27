@@ -111,6 +111,7 @@ fun Iterator<*>.skip(n: Int) {
 }
 fun Char.asInt() = this.toString().toInt()
 fun Int.asChar() = this.toString().first()
+fun String.isNumber() = this.all { it.isDigit() }
 infix fun <T> List<T>.at(pos: Int) = this[pos % this.size]
 infix fun String.at(pos: Int) = this[pos % this.length]
 operator fun String.get(range: IntRange) = this.substring(range)
