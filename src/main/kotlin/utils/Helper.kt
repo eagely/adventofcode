@@ -538,7 +538,7 @@ fun File.sdanl() = this.rt().split("\n\n").map { it.split("\n") }
 fun <T> List<List<T>>.grid() = Grid.of(this)
 
 @JvmName("stringListGrid")
-fun <T> List<String>.grid() = Grid.of(this)
+fun List<String>.grid() = Grid.of(this)
 fun File.intgrid() = this.rl().map { it.map { it.asInt() } }.grid()
 fun File.longgrid() = this.rl().map { it.map { it.asInt().toLong() } }.grid()
 fun File.chargrid() = this.rl().map { it.toList() }.grid()

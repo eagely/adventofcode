@@ -124,6 +124,30 @@ object PathFinding {
 
     inline fun <State> bfsPath(start: Iterable<State>, end: State, next: (State) -> Iterable<State>) = BfsResult(bfsPath(end, isEnd = { it in start }, next).path.reversed())
 
+    inline fun <State> bfsCost(start: State, crossinline isEnd: (State) -> Boolean, next: (State) -> Iterable<State>): Int {
+        val queue = ArrayDeque(listOf(start))
+        val visited = hashSetOf<State>()
+        val cost = hashMapOf<State, Int>().apply { this[start] = 0 }
+
+        while (queue.isNotEmpty()) {
+            val cur = queue.removeFirst()
+            val curCost = cost[cur]!!
+
+            if (isEnd(cur)) return curCost
+
+            if (!visited.add(cur)) continue
+
+            next(cur).filter { it !in visited }.also {
+                it.forEach { queue.add(it) }
+                it.forEach { cost[it] = curCost + 1 }
+            }
+        }
+
+        return -1
+    }
+
+    inline fun <State> bfsCost(start: State, end: State, next: (State) -> Iterable<State>) = bfsCost(start, isEnd = { it == end }, next)
+
     inline fun <State> dijkstraAllPaths(start: State, next: (State) -> Iterable<Weighted<State>>): SingleSourceWeightedBacktrack<State> {
         val queue = PriorityQueue<Weighted<State>>(compareBy { it.weight })
         val visited = hashMapOf<State, Int>()
