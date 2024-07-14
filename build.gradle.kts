@@ -21,6 +21,7 @@ dependencies {
     implementation("io.arrow-kt:arrow-fx-coroutines:1.2.0")
     implementation("org.slf4j:slf4j-log4j12:2.0.9")
     implementation("org.jgrapht:jgrapht-core:1.5.1")
+    implementation("com.google.code.gson:gson:2.8.9")
     testImplementation(kotlin("test"))
 }
 

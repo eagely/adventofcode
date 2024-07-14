@@ -12,40 +12,21 @@ import java.io.File
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.util.*
+import kotlin.NoSuchElementException
+import kotlin.collections.ArrayList
 import kotlin.math.*
 
-fun ilog(x: Double, b: Double): Int {
-    return (log10(x) / log10(b)).toInt()
-}
+/**
+ * Privates
+ */
+private val md5 = MessageDigest.getInstance("MD5")
 
-fun ilog(x: Float, b: Float): Int {
-    return (log10(x) / log10(b)).toInt()
-}
-
-fun ilog(x: Int, b: Int): Int {
-    return (log10(x.toDouble()) / log10(b.toDouble())).toInt()
-}
-
-fun ilog(x: Long, b: Long): Int {
-    return (log10(x.toDouble()) / log10(b.toDouble())).toInt()
-}
-
+/**
+ * Parsing
+ */
 val File.lines get() = rl()
 val File.text get() = rt()
-fun String.hexToBin() = this.chunked(1).map { it.toInt(16).toString(2).padStart(4, '0') }.join()
-fun String.binToHex() = this.chunked(4).map { it.toInt(2).toString(16) }.join()
-fun String.replaceAt(range: IntRange, replacement: Char) =
-    this.substring(0, range.first) + replacement + this.substring(range.last + 1)
-
-fun String.replaceAt(range: IntRange, replacement: String) =
-    this.substring(0, range.first) + replacement + this.substring(range.last + 1)
-
-fun String.replaceAt(index: Int, replacement: Char) = this.substring(0, index) + replacement + this.substring(index + 1)
-fun String.replaceAt(index: Int, replacement: String) =
-    this.substring(0, index) + replacement + this.substring(index + 1)
-
-fun String.insertAt(index: Int, char: Char) = this.substring(0, index) + char + this.substring(index)
-fun String.insertAt(index: Int, string: String) = this.substring(0, index) + string + this.substring(index)
 fun String.extractNumbers() = this.filter { it.isDigit() }
 fun String.extractNegatives() = Regex("-?\\d+").findAll(this).joinToString(separator = ",") { it.value }
 fun String.extractLetters() = this.filter { it.isLetter() }
@@ -53,36 +34,33 @@ fun String.extractSpecial() = this.filter { !it.isLetter() && !it.isDigit() }
 fun String.extractNumbersSeparated() = this.split(Regex("\\D+")).filter { it.isNotBlank() }.map { it.toInt() }
 fun String.extractNegativesSeparated() = this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toInt() }
 fun String.extractLongsSeparated() = this.split(Regex("\\D+")).filter { it.isNotBlank() }.map { it.toLong() }
-fun String.extractNegativeLongsSeparated() =
-    this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toLong() }
+fun String.extractNegativeLongsSeparated() = this.split(Regex("[^-\\d]+")).filter { it.isNotBlank() }.map { it.toLong() }
+val String.ints get() = this.extractNegativesSeparated()
 
-fun String.rotN(n: Int): String {
-    return this.map { char ->
-        when (char) {
-            in 'A'..'Z' -> rotateChar(char, n, 'A', 'Z')
-            in 'a'..'z' -> rotateChar(char, n, 'a', 'z')
-            else -> char
-        }
-    }.joinToString("")
-}
 
-fun rotateChar(c: Char, n: Int, start: Char, end: Char): Char {
-    val rangeSize = end.toInt() - start.toInt() + 1
-    val normalizedIndex = (c.toInt() - start.toInt() + n) % rangeSize
-    return (start.toInt() + normalizedIndex).toChar()
-}
-
-fun String.md5(): String {
-    val md = MessageDigest.getInstance("MD5")
-    return BigInteger(1, md.digest(toByteArray())).toString(16).padStart(32, '0')
-}
-
+/**
+ * Shorthand helpers
+ */
 fun String.removeTrailingNumbers() = this.replace(Regex("\\d+$"), "")
+fun String.md5() = BigInteger(1, md5.digest(toByteArray())).toString(16).padStart(32, '0')
 fun String.containsNumber() = this.contains(Regex("\\d+"))
-fun String.toChar() =
-    if (this.l != 1) throw IllegalArgumentException("String of length other than 1 cannot be converted to a Char") else this.toCharArray()
-        .first()
-
+fun String.hexToBin() = this.chunked(1).map { it.toInt(16).toString(2).padStart(4, '0') }.join()
+fun String.binToHex() = this.chunked(4).map { it.toInt(2).toString(16) }.join()
+fun String.replaceAt(range: IntRange, replacement: Char) = this.substring(0, range.first) + replacement + this.substring(range.last + 1)
+fun String.replaceAt(range: IntRange, replacement: String) = this.substring(0, range.first) + replacement + this.substring(range.last + 1)
+fun String.replaceAt(index: Int, replacement: Char) = this.substring(0, index) + replacement + this.substring(index + 1)
+fun String.replaceAt(index: Int, replacement: String) = this.substring(0, index) + replacement + this.substring(index + 1)
+fun String.insertAt(index: Int, char: Char) = this.substring(0, index) + char + this.substring(index)
+fun String.insertAt(index: Int, string: String) = this.substring(0, index) + string + this.substring(index)
+fun String.toChar() = if (this.l != 1) throw IllegalArgumentException("String of length other than 1 cannot be converted to a Char") else this.toCharArray().first()
+fun rotateChar(c: Char, n: Int, start: Char, end: Char) = (start.code + ((c.code - start.code + n) % (end.code - start.code + 1))).toChar()
+fun String.rotN(n: Int) = this.map { char ->
+    when (char) {
+        in 'A'..'Z' -> rotateChar(char, n, 'A', 'Z')
+        in 'a'..'z' -> rotateChar(char, n, 'a', 'z')
+        else -> char
+    }
+}.join()
 fun <T> Array<T>.join() = this.joinToString("")
 fun <T> Array<T>.join(separator: String) = this.joinToString(separator)
 fun CharArray.join() = this.joinToString("")
@@ -109,6 +87,8 @@ fun Iterator<*>.skip(n: Int) {
         this.next()
     }
 }
+fun List<Boolean>.toBitSet() = this.fold(BitSet()) { acc, b -> acc.apply { set(acc.size(), b) } }
+
 fun Char.asInt() = this.toString().toInt()
 fun Int.asChar() = this.toString().first()
 fun String.isNumber() = this.all { it.isDigit() }
@@ -125,12 +105,10 @@ fun <T> List<T>.isAllEqual(): Boolean {
     for (i in 1..<this.size) if (this[i] != this[i - 1]) return false
     return true
 }
-
 fun <T> Collection<T>.allEquals(value: T): Boolean {
     for (i in this) if (i != value) return false
     return true
 }
-
 fun <T> Collection<T>.allContains(value: T): Boolean {
     for (i in this) if (!i.toString().contains(value.toString())) return false
     return true
@@ -147,6 +125,81 @@ inline fun <T> Iterable<T>.takeUntil(predicate: (T) -> Boolean): List<T> {
     }
     return list
 }
+
+fun <T> List<T>.separate(predicate: (T) -> Boolean): List<List<T>> {
+    val result = mutableListOf<MutableList<T>>()
+    var currentSublist = mutableListOf<T>()
+
+    for (element in this) {
+        currentSublist.add(element)
+        if (predicate(element)) {
+            result.add(currentSublist)
+            currentSublist = mutableListOf()
+        }
+    }
+
+    if (currentSublist.isNotEmpty()) {
+        result.add(currentSublist)
+    }
+
+    return result
+}
+
+
+/**
+ * Math
+ */
+fun ilog(x: Number, b: Number) = (log10(x.toDouble()) / log10(b.toDouble())).toInt()
+
+
+/**
+ * Complex algos
+ */
+fun minCoins(coinValues: List<Long>, amount: Long): List<Long> {
+    if (amount == 0L) return List(coinValues.size) { 0L }
+
+    val coins = coinValues.sorted()
+    val n = coins.size
+    // Modulo range should cover at least a few multiples of the largest coin to establish a pattern
+    val modValue = coins.last() * 10
+    val dp = mutableMapOf<Long, List<Long>>()
+    dp[0L] = List(n) { 0L } // Base case
+
+    // Using dynamic programming to find minimum coins for every amount up to modValue
+    for (i in 1..modValue) {
+        var bestCombo: List<Long>? = null
+        for ((index, coin) in coins.withIndex()) {
+            if (i >= coin) {
+                val previous = dp[i - coin]
+                if (previous != null) {
+                    val combo = previous.toMutableList()
+                    combo[index]++
+                    if (bestCombo == null || combo.sum() < bestCombo.sum()) {
+                        bestCombo = combo
+                    }
+                }
+            }
+        }
+        if (bestCombo != null) {
+            dp[i] = bestCombo
+        }
+    }
+
+    // Handling amounts larger than modValue by using the pattern found in dp
+    val result = List(n) { 0L }.toMutableList()
+    val fullCycles = amount / modValue
+    val remainder = amount % modValue
+
+    dp[remainder]?.let {
+        for (i in result.indices) {
+            result[i] = it[i] + fullCycles * (dp[modValue]?.get(i) ?: 0L)
+        }
+    }
+
+    return result
+}
+
+
 
 @JvmName("mergeIntRanges")
 fun merge(ranges: List<IntRange>): List<IntRange> {
