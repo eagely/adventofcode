@@ -27,6 +27,7 @@ private val md5 = MessageDigest.getInstance("MD5")
  */
 val File.lines get() = rl()
 val File.text get() = rt()
+val File.ints get() = ril()
 fun String.extractNumbers() = this.filter { it.isDigit() }
 fun String.extractNegatives() = Regex("-?\\d+").findAll(this).joinToString(separator = ",") { it.value }
 fun String.extractLetters() = this.filter { it.isLetter() }
