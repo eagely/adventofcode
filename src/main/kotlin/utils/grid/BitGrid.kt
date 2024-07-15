@@ -1,5 +1,7 @@
 package utils.grid
 
+import utils.grid.Grid.Companion.deepCopy
+import utils.grid.Grid.Companion.gameOfLife
 import utils.point.Point
 import utils.toBitSet
 import java.util.*
@@ -10,6 +12,8 @@ import java.util.*
  * @property data the data of the grid.
  */
 data class BitGrid(var data: MutableList<BitSet> = mutableListOf()): Collection<BitSet> {
+
+
 
     /**
      * Returns the height of the grid (number of rows).
@@ -25,19 +29,22 @@ data class BitGrid(var data: MutableList<BitSet> = mutableListOf()): Collection<
 
 
     /**
+     * Ensures that the grid has at least the specified number of rows and columns.
+     * @param row the minimum required row.
+     * @param col the minimum required col.
+     */
+    private fun ensureCapacity(row: Int = 0, col: Int = 0) {
+        while (data.size < row) {
+            data.add(BitSet(col))
+        }
+    }
+
+    /**
      * Returns the element at the specified Point.
      * @param pos the position to get.
      * @return the element at the specified Point.
      */
     operator fun get(pos: Point) = data[pos.x][pos.y]
-
-    /**
-     * Returns the element at the specified row and column.
-     * @param row the row to get.
-     * @param col the column to get.
-     * @return the element at the specified row and column.
-     */
-    operator fun get(row: Int, col: Int) = data[row][col]
 
     /**
      * Returns the BitSet of the specified row.
@@ -61,34 +68,17 @@ data class BitGrid(var data: MutableList<BitSet> = mutableListOf()): Collection<
     fun getRows(rows: IntRange) = BitGrid(data.subList(rows.first, rows.last + 1))
 
     /**
-     * Returns the subgrid specified by the given column range.
-     * @param cols the range of columns to get.
-     * @return the subgrid specified by the given column range.
-     */
-    //fun getColumns(cols: IntRange) = BitGrid(cols.map { getColumn(it) })
-
-    /**
-     * Returns the subgrid specified by the given ranges.
-     * @param rows the range of rows to get.
-     * @param cols the range of columns to get.
-     * @return the subgrid specified by the given ranges.
-     */
-    //fun getSubGrid(rows: IntRange, cols: IntRange) = getRows(rows).getColumns(cols)
-
-    /**
      * Returns the element at the specified Point.
      * @param pos the position to get.
      * @return the element at the specified Point.
      */
     operator fun set(pos: Point, value: Boolean) {
+        ensureCapacity(pos.x  + 1, pos.y + 1)
         data[pos.x][pos.y] = value
     }
 
-    operator fun set(row: Int, col: Int, value: Boolean) {
-        data[row][col] = value
-    }
-
     fun setRow(row: Int, value: Boolean) {
+        ensureCapacity(row + 1)
         val rowSize = data[row].size()
         if (value)
             data[row].set(0, rowSize)
@@ -97,14 +87,17 @@ data class BitGrid(var data: MutableList<BitSet> = mutableListOf()): Collection<
     }
 
     fun setRow(row: Int, values: BitSet) {
+        ensureCapacity(row + 1, values.length())
         data[row] = values
     }
 
     fun setColumn(col: Int, value: Boolean) {
+        ensureCapacity(col = col + 1)
         data.forEach { it[col] = value }
     }
 
     fun setColumn(col: Int, values: BitSet) {
+        ensureCapacity(values.length(), col + 1)
         data.forEachIndexed { index, bitSet -> bitSet[col] = values[index] }
     }
 
@@ -139,4 +132,48 @@ data class BitGrid(var data: MutableList<BitSet> = mutableListOf()): Collection<
      * @return true if the grid contains the provided BitSet row.
      */
     override fun contains(element: BitSet) = data.contains(element)
+
+    fun deepCopy(): BitGrid {
+        val newData = data.map { it.clone() as BitSet }.toMutableList()
+        return BitGrid(newData)
+    }
+
+    /**
+     * Applies the Game of Life rules to the grid.
+     * @param rules the transformation function to apply to each point.
+     * @param limit the number of steps to simulate. If not provided, the function will return the grid after it stabilizes.
+     * @return the grid after applying the Game of Life rules.
+     */
+    fun gameOfLife(rules: (Boolean, Int) -> Boolean = { it, n -> (it && (n == 2 || n == 3)) || (!it && n == 3) }, limit: Int? = null,): BitGrid {
+        var currentGrid = this
+        var previousGrid: BitGrid
+        var steps = 0
+        do {
+            previousGrid = currentGrid.deepCopy()
+            val newGrid = currentGrid.deepCopy()
+            for (row in 0 until height) {
+                for (col in 0 until width) {
+                    val p = Point(row, col)
+                    newGrid[p] = rules(this[p], getNeighbors(p).count { it })
+                }
+            }
+            currentGrid = newGrid
+            steps++
+            if (limit != null && steps >= limit) break
+        } while (currentGrid != previousGrid)
+        return currentGrid
+    }
+
+    fun getCardinalNeighbors(point: Point) = point.getCardinalNeighbors().map { this[it] }
+    fun getNeighbors(point: Point) = point.getNeighbors().map { this[it] }
+
+    companion object {
+        fun of(llb: List<List<Boolean>>) = BitGrid(llb.map { list ->
+            val bitSet = BitSet(list.size)
+            list.forEachIndexed { index, value ->
+                bitSet.set(index, value)
+            }
+            bitSet
+        }.toMutableList())
+    }
 }

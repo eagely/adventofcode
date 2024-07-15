@@ -8,6 +8,16 @@ import utils.*
 data class Point(var x: Int, var y: Int) {
     constructor(x: Number, y: Number) : this(x.toInt(), y.toInt())
 
+    var row: Int
+        get() = x
+        set(v) {
+            x = v
+        }
+    var col: Int
+        get() = y
+        set(v) {
+            y = v
+        }
     val u: Point get() = Point(x, y + 1)
     val ur: Point get() = Point(x + 1, y + 1)
     val r: Point get() = Point(x + 1, y)
@@ -51,8 +61,8 @@ data class Point(var x: Int, var y: Int) {
     fun invert() = Point(y, x)
 
     fun getCloserOrEqualPoints(target: Point): Set<Point> =
-        (x - this.manhattanDistance(target) .. x + this.manhattanDistance(target)).flatMap { dx ->
-            (y - this.manhattanDistance(target) .. y + this.manhattanDistance(target)).mapNotNull { dy ->
+        (x - this.manhattanDistance(target)..x + this.manhattanDistance(target)).flatMap { dx ->
+            (y - this.manhattanDistance(target)..y + this.manhattanDistance(target)).mapNotNull { dy ->
                 Point(dx, dy).takeIf { it.manhattanDistance(this) <= this.manhattanDistance(target) }
             }
         }.toSet()
@@ -60,8 +70,8 @@ data class Point(var x: Int, var y: Int) {
     fun mod(value: Int) = Point(this.x % value, this.y % value)
 
     fun getCloserPoints(target: Point): Set<Point> =
-        (x - this.manhattanDistance(target) .. x + this.manhattanDistance(target)).flatMap { dx ->
-            (y - this.manhattanDistance(target) .. y + this.manhattanDistance(target)).mapNotNull { dy ->
+        (x - this.manhattanDistance(target)..x + this.manhattanDistance(target)).flatMap { dx ->
+            (y - this.manhattanDistance(target)..y + this.manhattanDistance(target)).mapNotNull { dy ->
                 Point(dx, dy).takeIf { it.manhattanDistance(this) < this.manhattanDistance(target) }
             }
         }.toSet()
@@ -75,6 +85,7 @@ data class Point(var x: Int, var y: Int) {
             else -> throw IllegalArgumentException("Point $this is not a direction")
         }
     }
+
     fun toDirectionOnGrid(): Direction {
         return when {
             x == -1 && y == 0 -> Direction.NORTH
@@ -84,6 +95,7 @@ data class Point(var x: Int, var y: Int) {
             else -> throw IllegalArgumentException("Point $this is not a direction")
         }
     }
+
     infix fun pm(other: Point) = this % other
     fun manhattanDistance(other: Point) = abs(x - other.x) + abs(y - other.y)
     fun gridPlus(other: Direction) = this + other.toPointOnGrid()

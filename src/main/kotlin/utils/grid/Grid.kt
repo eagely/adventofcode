@@ -1040,12 +1040,12 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
 
         /**
          * Applies the Game of Life rules to the grid.
-         * @param transform the transformation function to apply to each point.
+         * @param rules the transformation function to apply to each point.
          * @param stepCounter the number of steps to simulate. If not provided, the function will return the grid after it stabilizes.
          * @return the grid after applying the Game of Life rules.
          */
         @JvmName("gameOfLifeBoolean")
-        fun Grid<Boolean>.gameOfLife(stepCounter: Int? = null, transform: (Point, Boolean?, Grid<Boolean>) -> Boolean?): Grid<Boolean> {
+        fun Grid<Boolean>.gameOfLife(stepCounter: Int? = null, rules: (Point, Boolean?, Grid<Boolean>) -> Boolean?): Grid<Boolean> {
             var currentGrid = this
             var previousGrid: Grid<Boolean>
             var steps = 0
@@ -1053,7 +1053,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
                 previousGrid = currentGrid.deepCopy()
                 val new = currentGrid.deepCopy()
                 for (point in new.data.keys) {
-                    new[point] = transform(point, currentGrid[point], currentGrid) ?: continue
+                    new[point] = rules(point, currentGrid[point], currentGrid) ?: continue
                 }
                 currentGrid = new
                 steps++
@@ -1064,12 +1064,12 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
 
         /**
          * Applies the Game of Life rules to the grid.
-         * @param transform the transformation function to apply to each point.
+         * @param rules the transformation function to apply to each point.
          * @param stepCounter the number of steps to simulate. If not provided, the function will return the grid after it stabilizes.
          * @return the grid after applying the Game of Life rules.
          */
         @JvmName("gameOfLifeInt")
-        fun Grid<Int>.gameOfLife(stepCounter: Int? = null, transform: (Point, Int?, Grid<Int>) -> Int?): Grid<Int> {
+        fun Grid<Int>.gameOfLife(stepCounter: Int? = null, rules: (Point, Int?, Grid<Int>) -> Int?): Grid<Int> {
             var currentGrid = this
             var previousGrid: Grid<Int>
             var steps = 0
@@ -1077,7 +1077,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
                 previousGrid = currentGrid.deepCopy()
                 val new = currentGrid.deepCopy()
                 for (point in new.data.keys) {
-                    new[point] = transform(point, currentGrid[point], currentGrid) ?: continue
+                    new[point] = rules(point, currentGrid[point], currentGrid) ?: continue
                 }
                 currentGrid = new
                 steps++
@@ -1088,12 +1088,12 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
 
         /**
          * Applies the Game of Life rules to the grid.
-         * @param transform the transformation function to apply to each point.
+         * @param rules the transformation function to apply to each point.
          * @param stepCounter the number of steps to simulate. If not provided, the function will return the grid after it stabilizes.
          * @return the grid after applying the Game of Life rules.
          */
         @JvmName("gameOfLifeChar")
-        fun Grid<Char>.gameOfLife(stepCounter: Int? = null, transform: (Point, Char?, Grid<Char>) -> Char?): Grid<Char> {
+        fun Grid<Char>.gameOfLife(stepCounter: Int? = null, rules: (Point, Char?, Grid<Char>) -> Char?): Grid<Char> {
             var currentGrid = this
             var previousGrid: Grid<Char>
             var steps = 0
@@ -1101,7 +1101,7 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
                 previousGrid = currentGrid.deepCopy()
                 val new = currentGrid.deepCopy()
                 for (point in new.data.keys) {
-                    new[point] = transform(point, currentGrid[point], currentGrid) ?: continue
+                    new[point] = rules(point, currentGrid[point], currentGrid) ?: continue
                 }
                 currentGrid = new
                 steps++
