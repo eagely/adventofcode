@@ -153,7 +153,17 @@ fun <T> List<T>.separate(predicate: (T) -> Boolean): List<List<T>> {
  * Math
  */
 fun ilog(x: Number, b: Number) = (log10(x.toDouble()) / log10(b.toDouble())).toInt()
-
+fun Long.modPow(exponent: Long, mod: Long): Long {
+    var result = 1L
+    var b = this % mod
+    var e = exponent
+    while (e > 0) {
+        if (e % 2 == 1L) result = (result * b) % mod
+        b = (b * b) % mod
+        e /= 2
+    }
+    return result
+}
 
 /**
  * Complex algos
