@@ -28,6 +28,7 @@ private val md5 = MessageDigest.getInstance("MD5")
 val File.lines get() = rl()
 val File.text get() = rt()
 val File.ints get() = ril()
+val File.longs get() = rll()
 fun String.extractNumbers() = this.filter { it.isDigit() }
 fun String.extractNegatives() = Regex("-?\\d+").findAll(this).joinToString(separator = ",") { it.value }
 fun String.extractLetters() = this.filter { it.isLetter() }
@@ -62,6 +63,7 @@ fun String.rotN(n: Int) = this.map { char ->
         else -> char
     }
 }.join()
+fun <T> arrayDequeOf(c: T? = null) = if (c == null) ArrayDeque<T>(listOf()) else ArrayDeque<T>(listOf(c))
 fun <T> Array<T>.join() = this.joinToString("")
 fun <T> Array<T>.join(separator: String) = this.joinToString(separator)
 fun CharArray.join() = this.joinToString("")
