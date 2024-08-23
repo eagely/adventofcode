@@ -134,18 +134,18 @@ fun <T> List<T>.separate(predicate: (T) -> Boolean): List<List<T>> {
     var currentSublist = mutableListOf<T>()
 
     for (element in this) {
-        currentSublist.add(element)
         if (predicate(element)) {
             result.add(currentSublist)
             currentSublist = mutableListOf()
         }
+        currentSublist.add(element)
     }
 
     if (currentSublist.isNotEmpty()) {
         result.add(currentSublist)
     }
 
-    return result
+    return result.dropWhile { it.isEmpty() }.dropLastWhile { it.isEmpty() }
 }
 
 
