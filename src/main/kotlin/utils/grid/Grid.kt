@@ -803,14 +803,14 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
      * @param element the value to search for.
      * @return true if the grid contains the specified value.
      */
-    override fun contains(element: T): Boolean = data.containsValue(element)
+    override operator fun contains(element: T): Boolean = data.containsValue(element)
 
     /**
      * Returns true if the grid contains the specified point.
      * @param element the point to search for.
      * @return true if the grid contains the specified point.
      */
-    fun contains(element: Point): Boolean = data.containsKey(element)
+    operator fun contains(element: Point): Boolean = data.containsKey(element)
 
     /**
      * Returns true if the grid contains all the elements in the specified collection.
