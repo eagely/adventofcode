@@ -14,6 +14,7 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
 import kotlin.NoSuchElementException
+import kotlin.collections.ArrayDeque
 import kotlin.collections.ArrayList
 import kotlin.math.*
 
@@ -64,6 +65,19 @@ fun String.rotN(n: Int) = this.map { char ->
     }
 }.join()
 fun <T> arrayDequeOf(c: T? = null) = if (c == null) ArrayDeque<T>(listOf()) else ArrayDeque<T>(listOf(c))
+fun <T> ArrayDeque<T>.rotate(n: Int) {
+    if (n == 0) return
+    if (n > 0) {
+        repeat(n) {
+            addFirst(removeLast())
+        }
+    }
+    else {
+        repeat(abs(n)) {
+            addLast(removeFirst())
+        }
+    }
+}
 fun <T> Array<T>.join() = this.joinToString("")
 fun <T> Array<T>.join(separator: String) = this.joinToString(separator)
 fun CharArray.join() = this.joinToString("")
