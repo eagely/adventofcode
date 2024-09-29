@@ -1,19 +1,9 @@
 .gradle
-build/
+build
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### IntelliJ IDEA ###
-/.idea/
-/.idea/*
+.idea
 *.iws
 *.iml
 *.ipr
-/out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-/src/main/kotlin/solutions/y2023/
-/src/main/java/org/jgrapht/alg/shortestpath/
-/src/main/resources/
+out
+src/main/resources
