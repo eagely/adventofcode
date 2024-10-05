@@ -3,9 +3,7 @@
 package utils
 
 import utils.grid.Grid
-import utils.point.LongPoint
-import utils.point.Point
-import utils.point.Point3D
+ import utils.point.*
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.io.File
@@ -13,9 +11,7 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
-import kotlin.NoSuchElementException
 import kotlin.collections.ArrayDeque
-import kotlin.collections.ArrayList
 import kotlin.math.*
 
 /**
@@ -129,6 +125,27 @@ fun <T> Collection<T>.allEquals(value: T): Boolean {
 fun <T> Collection<T>.allContains(value: T): Boolean {
     for (i in this) if (!i.toString().contains(value.toString())) return false
     return true
+}
+fun <T> Collection<T>.firstDuplicateOrNull(): T? {
+    val set = HashSet<T>()
+    this.forEach {
+        if (!set.add(it)) return it
+    }
+    return null
+}
+fun <T, R> Collection<T>.firstDuplicateOfOrNull(transform: (T) -> R): R? {
+    val set = HashSet<R>()
+    this.forEach {
+        if (!set.add(transform(it))) return transform(it)
+    }
+    return null
+}
+fun <T, R> Collection<T>.firstDuplicateByOrNull(transform: (T) -> R): T? {
+    val set = HashSet<R>()
+    this.forEach {
+        if (!set.add(transform(it))) return it
+    }
+    return null
 }
 
 fun toFahrenheit(celsius: Double) = celsius * 9 / 5 + 32
