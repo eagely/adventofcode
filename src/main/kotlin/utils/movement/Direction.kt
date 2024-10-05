@@ -5,6 +5,9 @@ import utils.point.Point
 
 enum class Direction(val angle: Int) {
     NORTH(0), EAST(90), SOUTH(180), WEST(270);
+    val left get() = Direction.of(angle + 270)
+    val right get() = Direction.of(angle + 90)
+    val back get() = Direction.of(angle + 180)
     fun opposite() = Direction.of(angle + 180)
     operator fun plus(other: Direction) = Direction.of((angle + other.angle) % 360)
     operator fun minus(other: Direction) = Direction.of((angle - other.angle) % 360)
