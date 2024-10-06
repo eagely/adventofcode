@@ -1,18 +1,14 @@
 package utils
 
 import utils.grid.Grid
-import utils.point.LongPoint
-import utils.point.Point
-import utils.point.Point3D
+import utils.point.*
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.io.File
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.security.MessageDigest
-import kotlin.math.abs
-import kotlin.math.pow
-import kotlin.math.sqrt
+import kotlin.math.*
 
 @Deprecated("Use Helper.kt instead, this is only here for backwards compatibility")
 @Suppress("unused")
@@ -46,7 +42,7 @@ object Utils {
 
     fun Char.asInt() = this.toString().toInt()
     fun Int.asChar() = this.toString().first()
-    infix fun <T> List<T>.at(pos: Int) = this[pos % this.size]
+    infix fun <T> List<T>.at(pos: Int) = this[pos pm this.size]
     infix fun String.at(pos: Int) = this[pos % this.length]
     fun Double.format(scale: Int) = "%.${scale}f".format(this)
     fun Float.format(scale: Int) = "%.${scale}f".format(this)
