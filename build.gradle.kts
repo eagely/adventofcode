@@ -22,6 +22,10 @@ dependencies {
     implementation("org.slf4j:slf4j-log4j12:2.0.9")
     implementation("org.jgrapht:jgrapht-core:1.5.1")
     implementation("com.google.code.gson:gson:2.8.9")
+    implementation("org.jetbrains.kotlin:kotlin-scripting-common")
+    implementation("org.jetbrains.kotlin:kotlin-scripting-jvm")
+    implementation("org.jetbrains.kotlin:kotlin-scripting-jvm-host")
+    implementation("net.objecthunter:exp4j:0.4.8")
     testImplementation(kotlin("test"))
 }
 
