@@ -2,8 +2,11 @@
 
 package utils
 
+import net.objecthunter.exp4j.ExpressionBuilder
 import utils.grid.Grid
-import utils.point.*
+import utils.point.LongPoint
+import utils.point.Point
+import utils.point.Point3D
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.io.File
@@ -12,7 +15,11 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
 import kotlin.collections.ArrayDeque
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.log10
+import kotlin.math.pow
+import kotlin.math.sqrt
+import kotlin.reflect.full.primaryConstructor
 
 /**
  * Privates
@@ -40,6 +47,16 @@ val String.ints get() = this.extractNegativesSeparated()
 /**
  * Shorthand helpers
  */
+// don't need switch cases for math
+fun evalMathExpression(expression: String): Double {
+    return ExpressionBuilder(expression).build().evaluate()
+}
+
+// evil reflection magic to cast a list to any dataclass
+inline fun <reified T : Any> List<Any>.toDataClass(): T {
+    val constructor = T::class.primaryConstructor!!
+    return constructor.call(*this.toTypedArray())
+}
 fun String.removeTrailingNumbers() = this.replace(Regex("\\d+$"), "")
 fun String.md5() = BigInteger(1, md5.digest(toByteArray())).toString(16).padStart(32, '0')
 fun String.containsNumber() = this.contains(Regex("\\d+"))
