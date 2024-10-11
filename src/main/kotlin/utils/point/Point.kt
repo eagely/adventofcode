@@ -1,11 +1,11 @@
 package utils.point
 
 import utils.movement.Direction
+import utils.pm
 import kotlin.math.abs
 import kotlin.math.sign
-import utils.*
 
-data class Point(var x: Int, var y: Int) {
+data class Point(var x: Int, var y: Int) : Comparable<Point> {
     constructor(x: Number, y: Number) : this(x.toInt(), y.toInt())
 
     var row: Int
@@ -113,7 +113,8 @@ data class Point(var x: Int, var y: Int) {
     operator fun rem(other: Int) = Point(x pm other, y pm other)
     operator fun inc() = Point(x + 1, y + 1)
     operator fun dec() = Point(x - 1, y - 1)
-    operator fun compareTo(other: Point) = (x + y).compareTo(other.x + other.y)
+    override operator fun compareTo(other: Point) = compareValuesBy(this, other, Point::x, Point::y)
+
     override fun toString() = "($x, $y)"
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

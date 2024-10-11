@@ -1025,6 +1025,9 @@ fun getPolygonArea(vertices: List<LongPoint>): Long {
 
 infix fun <T> T.log(meta: Any?): T = this.also { println("$meta    $it") }
 
+fun min(a: Point, b: Point) = if(a < b) a else b
+fun max(a: Point, b: Point) = if(a > b) a else b
+
 @Deprecated("Use digitToInt() instead", ReplaceWith("digitToInt()"))
 fun Char.asInt() = this.toString().toInt()
 
