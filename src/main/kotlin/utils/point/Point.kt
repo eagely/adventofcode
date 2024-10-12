@@ -28,6 +28,12 @@ data class Point(var x: Int, var y: Int) : Comparable<Point> {
     val ul: Point get() = Point(x - 1, y + 1)
     val sign: Point get() = Point(x.sign, y.sign)
 
+    val up by lazy { Point(x - 1, y) }
+    val down by lazy { Point(x + 1, y) }
+    val left by lazy { Point(x, y - 1) }
+    val right by lazy { Point(x, y + 1) }
+
+
     fun isInside(maxX: Int, maxY: Int): Boolean {
         return x in 0..<maxX && y in 0..<maxY
     }
