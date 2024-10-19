@@ -1,9 +1,11 @@
 package utils.point
 
 import utils.Utils.pm
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
-data class Point3D(var x: Int, var y: Int, var z: Int) {
+data class Point3D(var x: Int, var y: Int, var z: Int): Comparable<Point3D> {
     constructor(x: Number, y: Number, z: Number) : this(x.toInt(), y.toInt(), z.toInt())
 
     val up: Point3D get() = Point3D(x, y, z + 1)
@@ -48,13 +50,15 @@ data class Point3D(var x: Int, var y: Int, var z: Int) {
     operator fun div(other: Point3D) = Point3D(x / other.x, y / other.y, z / other.z)
     operator fun rem(other: Point3D) = Point3D(x pm other.x, y pm other.y, z pm other.z)
     operator fun rem(other: Int) = Point3D(x pm other, y pm other, z pm other)
+    override operator fun compareTo(other: Point3D) = compareValuesBy(this, other, Point3D::x, Point3D::y, Point3D::z)
+
 
     override fun toString() = "$x-$y-$z"
 
     companion object {
         val ORIGIN = Point3D(0, 0, 0)
         fun of(input: String): Point3D {
-            val (x, y, z) = input.split(',', ' ').map { it.trim().toInt() }
+            val (x, y, z) = input.split(',', '-', ' ').map { it.trim().toInt() }
             return Point3D(x, y, z)
         }
     }
