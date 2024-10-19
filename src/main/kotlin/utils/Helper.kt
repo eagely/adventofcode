@@ -57,6 +57,16 @@ inline fun <reified T : Any> List<Any>.toDataClass(): T {
     val constructor = T::class.primaryConstructor!!
     return constructor.call(*this.toTypedArray())
 }
+operator fun Array<CharArray>.get(point: Point): Char = this[point.x][point.y]
+operator fun Array<CharArray>.set(point: Point, value: Char) {
+    this[point.x][point.y] = value
+}
+operator fun Array<CharArray>.contains(point: Point): Boolean = point.x >= 0 && point.x < this.size && point.y >= 0 && point.y < this[0].size
+operator fun Array<IntArray>.get(point: Point): Int = this[point.x][point.y]
+operator fun Array<IntArray>.set(point: Point, value: Int) {
+    this[point.x][point.y] = value
+}
+operator fun Array<IntArray>.contains(point: Point): Boolean = point.x >= 0 && point.x < this.size && point.y >= 0 && point.y < this[0].size
 fun String.removeTrailingNumbers() = this.replace(Regex("\\d+$"), "")
 fun String.md5() = BigInteger(1, md5.digest(toByteArray())).toString(16).padStart(32, '0')
 fun String.containsNumber() = this.contains(Regex("\\d+"))
