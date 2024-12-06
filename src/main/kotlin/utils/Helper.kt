@@ -61,7 +61,7 @@ operator fun Array<CharArray>.get(point: Point): Char = this[point.x][point.y]
 operator fun Array<CharArray>.set(point: Point, value: Char) {
     this[point.x][point.y] = value
 }
-operator fun Array<CharArray>.contains(point: Point): Boolean = point.x >= 0 && point.x < this.size && point.y >= 0 && point.y < this[0].size
+operator fun Array<CharArray>.contains(point: Point): Boolean = point.x in indices && point.y in this[0].indices
 operator fun Array<IntArray>.get(point: Point): Int = this[point.x][point.y]
 operator fun Array<IntArray>.set(point: Point, value: Int) {
     this[point.x][point.y] = value
