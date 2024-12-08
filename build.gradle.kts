@@ -47,3 +47,7 @@ tasks.withType<JavaExec> {
         systemProperty("java.library.path", "/usr/lib/")
     }
 }
+
+tasks.withType<ProcessResources> {
+    exclude("solutions.y20*")
+}
