@@ -1,8 +1,15 @@
 package utils.grid
 
+import utils.abs
+import utils.cardinalDirections
+import utils.directions
+import utils.movement.Direction
+import utils.p
 import utils.point.Point
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 import kotlin.math.sign
-import utils.*
 
 /**
  * A generic dynamic grid implementation.
@@ -472,6 +479,14 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
         return newPoint
     }
 
+    fun isHowManyCorners(p: Point) = (Direction.entries + Direction.entries.first()).zipWithNext()
+            .filter { (d1, d2) ->
+                val a = get(p +d1)
+                val b = get(p + d2)
+                val c = get(p)
+                (a != c && b != c) || (a == c && b == c && get(p + d1 + d2) != c)
+            }.size
+
     /**
      * Replaces all null points in the grid with the given value, turning the grid into a rectangle.
      * This method is non local and will affect the grid.
@@ -599,6 +614,8 @@ data class Grid<T>(val initialRows: Int, val initialColumns: Int) : Collection<T
 
         return separatedGrids
     }
+
+
 
     /**
      * Returns true if all the points in the Set can move by the specified offset.
