@@ -765,6 +765,13 @@ fun lcm(nums: Collection<BigInteger>): BigInteger {
     return nums.reduce { a, b -> lcm(a, b) }
 }
 
+fun extendedGcd(a: Long, b: Long): Triple<Long, Long, Long> {
+    if (b == 0L) { return Triple(a, 1L, 0L) }
+    val (gcd, x1, y1) = extendedGcd(b, a % b)
+    val y = x1 - (a / b) * y1
+    return Triple(gcd, y1, y)
+}
+
 fun String.remove(vararg strings: String): String {
     var str = this
     for (s in strings) {
