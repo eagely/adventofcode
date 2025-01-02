@@ -57,6 +57,14 @@ inline fun <reified T : Any> List<Any>.toDataClass(): T {
     val constructor = T::class.primaryConstructor!!
     return constructor.call(*this.toTypedArray())
 }
+fun Int.isPrime(): Boolean {
+    for (i in 2..isqrt(this)) {
+        if (mod(i) == 0) {
+            return false
+        }
+    }
+    return true
+}
 operator fun Array<CharArray>.get(point: Point): Char = this[point.x][point.y]
 operator fun Array<CharArray>.set(point: Point, value: Char) {
     this[point.x][point.y] = value
