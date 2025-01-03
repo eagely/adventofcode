@@ -5,41 +5,57 @@ import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.runBlocking
 import utils.pow
 
-class IntCode(private val program: IntArray, val input: Channel<Int>) {
+class IntCode(private val program: MutableMap<Long, Long> = mutableMapOf<Long, Long>().withDefault { 0 }, val input: Channel<Long>) {
+    constructor(program: IntArray, input: Channel<Long>) : this(
+        program.withIndex().associate { it.index.toLong() to it.value.toLong() }.toMutableMap().withDefault { 0 },
+        input
+    )
 
-    constructor(program: IntArray, input: Int) : this(program, listOf(input).toChannel())
-    constructor(program: IntArray, input: List<Int>) : this(program, input.toChannel())
+    val output = Channel<Long>(Channel.UNLIMITED)
+    private var relativeBase = 0L
+    private var p = 0L
 
-    val output = Channel<Int>(Channel.UNLIMITED)
     fun run() = runBlocking {
         runSuspending()
         output.toList()
     }
 
-    private fun Int.parameterMode(i: Int) = this / 10.pow(i + 1) % 10
+    private fun Long.getParameterMode(i: Int) = this / 10.pow(i + 1) % 10
 
-    private fun pos(mode: Int, i: Int) = when (mode) {
-        0 -> program[program[i]]
-        1 -> program[i]
+    private fun pos(mode: Long, i: Long) = when (mode) {
+        0L -> program.getValue(program.getValue(i))
+        1L -> program.getValue(i)
+        2L -> program.getValue(relativeBase + program.getValue(i))
         else -> throw IllegalArgumentException("Invalid mode: $mode")
     }
 
-    private fun param(p: Int, offset: Int) = pos(program[offset].parameterMode(p), offset + p)
+    private fun writePos(mode: Long, i: Long): Long = when (mode) {
+        0L -> program.getValue(i)
+        2L -> relativeBase + program.getValue(i)
+        else -> throw IllegalArgumentException("Invalid mode for write position: $mode")
+    }
 
-    private suspend fun execute(p: Int, program: IntArray): Int {
-        return when (program[p] % 100) {
+    private fun param(p: Long, offset: Long) = pos(program.getValue(offset).getParameterMode(p.toInt()), offset + p)
+
+    private val cur get() = program.getValue(p)
+
+    private suspend fun execute() {
+        p += when ((cur % 100).toInt()) {
             1 -> {
-                program[program[p + 3]] = param(1, p) + param(2, p)
+                val targetPos = writePos(program.getValue(p).getParameterMode(3), p + 3)
+                program[targetPos] = param(1, p) + param(2, p)
                 4
             }
 
             2 -> {
-                program[program[p + 3]] = param(1, p) * param(2, p)
+                val targetPos = writePos(program.getValue(p).getParameterMode(3), p + 3)
+                program[targetPos] = param(1, p) * param(2, p)
                 4
             }
 
             3 -> {
-                program[program[p + 1]] = input.receive()
+                val targetPos = writePos(program.getValue(p).getParameterMode(1), p + 1)
+                program[targetPos] = input.receive()
                 2
             }
 
@@ -48,31 +64,34 @@ class IntCode(private val program: IntArray, val input: Channel<Int>) {
                 2
             }
 
-            5 -> if (param(1, p) != 0) param(2, p) - p else 3
-
-            6 -> if (param(1, p) == 0) param(2, p) - p else 3
-
+            5 -> if (param(1, p) != 0L) param(2, p) - p else 3
+            6 -> if (param(1, p) == 0L) param(2, p) - p else 3
             7 -> {
-                program[program[p + 3]] = if (param(1, p) < param(2, p)) 1 else 0
+                val targetPos = writePos(program.getValue(p).getParameterMode(3), p + 3)
+                program[targetPos] = if (param(1, p) < param(2, p)) 1 else 0
                 4
             }
 
             8 -> {
-                program[program[p + 3]] = if (param(1, p) == param(2, p)) 1 else 0
+                val targetPos = writePos(program.getValue(p).getParameterMode(3), p + 3)
+                program[targetPos] = if (param(1, p) == param(2, p)) 1 else 0
                 4
             }
 
-            99 -> 0
+            9 -> {
+                relativeBase += param(1, p)
+                2
+            }
 
-            else -> throw IllegalArgumentException("Invalid IntCode operation: ${program[p]}")
+            99 -> 0
+            else -> throw IllegalArgumentException("Invalid LongCode operation: ${program[p]}")
         }
     }
 
     suspend fun runSuspending() {
-        var p = 0
         try {
-            while (program[p] != 99) {
-                p += execute(p, program)
+            while (cur != 99L) {
+                execute()
             }
         } finally {
             output.close()
@@ -80,6 +99,8 @@ class IntCode(private val program: IntArray, val input: Channel<Int>) {
     }
 
     companion object {
-        fun <T> List<T>.toChannel() = Channel<T>(Channel.UNLIMITED).also { forEach { e -> it.trySend(e) } }
+        fun <T> List<T>.toChannel(): Channel<T> = Channel<T>(Channel.UNLIMITED).also { channel ->
+            forEach { e -> channel.trySend(e) }
+        }
     }
 }
