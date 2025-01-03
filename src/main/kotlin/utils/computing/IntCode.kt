@@ -1,68 +1,85 @@
 package utils.computing
 
-class IntCode(private val program: IntArray, private val input: Int) {
-    private var pointer = 0
-    private val output = mutableListOf<Int>()
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.toList
+import kotlinx.coroutines.runBlocking
+import utils.pow
 
-    fun run(): List<Int> {
-        while (true) {
-            val opcode = program[pointer] % 100
-            if (opcode == 99) break
+class IntCode(private val program: IntArray, val input: Channel<Int>) {
 
-            val modes = listOf(
-                program[pointer] / 100 % 10,
-                program[pointer] / 1000 % 10,
-                program[pointer] / 10000 % 10
-            )
+    constructor(program: IntArray, input: Int) : this(program, listOf(input).toChannel())
+    constructor(program: IntArray, input: List<Int>) : this(program, input.toChannel())
 
-            fun getParam(index: Int) = if (modes[index - 1] == 0) program[program[pointer + index]] else program[pointer + index]
+    val output = Channel<Int>(Channel.UNLIMITED)
+    fun run() = runBlocking {
+        runSuspending()
+        output.toList()
+    }
 
-            when (opcode) {
-                1 -> {
-                    val dest = program[pointer + 3]
-                    program[dest] = getParam(1) + getParam(2)
-                    pointer += 4
-                }
-                2 -> {
-                    val dest = program[pointer + 3]
-                    program[dest] = getParam(1) * getParam(2)
-                    pointer += 4
-                }
-                3 -> {
-                    val dest = program[pointer + 1]
-                    program[dest] = input
-                    pointer += 2
-                }
-                4 -> {
-                    output.add(getParam(1))
-                    pointer += 2
-                }
-                5 -> {
-                    if (getParam(1) != 0) {
-                        pointer = getParam(2)
-                    } else {
-                        pointer += 3
-                    }
-                }
-                6 -> {
-                    if (getParam(1) == 0) {
-                        pointer = getParam(2)
-                    } else {
-                        pointer += 3
-                    }
-                }
-                7 -> {
-                    val dest = program[pointer + 3]
-                    program[dest] = if (getParam(1) < getParam(2)) 1 else 0
-                    pointer += 4
-                }
-                8 -> {
-                    val dest = program[pointer + 3]
-                    program[dest] = if (getParam(1) == getParam(2)) 1 else 0
-                    pointer += 4
-                }
+    private fun Int.parameterMode(i: Int) = this / 10.pow(i + 1) % 10
+
+    private fun pos(mode: Int, i: Int) = when (mode) {
+        0 -> program[program[i]]
+        1 -> program[i]
+        else -> throw IllegalArgumentException("Invalid mode: $mode")
+    }
+
+    private fun param(p: Int, offset: Int) = pos(program[offset].parameterMode(p), offset + p)
+
+    private suspend fun execute(p: Int, program: IntArray): Int {
+        return when (program[p] % 100) {
+            1 -> {
+                program[program[p + 3]] = param(1, p) + param(2, p)
+                4
             }
+
+            2 -> {
+                program[program[p + 3]] = param(1, p) * param(2, p)
+                4
+            }
+
+            3 -> {
+                program[program[p + 1]] = input.receive()
+                2
+            }
+
+            4 -> {
+                output.send(param(1, p))
+                2
+            }
+
+            5 -> if (param(1, p) != 0) param(2, p) - p else 3
+
+            6 -> if (param(1, p) == 0) param(2, p) - p else 3
+
+            7 -> {
+                program[program[p + 3]] = if (param(1, p) < param(2, p)) 1 else 0
+                4
+            }
+
+            8 -> {
+                program[program[p + 3]] = if (param(1, p) == param(2, p)) 1 else 0
+                4
+            }
+
+            99 -> 0
+
+            else -> throw IllegalArgumentException("Invalid IntCode operation: ${program[p]}")
         }
-        return output
+    }
+
+    suspend fun runSuspending() {
+        var p = 0
+        try {
+            while (program[p] != 99) {
+                p += execute(p, program)
+            }
+        } finally {
+            output.close()
+        }
+    }
+
+    companion object {
+        fun <T> List<T>.toChannel() = Channel<T>(Channel.UNLIMITED).also { forEach { e -> it.trySend(e) } }
     }
 }
