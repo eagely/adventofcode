@@ -38,6 +38,7 @@ class IntCode(private val program: MutableMap<Long, Long> = mutableMapOf<Long, L
     private fun param(p: Long, offset: Long) = pos(program.getValue(offset).getParameterMode(p.toInt()), offset + p)
 
     private val cur get() = program.getValue(p)
+    val finished get() = cur == 99L
 
     private suspend fun execute() {
         p += when ((cur % 100).toInt()) {
