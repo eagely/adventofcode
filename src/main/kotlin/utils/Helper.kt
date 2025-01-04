@@ -737,8 +737,8 @@ fun gcd(a: BigInteger, b: BigInteger): BigInteger {
     return gcd(b, a % b)
 }
 
-fun lcm(a: Int, b: Int): Int {
-    return abs(a * b) / gcd(a, b)
+fun lcm(a: Int, b: Int): Long {
+    return abs(a.toLong() * b.toLong()) / gcd(a, b)
 }
 
 fun lcm(a: Long, b: Long): Long {
@@ -749,12 +749,13 @@ fun lcm(a: BigInteger, b: BigInteger): BigInteger {
     return a.multiply(b).divide(a.gcd(b))
 }
 
-fun lcm(vararg nums: Int): Int {
-    return nums.reduce { a, b -> lcm(a, b) }
+fun lcm(vararg nums: Int): Long {
+    return nums.map { it.toLong() }.reduce { a, b -> lcm(a, b) }
 }
 
-fun lcm(nums: Collection<Int>): Int {
-    return nums.reduce { a, b -> lcm(a, b) }
+@JvmName("lcmCollectionInt")
+fun lcm(nums: Collection<Int>): Long {
+    return nums.map { it.toLong() }.reduce { a, b -> lcm(a, b) }
 }
 
 fun lcm(vararg nums: Long): Long {
