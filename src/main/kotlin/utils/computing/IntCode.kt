@@ -5,7 +5,7 @@ import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.runBlocking
 import utils.pow
 
-class IntCode(private val program: MutableMap<Long, Long> = mutableMapOf<Long, Long>().withDefault { 0 }, val input: Channel<Long>) {
+class IntCode(val program: MutableMap<Long, Long> = mutableMapOf<Long, Long>().withDefault { 0 }, val input: Channel<Long>) {
     constructor(program: IntArray, input: Channel<Long>) : this(
         program.withIndex().associate { it.index.toLong() to it.value.toLong() }.toMutableMap().withDefault { 0 },
         input
