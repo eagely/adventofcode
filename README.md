@@ -1,30 +1,19 @@
-# Advent of Code - Kotlin Solutions
+# Kotlin Solutions - Advent of Code
 
-Welcome to my Kotlin solutions for [Advent of Code](https://adventofcode.com). This repository is organized to facilitate easy navigation and use of the puzzle solutions.
+My solutions for [Advent of Code](https://adventofcode.com) written in Kotlin.
+The code primarily uses idiomatic functional programming patterns, though some solutions (particularly from 2022) remain in their original, more novice-oriented style from when I was first learning Kotlin.
+Winner of the [Kotlin leaderboard 2024](https://blog.jetbrains.com/kotlin/2025/02/advent-of-code-2024-in-kotlin-winners)! 🏆
 
-## Repository Structure
+## Structure
 
-- **Solutions:** Located in the `solutions` directory. Each puzzle solution is a Kotlin class extending the `Solution` base class found in [`src/main/kotlin/Solution.kt`](src/main/kotlin/Solution.kt).
-- **Utilities:** Common utilities and generic classes are in the `utils` directory.
-- **Test Inputs:** Stored in `src/main/resources/cache/test/$year`. Real puzzle inputs are fetched, cached in `src/main/resources/cache/main/$year`, and follow the format `$year-$day.in`.
+- **Solutions:** In `solutions` directory, each extending the base `Solution` class
+- **Utils:** Helper functions specifically designed for advent of code puzzles in `utils` directory
+- **Inputs:** Test inputs in `resources/cache/test/$year`, puzzle inputs cached in `resources/cache/main/$year` (gitignored)
 
-### Standard Solution Template
-
-Each solution file should follow the naming convention `Day\d+.kt`. A template for a solution class looks like this:
+### Template
 
 ```kotlin
 class Day$day : Solution() {
-override fun solvePart1(input: File): Any = TODO()
-override fun solvePart2(input: File): Any = TODO()
+    override fun solvePart1(input: File): Any = TODO()
+    override fun solvePart2(input: File): Any = TODO()
 }
-```
-
-The class automatically determines the year from the system calendar and the day from the class name. To specify a different year, pass it in the constructor. Implement `solvePart1()` and `solvePart2()` with your puzzle solutions.
-
-## Running Solutions
-
-Use `gradle run` to execute your solutions. The main executor in `Main.kt` will handle input parsing and execution. Helper methods like `input.rl()` (read trimmed lines) and `input.rt()` (read trimmed text) are available for input processing.
-
-## Creating a New Solution
-
-To add a new solution, simply copy `Day.kt`, rename it to `Day$day.kt`, and implement your solution.
