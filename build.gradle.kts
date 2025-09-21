@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "2.2.20"
     java
     application
 }
@@ -34,9 +34,8 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(24)
 }
-
 
 application {
     mainClass.set("MainKt")
